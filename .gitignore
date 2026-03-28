@@ -62,7 +62,7 @@ app/crashlytics.properties
 # Test outputs
 **/test-results/
 **/outputs/
-**/reports/
+**/build/reports/
 
 # Misc
 tmp/
