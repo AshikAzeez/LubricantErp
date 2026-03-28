@@ -1,0 +1,9 @@
+{
+  "environment": "TEST",
+  "useMockEngine": true,
+  "baseUrls": {
+    "test": "https://test.goal-erp.local/",
+    "stage": "https://stage.goal-erp.local/",
+    "production": "https://api.goal-erp.com/"
+  }
+}

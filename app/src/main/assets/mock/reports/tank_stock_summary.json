@@ -1,0 +1,47 @@
+{
+  "totalCapacityLiters": 126000,
+  "currentStockLiters": 0,
+  "availableCapacityLiters": 126000,
+  "tanks": [
+    {
+      "name": "Tank1",
+      "code": "TK-01",
+      "location": "Main Plant",
+      "productGrade": "Empty",
+      "capacityLiters": 20000,
+      "currentStockLiters": 0,
+      "availableLiters": 20000,
+      "fillPercent": 0
+    },
+    {
+      "name": "Tank2",
+      "code": "TK-02",
+      "location": "Main Plant",
+      "productGrade": "Empty",
+      "capacityLiters": 20000,
+      "currentStockLiters": 0,
+      "availableLiters": 20000,
+      "fillPercent": 0
+    },
+    {
+      "name": "Tank3",
+      "code": "TK-03",
+      "location": "Main Plant",
+      "productGrade": "Empty",
+      "capacityLiters": 68000,
+      "currentStockLiters": 0,
+      "availableLiters": 68000,
+      "fillPercent": 0
+    },
+    {
+      "name": "Tank4",
+      "code": "TK-04",
+      "location": "Main Plant",
+      "productGrade": "Empty",
+      "capacityLiters": 18000,
+      "currentStockLiters": 0,
+      "availableLiters": 18000,
+      "fillPercent": 0
+    }
+  ]
+}

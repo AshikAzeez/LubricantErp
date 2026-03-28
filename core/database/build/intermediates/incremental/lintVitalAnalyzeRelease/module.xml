@@ -1,0 +1,20 @@
+<lint-module
+    format="1"
+    dir="/Users/ashikka/Havos/ERP/core/database"
+    name=":core:database"
+    type="LIBRARY"
+    maven="LubricantERP.core:database:unspecified"
+    agpVersion="9.0.1"
+    buildFolder="build"
+    bootClassPath="/Users/ashikka/Library/Android/sdk/platforms/android-36.1/android.jar:/Users/ashikka/Library/Android/sdk/build-tools/36.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="11"
+    compileTarget="android-36.1"
+    neverShrinking="true"
+    highlightGradualR8Api="false">
+  <lintOptions
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true"/>
+  <variant name="release"/>
+</lint-module>

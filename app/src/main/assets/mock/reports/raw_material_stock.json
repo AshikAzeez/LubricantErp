@@ -1,0 +1,66 @@
+[
+  {
+    "code": "RM-CI",
+    "name": "Corrosion Inhibitor",
+    "type": "Additive",
+    "uom": "Kilograms",
+    "costPerUnit": 420.0,
+    "reorderLevel": 80.0
+  },
+  {
+    "code": "RM-DETPKG",
+    "name": "Detergent Package",
+    "type": "Additive",
+    "uom": "Kilograms",
+    "costPerUnit": 450.0,
+    "reorderLevel": 150.0
+  },
+  {
+    "code": "RM-PPD",
+    "name": "Pour Point Depressant",
+    "type": "Additive",
+    "uom": "Kilograms",
+    "costPerUnit": 380.0,
+    "reorderLevel": 100.0
+  },
+  {
+    "code": "RM-SN150",
+    "name": "SN-150 Base Oil",
+    "type": "BaseOil",
+    "uom": "Liters",
+    "costPerUnit": 65.0,
+    "reorderLevel": 5000.0
+  },
+  {
+    "code": "RM-SN500",
+    "name": "SN-500 Base Oil",
+    "type": "BaseOil",
+    "uom": "Liters",
+    "costPerUnit": 72.0,
+    "reorderLevel": 5000.0
+  },
+  {
+    "code": "RM-SN70",
+    "name": "SN-70 Base Oil",
+    "type": "BaseOil",
+    "uom": "Liters",
+    "costPerUnit": 58.0,
+    "reorderLevel": 3000.0
+  },
+  {
+    "code": "RM-VII",
+    "name": "VI Improver",
+    "type": "Additive",
+    "uom": "Kilograms",
+    "costPerUnit": 280.0,
+    "reorderLevel": 300.0
+  },
+  {
+    "code": "RM-ZDDP",
+    "name": "ZDDP Anti-Wear Additive",
+    "type": "Additive",
+    "uom": "Kilograms",
+    "costPerUnit": 320.0,
+    "reorderLevel": 200.0
+  }
+]
