@@ -1,0 +1,69 @@
+# macOS
+.DS_Store
+
+# Local config
+local.properties
+
+# Gradle
+.gradle/
+build/
+*/build/
+**/build/
+.gradle-cache/
+
+# Kotlin
+.kotlin/
+*.kotlin_module
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+captures/
+.navigation/
+
+# Android generated
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.hprof
+
+# Native build outputs
+.externalNativeBuild/
+.cxx/
+
+# Signing / secrets
+*.jks
+*.keystore
+keystore.properties
+
+# Logs
+*.log
+
+# Lint / reports
+lint/intermediates/
+lint/generated/
+lint/tmp/
+lint-report.html
+lint-results*.xml
+
+# Firebase / Crashlytics
+app/google-services.json
+app/crashlytics.properties
+
+# KSP / KAPT
+**/ksp/
+**/build/generated/
+**/build/tmp/
+
+# Test outputs
+**/test-results/
+**/outputs/
+**/reports/
+
+# Misc
+tmp/
+out/
