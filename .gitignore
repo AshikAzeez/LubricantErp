@@ -67,3 +67,5 @@ app/crashlytics.properties
 # Misc
 tmp/
 out/
+/build/
+/.gradle/
