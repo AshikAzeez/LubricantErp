@@ -5,21 +5,10 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
@@ -41,11 +30,8 @@ fun GoalErpNavGraph(
 ) {
     val navController = rememberNavController()
     val rootViewModel: RootViewModel = koinViewModel()
-    val networkConfig: ResolvedNetworkConfig = koinInject()
     val rootState by rootViewModel.state.collectAsStateWithLifecycle()
-    val environmentBadge = remember(networkConfig) {
-        "${networkConfig.environment.name} | ${if (networkConfig.useMockEngine) "MOCK" else "LIVE"}"
-    }
+    koinInject<ResolvedNetworkConfig>()
 
     Box(modifier = modifier.fillMaxSize()) {
         NavHost(
@@ -133,25 +119,5 @@ fun GoalErpNavGraph(
             }
         }
 
-        Surface(
-            tonalElevation = 6.dp,
-            shadowElevation = 6.dp,
-            color = MaterialTheme.colorScheme.inverseSurface.copy(alpha = 0.92f),
-            contentColor = MaterialTheme.colorScheme.inverseOnSurface,
-            shape = MaterialTheme.shapes.small,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .statusBarsPadding()
-                .padding(top = 8.dp, end = 12.dp)
-                .zIndex(10f)
-                .clip(MaterialTheme.shapes.small)
-                .alpha(0.98f)
-        ) {
-            Text(
-                text = environmentBadge,
-                style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-            )
-        }
     }
 }
