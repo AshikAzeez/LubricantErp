@@ -1,9 +1,9 @@
 {
   "environment": "TEST",
-  "useMockEngine": true,
+  "useMockEngine": false,
   "baseUrls": {
-    "test": "https://test.goal-erp.local/",
-    "stage": "https://stage.goal-erp.local/",
+    "test": "http://havostech-001-site2.atempurl.com/",
+    "stage": "http://havostech-001-site2.atempurl.com/",
     "production": "https://api.goal-erp.com/"
   }
 }

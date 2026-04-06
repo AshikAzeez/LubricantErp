@@ -70,6 +70,8 @@ class LoginViewModel(
 
     private fun doLogin() {
         val current = _state.value
+        if (current.isLoading) return
+
         val usernameError = validateUsername(current.username)
         val passwordError = validatePassword(current.password)
         if (usernameError != null || passwordError != null) {
@@ -81,9 +83,10 @@ class LoginViewModel(
             return
         }
 
+        val normalizedIdentity = normalizeIdentity(current.username)
         viewModelScope.launch {
             _state.update { LoginReducer.reduceForLoading(it) }
-            when (val result = loginUseCase(current.username, current.password, current.rememberMe)) {
+            when (val result = loginUseCase(normalizedIdentity, current.password, current.rememberMe)) {
                 is ResultState.Success -> {
                     _state.update { LoginReducer.reduceForSuccess(it) }
                     _effect.emit(LoginEffect.NavigateToHome)
@@ -100,16 +103,24 @@ class LoginViewModel(
 
     private fun validateUsername(value: String): String? {
         val trimmed = value.trim()
-        if (trimmed.isBlank()) return "Email is required"
-        if (!trimmed.contains("@")) return "Enter a valid email address"
-        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
-        if (!emailRegex.matches(trimmed)) return "Enter a valid email address"
-        return null
+        if (trimmed.isBlank()) return "Email or phone is required"
+        return if (trimmed.contains("@")) {
+            val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+            if (!emailRegex.matches(trimmed)) "Enter a valid email address" else null
+        } else {
+            val phoneRegex = Regex("^\\+?[0-9]{7,15}$")
+            if (!phoneRegex.matches(trimmed)) "Enter a valid phone number" else null
+        }
     }
 
     private fun validatePassword(value: String): String? {
         if (value.isBlank()) return "Password is required"
-        if (value.length < 4) return "Password must be at least 4 characters"
+        if (value.length < 3) return "Password must be at least 3 characters"
         return null
+    }
+
+    private fun normalizeIdentity(value: String): String {
+        val trimmed = value.trim()
+        return if (trimmed.contains("@")) trimmed.lowercase() else trimmed
     }
 }

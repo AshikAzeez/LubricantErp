@@ -7,7 +7,7 @@ import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
 import org.koin.dsl.module
 
 val featureReportsDataModule = module {
-    single<GoalErpRemoteDataSource> { GoalErpRemoteApi(get()) }
+    single<GoalErpRemoteDataSource> { GoalErpRemoteApi(get(), get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
     single<ReportsRepository> { ReportsRepositoryImpl(get()) }
 }

@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -105,6 +106,11 @@ private fun LoginScreen(
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    val canSubmit = state.username.isNotBlank() &&
+        state.password.isNotBlank() &&
+        state.usernameError == null &&
+        state.passwordError == null &&
+        !state.isLoading
     val logoResId = remember {
         context.resources.getIdentifier("erp_logo", "drawable", context.packageName)
     }
@@ -182,7 +188,7 @@ private fun LoginScreen(
                     OutlinedTextField(
                         value = state.username,
                         onValueChange = { onAction(LoginAction.UsernameChanged(it)) },
-                        label = { Text("Email Address") },
+                        label = { Text("Email or Phone") },
                         leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth(),
                         isError = state.usernameError != null,
@@ -192,8 +198,13 @@ private fun LoginScreen(
                             }
                         },
                         keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                            keyboardType = KeyboardType.Email,
+                            keyboardType = KeyboardType.Text,
                             imeAction = ImeAction.Next
+                        ),
+                        keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                            onNext = {
+                                focusManager.moveFocus(FocusDirection.Down)
+                            }
                         ),
                         singleLine = true
                     )
@@ -262,7 +273,7 @@ private fun LoginScreen(
                             keyboardController?.hide()
                             onAction(LoginAction.Submit)
                         },
-                        enabled = !state.isLoading,
+                        enabled = canSubmit,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)

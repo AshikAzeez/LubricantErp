@@ -32,7 +32,7 @@ class AuthRepositoryImpl(
         password: String,
         rememberMe: Boolean
     ): ResultState<AuthSession> {
-        return when (val result = remoteDataSource.login(LoginRequestDto(username, password))) {
+        return when (val result = remoteDataSource.login(LoginRequestDto(email = username, password = password))) {
             is ResultState.Success -> {
                 secureSessionStore.saveSession(
                     SessionData(
