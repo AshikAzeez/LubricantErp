@@ -2,8 +2,11 @@ package com.havos.lubricerp.feature_reports.presentation.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.core.ui.components.DashboardCardUi
+import com.havos.lubricerp.feature_reports.domain.usecase.EnsureProfileLoadedUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.LogoutUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.ObserveProfileUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,6 +20,8 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     observeSessionUseCase: ObserveSessionUseCase,
+    observeProfileUseCase: ObserveProfileUseCase,
+    private val ensureProfileLoadedUseCase: EnsureProfileLoadedUseCase,
     private val logoutUseCase: LogoutUseCase
 ) : ViewModel() {
 
@@ -39,11 +44,34 @@ class HomeViewModel(
     init {
         viewModelScope.launch {
             observeSessionUseCase().collect { session ->
-                _state.update {
-                    HomeReducer.reduceForUser(
-                        it,
-                        displayNameFromUsername(session?.username.orEmpty())
-                    )
+                if (session == null) {
+                    _state.update { it.copy(greetingName = "", isProfileLoading = false) }
+                    return@collect
+                }
+                _state.update { HomeReducer.reduceForProfileLoading(it, true) }
+                when (val result = ensureProfileLoadedUseCase()) {
+                    is ResultState.Success -> {
+                        _state.update { HomeReducer.reduceForUser(it, result.data.fullName) }
+                    }
+
+                    is ResultState.Error -> {
+                        _state.update {
+                            HomeReducer.reduceForUser(
+                                it,
+                                displayNameFromUsername(session.username)
+                            )
+                        }
+                    }
+
+                    ResultState.Loading -> Unit
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            observeProfileUseCase().collect { profile ->
+                if (profile != null) {
+                    _state.update { HomeReducer.reduceForUser(it, profile.fullName) }
                 }
             }
         }

@@ -3,9 +3,11 @@ package com.havos.lubricerp.feature_reports.data.mapper
 import com.havos.lubricerp.feature_reports.data.dto.LoginResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainReportDto
 import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainRowDto
+import com.havos.lubricerp.feature_reports.data.dto.ProfileDataDto
 import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.TankInfoDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
+import com.havos.lubricerp.feature_reports.domain.model.UserProfile
 import com.havos.lubricerp.feature_reports.domain.model.AuthSession
 import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
 import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainRow
@@ -16,6 +18,14 @@ import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
 fun LoginResponseDto.toDomain(): AuthSession = AuthSession(
     username = username,
     token = token
+)
+
+fun ProfileDataDto.toDomain(): UserProfile = UserProfile(
+    id = id,
+    email = email,
+    fullName = fullName,
+    branchId = branchId,
+    roles = roles
 )
 
 fun TankStockSummaryDto.toDomain(): TankStockSummary = TankStockSummary(

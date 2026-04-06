@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -123,6 +125,40 @@ private fun SettingsScreen(
                             onAction(SettingsAction.ThemeSelected(mode))
                         }
                 )
+            }
+
+            Text(
+                text = "Profile",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 4.dp, vertical = 8.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                )
+            ) {
+                val profile = state.profile
+                if (profile == null) {
+                    ListItem(
+                        headlineContent = { Text("Profile not available") },
+                        supportingContent = { Text("Login and dashboard sync will populate profile data.") }
+                    )
+                } else {
+                    ListItem(
+                        headlineContent = { Text(profile.fullName) },
+                        supportingContent = { Text(profile.email) }
+                    )
+                    ListItem(
+                        headlineContent = { Text("Branch ID") },
+                        supportingContent = { Text(profile.branchId.toString()) }
+                    )
+                    ListItem(
+                        headlineContent = { Text("Roles") },
+                        supportingContent = { Text(profile.rolesText.ifBlank { "-" }) }
+                    )
+                }
             }
         }
     }

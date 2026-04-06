@@ -8,6 +8,6 @@ import org.koin.dsl.module
 
 val featureReportsDataModule = module {
     single<GoalErpRemoteDataSource> { GoalErpRemoteApi(get(), get()) }
-    single<AuthRepository> { AuthRepositoryImpl(get(), get()) }
+    single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
     single<ReportsRepository> { ReportsRepositoryImpl(get()) }
 }

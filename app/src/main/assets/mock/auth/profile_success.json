@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "email": "admin@baseoils.com",
+    "fullName": "System Administrator",
+    "branchId": 1,
+    "roles": ["Admin"]
+  },
+  "message": null,
+  "errors": null
+}

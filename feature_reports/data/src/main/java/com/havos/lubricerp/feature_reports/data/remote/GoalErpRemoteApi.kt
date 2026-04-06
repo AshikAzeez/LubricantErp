@@ -9,6 +9,8 @@ import com.havos.lubricerp.feature_reports.data.dto.LoginRequestDto
 import com.havos.lubricerp.feature_reports.data.dto.LoginResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.LogoutResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainReportDto
+import com.havos.lubricerp.feature_reports.data.dto.ProfileApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.ProfileDataDto
 import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
 import io.ktor.client.HttpClient
@@ -18,6 +20,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.utils.io.errors.IOException
 
 class GoalErpRemoteApi(
@@ -78,6 +81,35 @@ class GoalErpRemoteApi(
         ) {
             is ResultState.Success -> ResultState.Success(Unit)
             is ResultState.Error -> ResultState.Error("Unable to logout from server.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getProfile(token: String): ResultState<ProfileDataDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+
+        return when (
+            val result = safeApiCall<ProfileApiResponseDto> {
+                client.get("api/auth/profile") {
+                    headers.append(Authorization, "Bearer $token")
+                    headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
+                }
+            }
+        ) {
+            is ResultState.Success -> {
+                val payload = result.data
+                val data = payload.data
+                if (!payload.success || data == null) {
+                    val serverMessage = payload.message?.takeIf { it.isNotBlank() }
+                        ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
+                        ?: "Unable to fetch profile"
+                    ResultState.Error(serverMessage)
+                } else {
+                    ResultState.Success(data)
+                }
+            }
+
+            is ResultState.Error -> ResultState.Error(resolveProfileError(result))
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -171,5 +203,22 @@ private fun resolveLoginError(error: ResultState.Error): String {
         }
 
         else -> "Unable to login. Please try again."
+    }
+}
+
+private fun resolveProfileError(error: ResultState.Error): String {
+    val message = error.message.lowercase()
+    val throwable = error.cause
+
+    return when {
+        "401" in message || "403" in message -> "Session expired. Please login again."
+        "timeout" in message -> "Profile request timed out. Please try again."
+        throwable is IOException || "unable to resolve host" in message || "network is unreachable" in message -> {
+            "No internet connection. Check network and try again."
+        }
+        "500" in message || "502" in message || "503" in message || "504" in message -> {
+            "Server error while loading profile."
+        }
+        else -> "Unable to load profile."
     }
 }

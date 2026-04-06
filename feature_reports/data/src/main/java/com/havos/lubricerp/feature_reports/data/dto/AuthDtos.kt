@@ -44,3 +44,20 @@ data class LogoutResponseDto(
     val success: Boolean,
     val message: String
 )
+
+@Serializable
+data class ProfileApiResponseDto(
+    val success: Boolean,
+    val data: ProfileDataDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class ProfileDataDto(
+    val id: Long = 0L,
+    val email: String = "",
+    val fullName: String = "",
+    val branchId: Long = 0L,
+    val roles: List<String> = emptyList()
+)

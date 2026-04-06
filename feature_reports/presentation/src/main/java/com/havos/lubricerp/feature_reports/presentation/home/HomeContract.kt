@@ -13,7 +13,8 @@ sealed interface HomeIntent : UiIntent {
 }
 
 data class HomeUiState(
-    val username: String = "",
+    val greetingName: String = "",
+    val isProfileLoading: Boolean = false,
     val cards: List<DashboardCardUi> = emptyList(),
     val selectedMenu: ReportMenu? = null
 ) : UiState

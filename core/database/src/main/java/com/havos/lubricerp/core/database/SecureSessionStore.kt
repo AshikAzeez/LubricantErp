@@ -8,9 +8,12 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.havos.lubricerp.core.common.ThemeMode
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 private val Context.secureDataStore by preferencesDataStore(name = "goal_erp_secure_store")
 
@@ -51,6 +54,7 @@ class SecureSessionStoreImpl(
                 token = cryptoManager.decrypt(encryptedToken)
             )
         }
+        .flowOn(Dispatchers.IO)
 
     override val rememberedUsernameFlow: Flow<String> = datastore.data
         .catch { emit(emptyPreferences()) }
@@ -58,10 +62,12 @@ class SecureSessionStoreImpl(
             val encryptedUsername = preferences[Keys.REMEMBERED_USERNAME] ?: return@map ""
             cryptoManager.decrypt(encryptedUsername)
         }
+        .flowOn(Dispatchers.IO)
 
     override val rememberMeEnabledFlow: Flow<Boolean> = datastore.data
         .catch { emit(emptyPreferences()) }
         .map { preferences -> preferences[Keys.REMEMBER_ME_ENABLED] ?: false }
+        .flowOn(Dispatchers.IO)
 
     override val themeModeFlow: Flow<ThemeMode> = datastore.data
         .catch { emit(emptyPreferences()) }
@@ -69,46 +75,59 @@ class SecureSessionStoreImpl(
             val encryptedValue = preferences[Keys.THEME_MODE] ?: return@map ThemeMode.SYSTEM
             ThemeMode.from(cryptoManager.decrypt(encryptedValue))
         }
+        .flowOn(Dispatchers.IO)
 
     override suspend fun saveSession(sessionData: SessionData) {
-        datastore.edit { preferences ->
-            preferences[Keys.USERNAME] = cryptoManager.encrypt(sessionData.username)
-            preferences[Keys.TOKEN] = cryptoManager.encrypt(sessionData.token)
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences[Keys.USERNAME] = cryptoManager.encrypt(sessionData.username)
+                preferences[Keys.TOKEN] = cryptoManager.encrypt(sessionData.token)
+            }
         }
     }
 
     override suspend fun saveRememberedUsername(username: String) {
-        datastore.edit { preferences ->
-            if (username.isBlank()) {
-                preferences.remove(Keys.REMEMBERED_USERNAME)
-            } else {
-                preferences[Keys.REMEMBERED_USERNAME] = cryptoManager.encrypt(username)
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                if (username.isBlank()) {
+                    preferences.remove(Keys.REMEMBERED_USERNAME)
+                } else {
+                    preferences[Keys.REMEMBERED_USERNAME] = cryptoManager.encrypt(username)
+                }
             }
         }
     }
 
     override suspend fun clearRememberedUsername() {
-        datastore.edit { preferences ->
-            preferences.remove(Keys.REMEMBERED_USERNAME)
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences.remove(Keys.REMEMBERED_USERNAME)
+            }
         }
     }
 
     override suspend fun setRememberMeEnabled(enabled: Boolean) {
-        datastore.edit { preferences ->
-            preferences[Keys.REMEMBER_ME_ENABLED] = enabled
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences[Keys.REMEMBER_ME_ENABLED] = enabled
+            }
         }
     }
 
     override suspend fun setThemeMode(themeMode: ThemeMode) {
-        datastore.edit { preferences ->
-            preferences[Keys.THEME_MODE] = cryptoManager.encrypt(themeMode.name)
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences[Keys.THEME_MODE] = cryptoManager.encrypt(themeMode.name)
+            }
         }
     }
 
     override suspend fun clearSession() {
-        datastore.edit { preferences ->
-            preferences.remove(Keys.USERNAME)
-            preferences.remove(Keys.TOKEN)
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences.remove(Keys.USERNAME)
+                preferences.remove(Keys.TOKEN)
+            }
         }
     }
 

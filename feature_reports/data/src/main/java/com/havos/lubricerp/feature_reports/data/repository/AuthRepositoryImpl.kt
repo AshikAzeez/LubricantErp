@@ -1,20 +1,26 @@
 package com.havos.lubricerp.feature_reports.data.repository
 
 import com.havos.lubricerp.core.common.ResultState
+import com.havos.lubricerp.core.database.ProfileData
+import com.havos.lubricerp.core.database.SecureProfileStore
 import com.havos.lubricerp.core.database.SecureSessionStore
 import com.havos.lubricerp.core.database.SessionData
 import com.havos.lubricerp.feature_reports.data.dto.LoginRequestDto
 import com.havos.lubricerp.feature_reports.data.mapper.toDomain
 import com.havos.lubricerp.feature_reports.data.remote.GoalErpRemoteDataSource
 import com.havos.lubricerp.feature_reports.domain.model.AuthSession
+import com.havos.lubricerp.feature_reports.domain.model.UserProfile
 import com.havos.lubricerp.feature_reports.domain.repository.AuthRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 class AuthRepositoryImpl(
     private val remoteDataSource: GoalErpRemoteDataSource,
-    private val secureSessionStore: SecureSessionStore
+    private val secureSessionStore: SecureSessionStore,
+    private val secureProfileStore: SecureProfileStore
 ) : AuthRepository {
 
     override fun observeSession(): Flow<AuthSession?> {
@@ -27,38 +33,90 @@ class AuthRepositoryImpl(
 
     override fun observeRememberMeEnabled(): Flow<Boolean> = secureSessionStore.rememberMeEnabledFlow
 
+    override fun observeProfile(): Flow<UserProfile?> {
+        return secureProfileStore.profileFlow.map { it?.toDomain() }
+    }
+
     override suspend fun login(
         username: String,
         password: String,
         rememberMe: Boolean
     ): ResultState<AuthSession> {
-        return when (val result = remoteDataSource.login(LoginRequestDto(email = username, password = password))) {
-            is ResultState.Success -> {
-                secureSessionStore.saveSession(
-                    SessionData(
-                        username = result.data.username,
-                        token = result.data.token
+        return withContext(Dispatchers.IO) {
+            when (val result = remoteDataSource.login(LoginRequestDto(email = username, password = password))) {
+                is ResultState.Success -> {
+                    secureSessionStore.saveSession(
+                        SessionData(
+                            username = result.data.username,
+                            token = result.data.token
+                        )
                     )
-                )
-                secureSessionStore.setRememberMeEnabled(rememberMe)
-                if (rememberMe) {
-                    secureSessionStore.saveRememberedUsername(username)
-                } else {
-                    secureSessionStore.clearRememberedUsername()
+                    secureProfileStore.clearProfile()
+                    secureSessionStore.setRememberMeEnabled(rememberMe)
+                    if (rememberMe) {
+                        secureSessionStore.saveRememberedUsername(username)
+                    } else {
+                        secureSessionStore.clearRememberedUsername()
+                    }
+                    ResultState.Success(result.data.toDomain())
                 }
-                ResultState.Success(result.data.toDomain())
+
+                is ResultState.Error -> result
+                ResultState.Loading -> ResultState.Loading
+            }
+        }
+    }
+
+    override suspend fun ensureProfileLoaded(forceRefresh: Boolean): ResultState<UserProfile> {
+        return withContext(Dispatchers.IO) {
+            if (!forceRefresh) {
+                secureProfileStore.getProfile()?.let { cached ->
+                    return@withContext ResultState.Success(cached.toDomain())
+                }
             }
 
-            is ResultState.Error -> result
-            ResultState.Loading -> ResultState.Loading
+            val token = secureSessionStore.sessionFlow.first()?.token.orEmpty()
+            if (token.isBlank()) {
+                return@withContext ResultState.Error("Session not available")
+            }
+
+            when (val result = remoteDataSource.getProfile(token)) {
+                is ResultState.Success -> {
+                    val profile = result.data.toDomain()
+                    secureProfileStore.saveProfile(
+                        ProfileData(
+                            id = profile.id,
+                            email = profile.email,
+                            fullName = profile.fullName,
+                            branchId = profile.branchId,
+                            roles = profile.roles
+                        )
+                    )
+                    ResultState.Success(profile)
+                }
+
+                is ResultState.Error -> result
+                ResultState.Loading -> ResultState.Loading
+            }
         }
     }
 
     override suspend fun logout() {
-        val token = secureSessionStore.sessionFlow.first()?.token.orEmpty()
-        if (token.isNotBlank()) {
-            remoteDataSource.logout(token)
+        withContext(Dispatchers.IO) {
+            val token = secureSessionStore.sessionFlow.first()?.token.orEmpty()
+            if (token.isNotBlank()) {
+                remoteDataSource.logout(token)
+            }
+            secureProfileStore.clearProfile()
+            secureSessionStore.clearSession()
         }
-        secureSessionStore.clearSession()
     }
 }
+
+private fun ProfileData.toDomain(): UserProfile = UserProfile(
+    id = id,
+    email = email,
+    fullName = fullName,
+    branchId = branchId,
+    roles = roles
+)

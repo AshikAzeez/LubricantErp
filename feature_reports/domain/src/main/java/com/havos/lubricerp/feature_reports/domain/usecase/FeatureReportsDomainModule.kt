@@ -4,6 +4,8 @@ import org.koin.dsl.module
 
 val featureReportsDomainModule = module {
     factory { ObserveSessionUseCase(get()) }
+    factory { ObserveProfileUseCase(get()) }
+    factory { EnsureProfileLoadedUseCase(get()) }
     factory { ObserveRememberedUsernameUseCase(get()) }
     factory { ObserveRememberMeEnabledUseCase(get()) }
     factory { LoginUseCase(get()) }

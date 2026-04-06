@@ -23,6 +23,10 @@ class MockAssetResponseProvider(
             respondAsset(this, "mock/auth/logout_success.json")
         }
 
+        request.method == HttpMethod.Get && normalizedPath(request).contains("auth/profile") -> {
+            respondAsset(this, "mock/auth/profile_success.json")
+        }
+
         request.method == HttpMethod.Get && normalizedPath(request).contains("reports/tank-stock-summary") -> {
             respondAsset(this, "mock/reports/tank_stock_summary.json")
         }
