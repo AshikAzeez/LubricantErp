@@ -1,146 +1,126 @@
 package com.havos.lubricerp.feature_reports.presentation.home
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.foundation.Image
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.havos.lubricerp.core.ui.components.CollectEffect
-import com.havos.lubricerp.core.ui.components.DashboardCardGrid
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.Settings
+import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
 import org.koin.androidx.compose.koinViewModel
 
+private enum class BottomNavItem(val title: String) {
+    HOME("Home"),
+    REPORTS("Reports")
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeRoute(
     onOpenReport: (String) -> Unit,
     onOpenSettings: () -> Unit,
     onNavigateLogin: () -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
+    homeTabViewModel: HomeTabViewModel = koinViewModel(),
+    reportsTabViewModel: ReportsTabViewModel = koinViewModel()
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    CollectEffect(effects = viewModel.effect) { effect ->
-        when (effect) {
-            is HomeEffect.OpenReport -> onOpenReport(effect.reportItem.key)
-            HomeEffect.NavigateToLogin -> onNavigateLogin()
-        }
-    }
+    val reportsState by reportsTabViewModel.state.collectAsStateWithLifecycle()
+    var showLogoutConfirmation by rememberSaveable { mutableStateOf(false) }
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     HomeScreen(
-        state = state,
-        onAction = { action ->
-            when (action) {
-                is HomeAction.CardClicked -> {
-                    ReportMenu.entries.firstOrNull { it.key == action.menuKey }?.let {
-                        viewModel.onIntent(HomeIntent.CardClicked(it))
-                    }
-                }
-
-                is HomeAction.SubMenuClicked -> viewModel.onSubMenuClicked(action.reportItem)
-                HomeAction.DismissBottomSheet -> viewModel.onIntent(HomeIntent.BottomSheetDismissed)
-                HomeAction.SettingsClicked -> onOpenSettings()
-                HomeAction.LogoutClicked -> viewModel.onIntent(HomeIntent.LogoutClicked)
-            }
-        }
+        selectedTab = selectedTab,
+        onTabSelected = { selectedTab = it },
+        reportsState = reportsState,
+        reportsTabViewModel = reportsTabViewModel,
+        onOpenReport = onOpenReport,
+        onOpenSettings = onOpenSettings,
+        onLogoutClick = { showLogoutConfirmation = true }
     )
+
+    if (showLogoutConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showLogoutConfirmation = false },
+            title = { Text("Confirm Logout") },
+            text = { Text("Do you want to logout from Goal Lubricants ERP?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutConfirmation = false
+                        viewModel.onIntent(HomeIntent.LogoutClicked)
+                    }
+                ) {
+                    Text("Logout")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutConfirmation = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
-    state: HomeUiState,
-    onAction: (HomeAction) -> Unit,
+    selectedTab: Int,
+    onTabSelected: (Int) -> Unit,
+    reportsState: ReportsTabUiState,
+    reportsTabViewModel: ReportsTabViewModel,
+    onOpenReport: (String) -> Unit,
+    onOpenSettings: () -> Unit,
+    onLogoutClick: () -> Unit
 ) {
-    var showLogoutConfirmation by rememberSaveable { mutableStateOf(false) }
-    val context = LocalContext.current
-    val logoResId = remember {
-        context.resources.getIdentifier("erp_logo", "drawable", context.packageName)
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        if (logoResId != 0) {
-                            Image(
-                                painter = painterResource(id = logoResId),
-                                contentDescription = "Goal ERP",
-                                modifier = Modifier
-                                    .height(32.dp)
-                                    .widthIn(max = 110.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
-                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text(text = "Goal Lubricants ERP")
-                            Text(
-                                text = "Reports Dashboard",
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
+                    Row {
+                        Text(
+                            text = "Goal ERP",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 },
                 actions = {
-                    IconButton(onClick = { onAction(HomeAction.SettingsClicked) }) {
+                    IconButton(onClick = onOpenSettings) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Settings"
                         )
                     }
-                    IconButton(onClick = { showLogoutConfirmation = true }) {
+                    IconButton(onClick = onLogoutClick) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
                             contentDescription = "Logout"
@@ -148,156 +128,83 @@ private fun HomeScreen(
                     }
                 }
             )
+        },
+        bottomBar = {
+            NavigationBar(
+                modifier = Modifier.navigationBarsPadding()
+            ) {
+                BottomNavItem.entries.forEachIndexed { index, item ->
+                    NavigationBarItem(
+                        icon = {
+                            Icon(
+                                imageVector =                                 if (selectedTab == index) {
+                                    when (item) {
+                                        BottomNavItem.HOME -> Icons.Filled.Home
+                                        BottomNavItem.REPORTS -> Icons.AutoMirrored.Filled.List
+                                    }
+                                } else {
+                                    when (item) {
+                                        BottomNavItem.HOME -> Icons.Outlined.Home
+                                        BottomNavItem.REPORTS -> Icons.AutoMirrored.Outlined.List
+                                    }
+                                },
+                                contentDescription = item.title
+                            )
+                        },
+                        label = { Text(item.title) },
+                        selected = selectedTab == index,
+                        onClick = { onTabSelected(index) }
+                    )
+                }
+            }
         }
     ) { innerPadding ->
-        BoxWithConstraints(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .navigationBarsPadding()
         ) {
-            val maxContentWidth = if (maxWidth >= 1024.dp) 1100.dp else 840.dp
-
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .widthIn(max = maxContentWidth)
-                    .align(Alignment.TopCenter)
-            ) {
-                if (state.isProfileLoading) {
-                    GreetingShimmerCard()
-                } else if (state.greetingName.isNotBlank()) {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        tonalElevation = 1.dp
-                    ) {
-                        Text(
-                            text = "Hello, ${state.greetingName}",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
-                        )
-                    }
-                }
-
-                DashboardCardGrid(
-                    items = state.cards,
-                    onCardClick = { onAction(HomeAction.CardClicked(it.id)) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
+            when (selectedTab) {
+                0 -> HomeTabContent()
+                1 -> ReportsTabContent(
+                    state = reportsState,
+                    reportsTabViewModel = reportsTabViewModel,
+                    onOpenReport = onOpenReport
                 )
             }
-        }
-
-        state.selectedMenu?.let { menu ->
-            ModalBottomSheet(onDismissRequest = { onAction(HomeAction.DismissBottomSheet) }) {
-                Text(
-                    text = menu.title,
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
-                )
-                menu.subMenus.forEach { report ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                            .clickable { onAction(HomeAction.SubMenuClicked(report)) },
-                        colors = CardDefaults.outlinedCardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ),
-                        border = CardDefaults.outlinedCardBorder()
-                    ) {
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = report.title,
-                                    style = MaterialTheme.typography.titleSmall
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-        if (showLogoutConfirmation) {
-            AlertDialog(
-                onDismissRequest = { showLogoutConfirmation = false },
-                title = { Text("Confirm Logout") },
-                text = { Text("Do you want to logout from Goal Lubricants ERP?") },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            showLogoutConfirmation = false
-                            onAction(HomeAction.LogoutClicked)
-                        }
-                    ) {
-                        Text("Logout")
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showLogoutConfirmation = false }) {
-                        Text("Cancel")
-                    }
-                }
-            )
-        }
-    }
-}
-
-private typealias ReportMenu = com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
-
-@Composable
-private fun GreetingShimmerCard() {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 1.dp
-    ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
-            ShimmerBar(width = 180.dp, height = 20.dp)
-            Spacer(modifier = Modifier.height(8.dp))
-            ShimmerBar(width = 120.dp, height = 14.dp)
         }
     }
 }
 
 @Composable
-private fun ShimmerBar(
-    width: Dp,
-    height: Dp
+private fun HomeTabContent() {
+    val viewModel: HomeTabViewModel = koinViewModel()
+    HomeTabScreen(viewModel = viewModel)
+}
+
+@Composable
+private fun ReportsTabContent(
+    state: ReportsTabUiState,
+    reportsTabViewModel: ReportsTabViewModel,
+    onOpenReport: (String) -> Unit
 ) {
-    val transition = rememberInfiniteTransition(label = "greeting_shimmer")
-    val animationValue by transition.animateFloat(
-        initialValue = -1f,
-        targetValue = 2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1100, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "greeting_shimmer_anim"
-    )
-    val brush = Brush.linearGradient(
-        colors = listOf(
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f),
-            Color.White.copy(alpha = 0.85f),
-            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
-        ),
-        start = androidx.compose.ui.geometry.Offset(animationValue * 300f, 0f),
-        end = androidx.compose.ui.geometry.Offset((animationValue + 1f) * 300f, 120f)
-    )
-    Spacer(
-        modifier = Modifier
-            .width(width)
-            .height(height)
-            .background(brush = brush, shape = MaterialTheme.shapes.small)
+    ReportsTabScreen(
+        state = state,
+        onAction = { action ->
+            when (action) {
+                is ReportsTabAction.CardClicked -> {
+                    ReportMenu.entries.firstOrNull { it.key == action.menuKey }?.let { menu ->
+                        reportsTabViewModel.onIntent(ReportsTabIntent.CardClicked(menu))
+                    }
+                }
+                is ReportsTabAction.SubMenuClicked -> {
+                    reportsTabViewModel.onSubMenuClicked(action.reportItem)
+                }
+                ReportsTabAction.DismissBottomSheet -> {
+                    reportsTabViewModel.onIntent(ReportsTabIntent.BottomSheetDismissed)
+                }
+            }
+        },
+        onOpenReport = onOpenReport
     )
 }

@@ -7,7 +7,7 @@ import com.havos.lubricerp.core.database.SecureSessionStore
 import com.havos.lubricerp.core.database.SessionData
 import com.havos.lubricerp.feature_reports.data.dto.LoginRequestDto
 import com.havos.lubricerp.feature_reports.data.mapper.toDomain
-import com.havos.lubricerp.feature_reports.data.remote.GoalErpRemoteDataSource
+import com.havos.lubricerp.feature_reports.data.remote.auth.AuthRemoteDataSource
 import com.havos.lubricerp.feature_reports.domain.model.AuthSession
 import com.havos.lubricerp.feature_reports.domain.model.UserProfile
 import com.havos.lubricerp.feature_reports.domain.repository.AuthRepository
@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class AuthRepositoryImpl(
-    private val remoteDataSource: GoalErpRemoteDataSource,
+    private val authRemoteDataSource: AuthRemoteDataSource,
     private val secureSessionStore: SecureSessionStore,
     private val secureProfileStore: SecureProfileStore
 ) : AuthRepository {
@@ -43,7 +43,7 @@ class AuthRepositoryImpl(
         rememberMe: Boolean
     ): ResultState<AuthSession> {
         return withContext(Dispatchers.IO) {
-            when (val result = remoteDataSource.login(LoginRequestDto(email = username, password = password))) {
+            when (val result = authRemoteDataSource.login(LoginRequestDto(email = username, password = password))) {
                 is ResultState.Success -> {
                     secureSessionStore.saveSession(
                         SessionData(
@@ -80,7 +80,7 @@ class AuthRepositoryImpl(
                 return@withContext ResultState.Error("Session not available")
             }
 
-            when (val result = remoteDataSource.getProfile(token)) {
+            when (val result = authRemoteDataSource.getProfile(token)) {
                 is ResultState.Success -> {
                     val profile = result.data.toDomain()
                     secureProfileStore.saveProfile(
@@ -103,10 +103,7 @@ class AuthRepositoryImpl(
 
     override suspend fun logout() {
         withContext(Dispatchers.IO) {
-            val token = secureSessionStore.sessionFlow.first()?.token.orEmpty()
-            if (token.isNotBlank()) {
-                remoteDataSource.logout(token)
-            }
+            authRemoteDataSource.logout()
             secureProfileStore.clearProfile()
             secureSessionStore.clearSession()
         }
