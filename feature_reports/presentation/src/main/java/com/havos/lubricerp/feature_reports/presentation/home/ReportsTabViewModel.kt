@@ -6,6 +6,7 @@ import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.core.ui.components.DashboardCardUi
 import com.havos.lubricerp.feature_reports.domain.usecase.EnsureProfileLoadedUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
+import com.havos.lubricerp.feature_reports.presentation.reports.ReportItem
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,12 +65,20 @@ class ReportsTabViewModel(
         when (intent) {
             is ReportsTabIntent.CardClicked -> {
                 val menu = intent.menu
-                if (menu.subMenus.size == 1) {
-                    viewModelScope.launch {
+                when {
+                    menu == ReportMenu.SALES_REPORTS -> viewModelScope.launch {
+                        _effect.emit(ReportsTabEffect.OpenReport(ReportItem.SALES_SUMMARY))
+                    }
+                    menu == ReportMenu.CUSTOMERS -> viewModelScope.launch {
+                        _effect.emit(ReportsTabEffect.OpenCustomerData)
+                    }
+                    menu == ReportMenu.REPORT_MODULE -> viewModelScope.launch {
+                        _effect.emit(ReportsTabEffect.OpenReportModule(ReportItem.REPORT_SALES_SUMMARY))
+                    }
+                    menu.subMenus.size == 1 -> viewModelScope.launch {
                         _effect.emit(ReportsTabEffect.OpenReport(menu.subMenus.first()))
                     }
-                } else {
-                    _state.update { ReportsTabReducer.reduceForMenuSelection(it, menu) }
+                    else -> _state.update { ReportsTabReducer.reduceForMenuSelection(it, menu) }
                 }
             }
             ReportsTabIntent.BottomSheetDismissed -> _state.update { ReportsTabReducer.reduceForMenuSelection(it, null) }
@@ -79,7 +88,17 @@ class ReportsTabViewModel(
     fun onSubMenuClicked(item: com.havos.lubricerp.feature_reports.presentation.reports.ReportItem) {
         viewModelScope.launch {
             _state.update { ReportsTabReducer.reduceForMenuSelection(it, null) }
-            _effect.emit(ReportsTabEffect.OpenReport(item))
+            val isReportModuleItem = item in listOf(
+                ReportItem.REPORT_SALES_SUMMARY,
+                ReportItem.REPORT_PRODUCT_SALES,
+                ReportItem.REPORT_NET_PROFIT,
+                ReportItem.REPORT_EXPENSE_SUMMARY
+            )
+            if (isReportModuleItem) {
+                _effect.emit(ReportsTabEffect.OpenReportModule(item))
+            } else {
+                _effect.emit(ReportsTabEffect.OpenReport(item))
+            }
         }
     }
 

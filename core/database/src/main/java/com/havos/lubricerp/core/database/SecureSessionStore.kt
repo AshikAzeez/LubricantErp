@@ -27,12 +27,15 @@ interface SecureSessionStore {
     val rememberedUsernameFlow: Flow<String>
     val rememberMeEnabledFlow: Flow<Boolean>
     val themeModeFlow: Flow<ThemeMode>
+    val salesFilterFlow: Flow<Pair<String, String>?>
 
     suspend fun saveSession(sessionData: SessionData)
     suspend fun saveRememberedUsername(username: String)
     suspend fun clearRememberedUsername()
     suspend fun setRememberMeEnabled(enabled: Boolean)
     suspend fun setThemeMode(themeMode: ThemeMode)
+    suspend fun saveSalesFilter(fromDate: String, toDate: String)
+    suspend fun clearSalesFilter()
 
     suspend fun clearSession()
 }
@@ -74,6 +77,15 @@ class SecureSessionStoreImpl(
         .map { preferences ->
             val encryptedValue = preferences[Keys.THEME_MODE] ?: return@map ThemeMode.SYSTEM
             ThemeMode.from(cryptoManager.decrypt(encryptedValue))
+        }
+        .flowOn(Dispatchers.IO)
+
+    override val salesFilterFlow: Flow<Pair<String, String>?> = datastore.data
+        .catch { emit(emptyPreferences()) }
+        .map { preferences ->
+            val from = preferences[Keys.SALES_FILTER_FROM] ?: return@map null
+            val to = preferences[Keys.SALES_FILTER_TO] ?: return@map null
+            Pair(from, to)
         }
         .flowOn(Dispatchers.IO)
 
@@ -122,11 +134,31 @@ class SecureSessionStoreImpl(
         }
     }
 
+    override suspend fun saveSalesFilter(fromDate: String, toDate: String) {
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences[Keys.SALES_FILTER_FROM] = fromDate
+                preferences[Keys.SALES_FILTER_TO] = toDate
+            }
+        }
+    }
+
+    override suspend fun clearSalesFilter() {
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences.remove(Keys.SALES_FILTER_FROM)
+                preferences.remove(Keys.SALES_FILTER_TO)
+            }
+        }
+    }
+
     override suspend fun clearSession() {
         withContext(Dispatchers.IO) {
             datastore.edit { preferences ->
                 preferences.remove(Keys.USERNAME)
                 preferences.remove(Keys.TOKEN)
+                preferences.remove(Keys.SALES_FILTER_FROM)
+                preferences.remove(Keys.SALES_FILTER_TO)
             }
         }
     }
@@ -137,5 +169,7 @@ class SecureSessionStoreImpl(
         val REMEMBERED_USERNAME = stringPreferencesKey("remembered_username")
         val REMEMBER_ME_ENABLED = booleanPreferencesKey("remember_me_enabled")
         val THEME_MODE = stringPreferencesKey("theme_mode")
+        val SALES_FILTER_FROM = stringPreferencesKey("sales_filter_from")
+        val SALES_FILTER_TO = stringPreferencesKey("sales_filter_to")
     }
 }

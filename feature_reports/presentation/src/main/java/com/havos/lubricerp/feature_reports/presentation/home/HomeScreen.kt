@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
 private enum class BottomNavItem(val title: String) {
@@ -46,6 +48,8 @@ private enum class BottomNavItem(val title: String) {
 @Composable
 fun HomeRoute(
     onOpenReport: (String) -> Unit,
+    onOpenCustomerData: () -> Unit = {},
+    onOpenReportModule: (String) -> Unit = {},
     onOpenSettings: () -> Unit,
     onNavigateLogin: () -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
@@ -62,6 +66,8 @@ fun HomeRoute(
         reportsState = reportsState,
         reportsTabViewModel = reportsTabViewModel,
         onOpenReport = onOpenReport,
+        onOpenCustomerData = onOpenCustomerData,
+        onOpenReportModule = onOpenReportModule,
         onOpenSettings = onOpenSettings,
         onLogoutClick = { showLogoutConfirmation = true }
     )
@@ -98,6 +104,8 @@ private fun HomeScreen(
     reportsState: ReportsTabUiState,
     reportsTabViewModel: ReportsTabViewModel,
     onOpenReport: (String) -> Unit,
+    onOpenCustomerData: () -> Unit,
+    onOpenReportModule: (String) -> Unit,
     onOpenSettings: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -169,7 +177,9 @@ private fun HomeScreen(
                 1 -> ReportsTabContent(
                     state = reportsState,
                     reportsTabViewModel = reportsTabViewModel,
-                    onOpenReport = onOpenReport
+                    onOpenReport = onOpenReport,
+                    onOpenCustomerData = onOpenCustomerData,
+                    onOpenReportModule = onOpenReportModule
                 )
             }
         }
@@ -186,8 +196,20 @@ private fun HomeTabContent() {
 private fun ReportsTabContent(
     state: ReportsTabUiState,
     reportsTabViewModel: ReportsTabViewModel,
-    onOpenReport: (String) -> Unit
+    onOpenReport: (String) -> Unit,
+    onOpenCustomerData: () -> Unit,
+    onOpenReportModule: (String) -> Unit
 ) {
+    LaunchedEffect(reportsTabViewModel) {
+        reportsTabViewModel.effect.collectLatest { effect ->
+            when (effect) {
+                is ReportsTabEffect.OpenReport -> onOpenReport(effect.reportItem.key)
+                ReportsTabEffect.OpenCustomerData -> onOpenCustomerData()
+                is ReportsTabEffect.OpenReportModule -> onOpenReportModule(effect.reportItem.key)
+            }
+        }
+    }
+
     ReportsTabScreen(
         state = state,
         onAction = { action ->

@@ -14,4 +14,14 @@ val featureReportsDomainModule = module {
     factory { GetTankStockSummaryUseCase(get()) }
     factory { GetRawMaterialStockUseCase(get()) }
     factory { GetPackagingLossGainUseCase(get()) }
+    factory { GetDashboardUseCase(get()) }
+    factory { GetSalesSummaryUseCase(get()) }
+    factory { GetPaymentsReceivedUseCase(get()) }
+    factory { GetStockOverviewUseCase(get()) }
+    factory { GetCustomersUseCase(get()) }
+    factory { GetCustomerLedgerUseCase(get()) }
+    factory { GetReportSalesSummaryUseCase(get()) }
+    factory { GetProductSalesUseCase(get()) }
+    factory { GetNetProfitUseCase(get()) }
+    factory { GetExpenseSummaryUseCase(get()) }
 }

@@ -20,6 +20,8 @@ data class ReportsTabUiState(
 
 sealed interface ReportsTabEffect {
     data class OpenReport(val reportItem: ReportItem) : ReportsTabEffect
+    data object OpenCustomerData : ReportsTabEffect
+    data class OpenReportModule(val reportItem: ReportItem) : ReportsTabEffect
 }
 
 sealed interface ReportsTabAction {

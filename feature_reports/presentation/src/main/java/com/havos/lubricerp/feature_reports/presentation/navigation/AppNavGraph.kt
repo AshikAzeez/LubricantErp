@@ -16,8 +16,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.havos.lubricerp.core.network.ResolvedNetworkConfig
+import com.havos.lubricerp.feature_reports.presentation.customer.CustomerDataRoute
 import com.havos.lubricerp.feature_reports.presentation.home.HomeRoute
 import com.havos.lubricerp.feature_reports.presentation.login.LoginRoute
+import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModuleRoute
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportDetailRoute
 import com.havos.lubricerp.feature_reports.presentation.settings.SettingsRoute
 import org.koin.androidx.compose.koinViewModel
@@ -90,6 +92,12 @@ fun GoalErpNavGraph(
                     onOpenReport = { reportKey ->
                         navController.navigate(AppRoutes.reportDetail(reportKey))
                     },
+                    onOpenCustomerData = {
+                        navController.navigate(AppRoutes.CUSTOMER_DATA)
+                    },
+                    onOpenReportModule = { reportItemKey ->
+                        navController.navigate(AppRoutes.reportModule(reportItemKey))
+                    },
                     onOpenSettings = {
                         navController.navigate(AppRoutes.SETTINGS)
                     },
@@ -114,6 +122,23 @@ fun GoalErpNavGraph(
                 val reportKey = backStackEntry.arguments?.getString("reportKey").orEmpty()
                 ReportDetailRoute(
                     reportKey = reportKey,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(AppRoutes.CUSTOMER_DATA) {
+                CustomerDataRoute(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                route = AppRoutes.REPORT_MODULE,
+                arguments = listOf(navArgument("reportItemKey") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val reportItemKey = backStackEntry.arguments?.getString("reportItemKey").orEmpty()
+                ReportModuleRoute(
+                    reportItemKey = reportItemKey,
                     onBackClick = { navController.popBackStack() }
                 )
             }

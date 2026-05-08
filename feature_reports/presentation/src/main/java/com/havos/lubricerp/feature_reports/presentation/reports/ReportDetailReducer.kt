@@ -1,7 +1,9 @@
 package com.havos.lubricerp.feature_reports.presentation.reports
 
 import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
+import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
 import com.havos.lubricerp.feature_reports.domain.model.RawMaterialStockItem
+import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
 
 object ReportDetailReducer {
@@ -25,6 +27,30 @@ object ReportDetailReducer {
         data: PackagingLossGainReport
     ): ReportDetailUiState {
         return state.copy(isLoading = false, packagingLossGainReport = data, errorMessage = null)
+    }
+
+    fun reduceForSalesSummarySuccess(
+        state: ReportDetailUiState,
+        data: List<SalesSummaryItem>,
+        monthlySalesCount: Int
+    ): ReportDetailUiState {
+        return state.copy(
+            isLoading = false,
+            salesSummaryItems = data,
+            monthlySalesCount = monthlySalesCount,
+            errorMessage = null
+        )
+    }
+
+    fun reduceForPaymentsReceivedSuccess(
+        state: ReportDetailUiState,
+        data: List<PaymentReceivedItem>
+    ): ReportDetailUiState {
+        return state.copy(paymentReceivedItems = data)
+    }
+
+    fun reduceToggleTopCustomers(state: ReportDetailUiState): ReportDetailUiState {
+        return state.copy(showTopCustomers = !state.showTopCustomers)
     }
 
     fun reduceForError(state: ReportDetailUiState, message: String): ReportDetailUiState {

@@ -2,9 +2,11 @@ package com.havos.lubricerp.feature_reports.presentation.reports
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Analytics
+import androidx.compose.material.icons.filled.Assessment
 import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.OilBarrel
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Warehouse
@@ -80,6 +82,23 @@ enum class ReportMenu(
         title = "Consolidated Stock",
         icon = Icons.Default.LocalShipping,
         subMenus = listOf(ReportItem.CONSOLIDATED_STOCK)
+    ),
+    CUSTOMERS(
+        key = "customers",
+        title = "Customers",
+        icon = Icons.Default.People,
+        subMenus = listOf(ReportItem.CUSTOMER_DATA)
+    ),
+    REPORT_MODULE(
+        key = "report_module",
+        title = "Report Module",
+        icon = Icons.Default.Assessment,
+        subMenus = listOf(
+            ReportItem.REPORT_SALES_SUMMARY,
+            ReportItem.REPORT_PRODUCT_SALES,
+            ReportItem.REPORT_NET_PROFIT,
+            ReportItem.REPORT_EXPENSE_SUMMARY
+        )
     )
 }
 
@@ -106,7 +125,12 @@ enum class ReportItem(
     GRN_SUMMARY("grn_summary", "GRN Summary"),
     STATE_WISE_PURCHASE("state_wise_purchase", "State-wise Purchase"),
     DISTRICT_WISE_PURCHASE("district_wise_purchase", "District-wise Purchase"),
-    CONSOLIDATED_STOCK("consolidated_stock", "Consolidated Stock")
+    CONSOLIDATED_STOCK("consolidated_stock", "Consolidated Stock"),
+    CUSTOMER_DATA("customer_data", "Customer Data"),
+    REPORT_SALES_SUMMARY("report_sales_summary", "Sales Report Summary"),
+    REPORT_PRODUCT_SALES("report_product_sales", "Product Sales Report"),
+    REPORT_NET_PROFIT("report_net_profit", "Profit Estimate"),
+    REPORT_EXPENSE_SUMMARY("report_expense_summary", "Expense Summary")
 }
 
 fun reportItemByKey(key: String): ReportItem =
