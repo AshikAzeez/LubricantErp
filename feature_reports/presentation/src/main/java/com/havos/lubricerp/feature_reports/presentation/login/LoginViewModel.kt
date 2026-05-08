@@ -6,8 +6,10 @@ import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.core.network.AppEnvironment
 import com.havos.lubricerp.core.network.ResolvedNetworkConfig
 import com.havos.lubricerp.feature_reports.domain.usecase.LoginUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.ObserveBiometricEnabledUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveRememberMeEnabledUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveRememberedUsernameUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.RefreshSessionUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -22,7 +24,9 @@ class LoginViewModel(
     private val loginUseCase: LoginUseCase,
     observeRememberedUsernameUseCase: ObserveRememberedUsernameUseCase,
     observeRememberMeEnabledUseCase: ObserveRememberMeEnabledUseCase,
-    private val networkConfig: ResolvedNetworkConfig
+    private val networkConfig: ResolvedNetworkConfig,
+    private val refreshSessionUseCase: RefreshSessionUseCase,
+    observeBiometricEnabledUseCase: ObserveBiometricEnabledUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
@@ -55,6 +59,11 @@ class LoginViewModel(
                     }
                 }
             }
+            viewModelScope.launch {
+                observeBiometricEnabledUseCase().collect { enabled ->
+                    _state.update { it.copy(biometricAvailable = enabled) }
+                }
+            }
         }
     }
 
@@ -80,6 +89,29 @@ class LoginViewModel(
             }
 
             LoginIntent.Submit -> doLogin()
+            LoginIntent.BiometricLogin -> doBiometricLogin()
+        }
+    }
+
+    private fun doBiometricLogin() {
+        viewModelScope.launch {
+            _effect.emit(LoginEffect.PromptBiometric)
+        }
+    }
+
+    fun onBiometricSuccess() {
+        viewModelScope.launch {
+            _state.update { LoginReducer.reduceForLoading(it) }
+            when (val result = refreshSessionUseCase()) {
+                is ResultState.Success -> {
+                    _state.update { LoginReducer.reduceForSuccess(it) }
+                    _effect.emit(LoginEffect.NavigateToHome)
+                }
+                is ResultState.Error -> {
+                    _state.update { LoginReducer.reduceForError(it, "Session expired. Please sign in again.") }
+                }
+                ResultState.Loading -> _state.update { LoginReducer.reduceForLoading(it) }
+            }
         }
     }
 

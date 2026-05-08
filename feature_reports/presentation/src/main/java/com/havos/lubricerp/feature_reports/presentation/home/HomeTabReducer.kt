@@ -19,6 +19,8 @@ object HomeTabReducer {
         return state.copy(
             isDashboardLoading = false,
             dashboardError = null,
+            isOffline = false,
+            retryPending = false,
             todaySalesAmount = data.todaySalesAmount,
             todaySalesCount = data.todaySalesCount,
             monthlySalesAmount = data.monthlySalesAmount,
@@ -30,7 +32,12 @@ object HomeTabReducer {
         )
     }
 
-    fun reduceForDashboardError(state: HomeTabUiState, message: String): HomeTabUiState {
-        return state.copy(isDashboardLoading = false, dashboardError = message)
+    fun reduceForDashboardError(state: HomeTabUiState, message: String, isOffline: Boolean = false): HomeTabUiState {
+        return state.copy(
+            isDashboardLoading = false,
+            dashboardError = if (isOffline) null else message,
+            isOffline = isOffline,
+            retryPending = isOffline
+        )
     }
 }

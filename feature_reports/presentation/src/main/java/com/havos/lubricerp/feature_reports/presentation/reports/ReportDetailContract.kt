@@ -1,6 +1,7 @@
 package com.havos.lubricerp.feature_reports.presentation.reports
 
 import com.havos.lubricerp.core.common.UiIntent
+import androidx.compose.runtime.Stable
 import com.havos.lubricerp.core.common.UiState
 import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
 import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
@@ -22,10 +23,13 @@ sealed interface ReportDetailIntent : UiIntent {
     data object Refresh : ReportDetailIntent
 }
 
+@Stable
 data class ReportDetailUiState(
     val selectedReport: ReportItem = ReportItem.TANK_STOCK_SUMMARY,
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
+    val isOffline: Boolean = false,
+    val retryPending: Boolean = false,
     val errorMessage: String? = null,
     val fromDate: String = "28/03/2026",
     val toDate: String = "28/03/2026",
@@ -52,4 +56,5 @@ sealed interface ReportDetailAction {
     data object ApplyFilter : ReportDetailAction
     data object ResetFilter : ReportDetailAction
     data object ToggleTopCustomers : ReportDetailAction
+    data object Retry : ReportDetailAction
 }

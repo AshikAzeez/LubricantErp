@@ -57,3 +57,25 @@ class EnsureProfileLoadedUseCase(
         return authRepository.ensureProfileLoaded(forceRefresh)
     }
 }
+
+class RefreshSessionUseCase(
+    private val authRepository: AuthRepository
+) {
+    suspend operator fun invoke(): ResultState<AuthSession> {
+        return authRepository.refreshSession()
+    }
+}
+
+class ObserveBiometricEnabledUseCase(
+    private val authRepository: AuthRepository
+) {
+    operator fun invoke(): Flow<Boolean> = authRepository.observeBiometricEnabled()
+}
+
+class SetBiometricEnabledUseCase(
+    private val authRepository: AuthRepository
+) {
+    suspend operator fun invoke(enabled: Boolean) {
+        authRepository.setBiometricEnabled(enabled)
+    }
+}

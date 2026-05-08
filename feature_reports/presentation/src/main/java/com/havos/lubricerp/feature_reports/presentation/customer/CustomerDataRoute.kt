@@ -42,6 +42,12 @@ fun CustomerDataRoute(
                     viewModel.onIntent(CustomerDataIntent.LedgerToDateChanged(action.date))
                 CustomerDataAction.LoadLedger ->
                     viewModel.onIntent(CustomerDataIntent.LoadLedger)
+                CustomerDataAction.LoadMobileSummary ->
+                    viewModel.onIntent(CustomerDataIntent.LoadMobileSummary)
+                CustomerDataAction.Retry ->
+                    viewModel.onIntent(CustomerDataIntent.Load)
+                CustomerDataAction.Refresh ->
+                    viewModel.onIntent(CustomerDataIntent.Refresh)
             }
         }
     )

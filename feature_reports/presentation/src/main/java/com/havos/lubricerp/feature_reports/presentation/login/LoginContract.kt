@@ -8,6 +8,7 @@ sealed interface LoginIntent : UiIntent {
     data class PasswordChanged(val value: String) : LoginIntent
     data class RememberMeChanged(val value: Boolean) : LoginIntent
     data object Submit : LoginIntent
+    data object BiometricLogin : LoginIntent
 }
 
 data class LoginUiState(
@@ -17,11 +18,13 @@ data class LoginUiState(
     val usernameError: String? = null,
     val passwordError: String? = null,
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val biometricAvailable: Boolean = false
 ) : UiState
 
 sealed interface LoginEffect {
     data object NavigateToHome : LoginEffect
+    data object PromptBiometric : LoginEffect
 }
 
 sealed interface LoginAction {
@@ -29,4 +32,5 @@ sealed interface LoginAction {
     data class PasswordChanged(val value: String) : LoginAction
     data class RememberMeChanged(val value: Boolean) : LoginAction
     data object Submit : LoginAction
+    data object BiometricLogin : LoginAction
 }

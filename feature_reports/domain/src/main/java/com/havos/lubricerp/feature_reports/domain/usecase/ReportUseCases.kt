@@ -9,6 +9,7 @@ import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
+import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
@@ -82,6 +83,14 @@ class GetCustomerLedgerUseCase(
 ) {
     suspend operator fun invoke(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntry>> {
         return repository.getCustomerLedger(token, customerId, fromDate, toDate)
+    }
+}
+
+class GetCustomerMobileSummaryUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, customerId: Long): ResultState<CustomerMobileSummary> {
+        return repository.getCustomerMobileSummary(token, customerId)
     }
 }
 

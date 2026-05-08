@@ -23,7 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
 import com.havos.lubricerp.core.ui.components.HomeTabShimmer
+import com.havos.lubricerp.core.ui.components.OfflinePlaceholder
 import com.havos.lubricerp.feature_reports.domain.model.RecentInvoice
 import java.text.NumberFormat
 import java.util.Locale
@@ -77,13 +79,15 @@ fun HomeTabScreen(
                 }
             }
 
-            if (state.dashboardError != null) {
+            if (state.isOffline) {
                 item {
-                    Text(
-                        text = state.dashboardError!!,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                    OfflinePlaceholder(onRetry = { viewModel.refresh() })
+                }
+            } else if (state.dashboardError != null) {
+                item {
+                    ErrorPlaceholder(
+                        message = state.dashboardError!!,
+                        onRetry = { viewModel.refresh() }
                     )
                 }
             } else {
@@ -269,9 +273,10 @@ private fun RecentInvoiceRow(invoice: RecentInvoice) {
     }
 }
 
-private fun formatCurrency(amount: Double): String {
-    val fmt = NumberFormat.getNumberInstance(Locale("en", "IN"))
-    fmt.minimumFractionDigits = 2
-    fmt.maximumFractionDigits = 2
-    return "₹${fmt.format(amount)}"
-}
+private val indiaCurrencyFmt: NumberFormat =
+    NumberFormat.getNumberInstance(Locale("en", "IN")).apply {
+        minimumFractionDigits = 2
+        maximumFractionDigits = 2
+    }
+
+private fun formatCurrency(amount: Double): String = "₹${indiaCurrencyFmt.format(amount)}"

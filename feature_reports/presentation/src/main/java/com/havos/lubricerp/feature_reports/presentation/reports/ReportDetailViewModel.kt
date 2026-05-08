@@ -3,7 +3,9 @@ package com.havos.lubricerp.feature_reports.presentation.reports
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.havos.lubricerp.core.common.ResultState
+import com.havos.lubricerp.core.common.isOffline
 import com.havos.lubricerp.core.database.SecureSessionStore
+import com.havos.lubricerp.core.network.NetworkMonitor
 import com.havos.lubricerp.feature_reports.domain.model.DateRangeFilter
 import com.havos.lubricerp.feature_reports.domain.usecase.GetDashboardUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetPackagingLossGainUseCase
@@ -17,6 +19,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -34,8 +39,12 @@ class ReportDetailViewModel(
     private val getDashboardUseCase: GetDashboardUseCase,
     private val observeSessionUseCase: ObserveSessionUseCase,
     private val secureSessionStore: SecureSessionStore,
-    private val getStockOverviewUseCase: GetStockOverviewUseCase
+    private val getStockOverviewUseCase: GetStockOverviewUseCase,
+    private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
+
+    private var pendingReportKey: String? = null
+    private var isFetchInFlight = false
 
     // Instance-level: SimpleDateFormat is NOT thread-safe; never share across coroutines.
     // Declared before _state because _state init calls defaultFromDate()/defaultToDate().
@@ -54,6 +63,21 @@ class ReportDetailViewModel(
             if (saved != null) {
                 _state.update { it.copy(fromDate = saved.first, toDate = saved.second) }
             }
+        }
+        observeConnectivity()
+    }
+
+    private fun observeConnectivity() {
+        viewModelScope.launch {
+            networkMonitor.isOnline
+                .distinctUntilChanged()
+                .drop(1)
+                .filter { online -> online && _state.value.retryPending }
+                .collect {
+                    val key = pendingReportKey ?: return@collect
+                    _state.update { it.copy(isOffline = false, retryPending = false) }
+                    loadReport(key)
+                }
         }
     }
 
@@ -79,6 +103,10 @@ class ReportDetailViewModel(
     }
 
     private fun refresh() {
+        if (isFetchInFlight) {
+            _state.update { it.copy(isRefreshing = false) }
+            return
+        }
         _state.update { it.copy(isRefreshing = true, errorMessage = null) }
         when (_state.value.selectedReport) {
             ReportItem.TANK_STOCK_SUMMARY -> fetchTankStockSummary(isRefresh = true)
@@ -91,6 +119,8 @@ class ReportDetailViewModel(
     }
 
     private fun loadReport(reportKey: String) {
+        if (isFetchInFlight) return
+        pendingReportKey = reportKey
         val report = reportItemByKey(reportKey)
         _state.update { ReportDetailReducer.reduceForLoading(it, report) }
         when (report) {
@@ -164,34 +194,49 @@ class ReportDetailViewModel(
     }
 
     private fun fetchTankStockSummary(isRefresh: Boolean = false) {
+        isFetchInFlight = true
         viewModelScope.launch {
             when (val result = getTankStockSummaryUseCase()) {
                 is ResultState.Success -> {
-                    _state.update { ReportDetailReducer.reduceForTankSuccess(it, result.data).copy(isRefreshing = false) }
+                    _state.update {
+                        ReportDetailReducer.reduceForTankSuccess(it, result.data)
+                            .copy(isRefreshing = false, isOffline = false, retryPending = false)
+                    }
                 }
-                is ResultState.Error -> {
-                    _state.update { ReportDetailReducer.reduceForError(it, result.message).copy(isRefreshing = false) }
+                is ResultState.Error -> _state.update {
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
                 }
                 ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
             }
+            isFetchInFlight = false
         }
     }
 
     private fun fetchRawMaterialStock(isRefresh: Boolean = false) {
+        isFetchInFlight = true
         viewModelScope.launch {
             when (val result = getRawMaterialStockUseCase()) {
                 is ResultState.Success -> {
-                    _state.update { ReportDetailReducer.reduceForRawMaterialSuccess(it, result.data).copy(isRefreshing = false) }
+                    _state.update {
+                        ReportDetailReducer.reduceForRawMaterialSuccess(it, result.data)
+                            .copy(isRefreshing = false, isOffline = false, retryPending = false)
+                    }
                 }
-                is ResultState.Error -> {
-                    _state.update { ReportDetailReducer.reduceForError(it, result.message).copy(isRefreshing = false) }
+                is ResultState.Error -> _state.update {
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
                 }
                 ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
             }
+            isFetchInFlight = false
         }
     }
 
     private fun fetchPackagingLossGain(isRefresh: Boolean = false) {
+        isFetchInFlight = true
         viewModelScope.launch {
             val current = _state.value
             when (
@@ -203,22 +248,30 @@ class ReportDetailViewModel(
                 )
             ) {
                 is ResultState.Success -> {
-                    _state.update { ReportDetailReducer.reduceForPackagingSuccess(it, result.data).copy(isRefreshing = false) }
+                    _state.update {
+                        ReportDetailReducer.reduceForPackagingSuccess(it, result.data)
+                            .copy(isRefreshing = false, isOffline = false, retryPending = false)
+                    }
                 }
-                is ResultState.Error -> {
-                    _state.update { ReportDetailReducer.reduceForError(it, result.message).copy(isRefreshing = false) }
+                is ResultState.Error -> _state.update {
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
                 }
                 ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
             }
+            isFetchInFlight = false
         }
     }
 
     private fun fetchSalesSummary(isRefresh: Boolean = false) {
+        isFetchInFlight = true
         viewModelScope.launch {
             if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
             val token = observeSessionUseCase().first()?.token.orEmpty()
             if (token.isBlank()) {
                 _state.update { ReportDetailReducer.reduceForError(it, "Session not available.") }
+                isFetchInFlight = false
                 return@launch
             }
             val current = _state.value
@@ -249,41 +302,58 @@ class ReportDetailViewModel(
                     val paymentsResult = paymentsDeferred.await()
                     secureSessionStore.saveSalesFilter(current.fromDate, current.toDate)
                     _state.update {
-                        val withSales = ReportDetailReducer.reduceForSalesSummarySuccess(it, result.data, dashboardCount).copy(isRefreshing = false)
+                        val withSales = ReportDetailReducer.reduceForSalesSummarySuccess(it, result.data, dashboardCount)
+                            .copy(isRefreshing = false, isOffline = false, retryPending = false)
                         when (paymentsResult) {
                             is ResultState.Success -> ReportDetailReducer.reduceForPaymentsReceivedSuccess(withSales, paymentsResult.data)
                             else -> withSales.copy(paymentReceivedItems = emptyList())
                         }
                     }
                 }
-                is ResultState.Error -> {
-                    _state.update { ReportDetailReducer.reduceForError(it, result.message).copy(isRefreshing = false) }
+                is ResultState.Error -> _state.update {
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
                 }
                 ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
             }
+            isFetchInFlight = false
         }
     }
 
     private fun fetchStockOverview(isRefresh: Boolean = false) {
+        isFetchInFlight = true
         viewModelScope.launch {
             if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
             val token = observeSessionUseCase().first()?.token.orEmpty()
             if (token.isBlank()) {
                 _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = "Session not available.") }
+                isFetchInFlight = false
                 return@launch
             }
-            val tanks = when (val result = getStockOverviewUseCase(token)) {
-                is ResultState.Success -> result.data
-                else -> emptyList()
+            when (val result = getStockOverviewUseCase(token)) {
+                is ResultState.Success -> _state.update {
+                    it.copy(
+                        isLoading = false,
+                        isRefreshing = false,
+                        stockOverviewTankItems = result.data,
+                        errorMessage = null,
+                        isOffline = false,
+                        retryPending = false
+                    )
+                }
+                is ResultState.Error -> _state.update {
+                    it.copy(
+                        isLoading = false,
+                        isRefreshing = false,
+                        isOffline = result.isOffline,
+                        retryPending = result.isOffline,
+                        errorMessage = if (result.isOffline) "No internet connection" else result.message
+                    )
+                }
+                ResultState.Loading -> Unit
             }
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    isRefreshing = false,
-                    stockOverviewTankItems = tanks,
-                    errorMessage = null
-                )
-            }
+            isFetchInFlight = false
         }
     }
 

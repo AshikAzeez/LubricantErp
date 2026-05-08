@@ -10,9 +10,12 @@ interface AuthRepository {
     fun observeProfile(): Flow<UserProfile?>
     fun observeRememberedUsername(): Flow<String>
     fun observeRememberMeEnabled(): Flow<Boolean>
+    fun observeBiometricEnabled(): Flow<Boolean>
 
     suspend fun login(username: String, password: String, rememberMe: Boolean): ResultState<AuthSession>
+    suspend fun refreshSession(): ResultState<AuthSession>
     suspend fun ensureProfileLoaded(forceRefresh: Boolean = false): ResultState<UserProfile>
+    suspend fun setBiometricEnabled(enabled: Boolean)
 
     suspend fun logout()
 }

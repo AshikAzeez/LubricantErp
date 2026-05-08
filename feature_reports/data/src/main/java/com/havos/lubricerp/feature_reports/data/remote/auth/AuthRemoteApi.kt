@@ -10,14 +10,14 @@ import com.havos.lubricerp.feature_reports.data.dto.LoginResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.LogoutResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.ProfileApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.ProfileDataDto
+import com.havos.lubricerp.feature_reports.data.dto.RefreshTokenApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.RefreshTokenRequestDto
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.post
 import io.ktor.client.request.get
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.utils.io.errors.IOException
 
 class AuthRemoteApi(
@@ -57,6 +57,7 @@ class AuthRemoteApi(
                         LoginResponseDto(
                             username = displayName,
                             token = token,
+                            refreshToken = data?.refreshToken.orEmpty(),
                             expiry = data?.expiry
                         )
                     )
@@ -79,10 +80,10 @@ class AuthRemoteApi(
         }
     }
 
-    override suspend fun logout(): ResultState<Unit> {
+    override suspend fun logout(token: String): ResultState<Unit> {
         return when (
             val result = safeApiCall<LogoutResponseDto> {
-                client.post("auth/logout") {
+                client.post("api/auth/logout") {
                     headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
                 }
             }
@@ -93,13 +94,49 @@ class AuthRemoteApi(
         }
     }
 
+    override suspend fun refreshToken(refreshToken: String): ResultState<LoginResponseDto> {
+        if (refreshToken.isBlank()) return ResultState.Error("Refresh token is missing.")
+
+        return when (
+            val result = safeApiCall<RefreshTokenApiResponseDto> {
+                client.post("api/auth/refresh") {
+                    headers.append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                    headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
+                    setBody(RefreshTokenRequestDto(refreshToken = refreshToken))
+                }
+            }
+        ) {
+            is ResultState.Success -> {
+                val payload = result.data
+                val data = payload.data
+                val newToken = data?.token.orEmpty()
+                if (!payload.success || newToken.isBlank()) {
+                    val serverMessage = payload.message?.takeIf { it.isNotBlank() }
+                        ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
+                        ?: "Token refresh failed"
+                    ResultState.Error(serverMessage)
+                } else {
+                    ResultState.Success(
+                        LoginResponseDto(
+                            username = "",
+                            token = newToken,
+                            refreshToken = data?.refreshToken.orEmpty(),
+                            expiry = data?.expiry
+                        )
+                    )
+                }
+            }
+            is ResultState.Error -> ResultState.Error("Token refresh failed: ${result.message}")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
     override suspend fun getProfile(token: String): ResultState<ProfileDataDto> {
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
 
         return when (
             val result = safeApiCall<ProfileApiResponseDto> {
                 client.get("api/auth/profile") {
-                    headers.append(Authorization, "Bearer $token")
                     headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
                 }
             }

@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.compose)
 }
 
+composeCompiler {
+    stabilityConfigurationFile = rootProject.layout.projectDirectory.file("compose-stability.conf")
+}
+
 android {
     namespace = "com.havos.lubricerp.core.ui"
     compileSdk {

@@ -1,6 +1,7 @@
 package com.havos.lubricerp.feature_reports.presentation.home
 
 import com.havos.lubricerp.core.common.UiIntent
+import androidx.compose.runtime.Stable
 import com.havos.lubricerp.core.common.UiState
 import com.havos.lubricerp.core.ui.components.DashboardCardUi
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportItem
@@ -11,6 +12,7 @@ sealed interface ReportsTabIntent : UiIntent {
     data object BottomSheetDismissed : ReportsTabIntent
 }
 
+@Stable
 data class ReportsTabUiState(
     val greetingName: String = "",
     val isProfileLoading: Boolean = false,

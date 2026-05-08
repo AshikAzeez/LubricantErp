@@ -17,6 +17,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -31,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.foundation.lazy.LazyColumn
@@ -60,6 +62,9 @@ fun SettingsRoute(
             when (action) {
                 is SettingsAction.ThemeSelected -> {
                     viewModel.onIntent(SettingsIntent.ThemeChanged(action.mode))
+                }
+                is SettingsAction.BiometricToggled -> {
+                    viewModel.onIntent(SettingsIntent.BiometricToggled(action.enabled))
                 }
             }
         },
@@ -161,6 +166,39 @@ private fun SettingsScreen(
                                 }
                         )
                     }
+                }
+            }
+
+            item {
+                Text(
+                    text = "Security",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp)
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    )
+                ) {
+                    ListItem(
+                        leadingContent = {
+                            Icon(Icons.Default.Fingerprint, contentDescription = null)
+                        },
+                        headlineContent = { Text("Biometric Login") },
+                        supportingContent = {
+                            Text("Use fingerprint, face, or device PIN to sign in")
+                        },
+                        trailingContent = {
+                            Switch(
+                                checked = state.biometricEnabled,
+                                onCheckedChange = { onAction(SettingsAction.BiometricToggled(it)) }
+                            )
+                        }
+                    )
                 }
             }
 

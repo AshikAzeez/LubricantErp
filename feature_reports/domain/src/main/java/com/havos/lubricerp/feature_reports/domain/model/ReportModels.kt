@@ -145,6 +145,21 @@ data class ExpenseSummaryItem(
     val totalPaid: Double
 )
 
+data class CustomerMobileSummary(
+    val id: Long,
+    val name: String,
+    val code: String,
+    val phone: String,
+    val email: String,
+    val gstNumber: String,
+    val address: String,
+    val outstandingAmount: Double,
+    val overdueAmount: Double,
+    val lastPurchaseDate: String?,
+    val lastInvoiceNumber: String?,
+    val totalLifetimePurchases: Double
+)
+
 data class StockOverviewTankItem(
     val tankId: Int,
     val tankName: String,

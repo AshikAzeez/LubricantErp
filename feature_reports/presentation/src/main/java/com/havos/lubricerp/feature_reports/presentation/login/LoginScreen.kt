@@ -1,5 +1,6 @@
 package com.havos.lubricerp.feature_reports.presentation.login
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Visibility
@@ -28,6 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -39,22 +43,25 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.havos.lubricerp.core.database.BiometricAuthManager
 import com.havos.lubricerp.core.ui.components.CollectEffect
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 @Composable
 fun LoginRoute(
@@ -63,9 +70,22 @@ fun LoginRoute(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val biometricAuthManager: BiometricAuthManager = koinInject()
+    val context = LocalContext.current
+
     CollectEffect(effects = viewModel.effect) { effect ->
         when (effect) {
             LoginEffect.NavigateToHome -> onNavigateHome()
+            LoginEffect.PromptBiometric -> {
+                val activity = context as? FragmentActivity ?: return@CollectEffect
+                biometricAuthManager.authenticate(
+                    activity = activity,
+                    title = "Goal ERP Login",
+                    subtitle = "Verify your identity to sign in",
+                    onSuccess = { viewModel.onBiometricSuccess() },
+                    onError = { _, _ -> }
+                )
+            }
         }
     }
 
@@ -92,11 +112,13 @@ fun LoginRoute(
                 )
 
                 LoginAction.Submit -> viewModel.onIntent(LoginIntent.Submit)
+                LoginAction.BiometricLogin -> viewModel.onIntent(LoginIntent.BiometricLogin)
             }
         }
     )
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun LoginScreen(
     state: LoginUiState,
@@ -107,10 +129,10 @@ private fun LoginScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
     val canSubmit = state.username.isNotBlank() &&
-        state.password.isNotBlank() &&
-        state.usernameError == null &&
-        state.passwordError == null &&
-        !state.isLoading
+            state.password.isNotBlank() &&
+            state.usernameError == null &&
+            state.passwordError == null &&
+            !state.isLoading
     val logoResId = remember {
         context.resources.getIdentifier("erp_logo", "drawable", context.packageName)
     }
@@ -285,6 +307,28 @@ private fun LoginScreen(
                             )
                         } else {
                             Text("Sign In", style = MaterialTheme.typography.titleMedium)
+                        }
+                    }
+
+                    if (state.biometricAvailable) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        OutlinedButton(
+                            onClick = { onAction(LoginAction.BiometricLogin) },
+                            enabled = !state.isLoading,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Fingerprint,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.size(8.dp))
+                            Text(
+                                "Sign in with Biometrics",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
                     }
                 }

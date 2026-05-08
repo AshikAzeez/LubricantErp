@@ -12,6 +12,7 @@ data class LoginRequestDto(
 data class LoginResponseDto(
     val username: String,
     val token: String,
+    val refreshToken: String = "",
     val expiry: String? = null
 )
 
@@ -26,6 +27,7 @@ data class LoginApiResponseDto(
 @Serializable
 data class LoginApiDataDto(
     val token: String,
+    val refreshToken: String = "",
     val expiry: String? = null,
     val user: LoginApiUserDto? = null
 )
@@ -37,6 +39,26 @@ data class LoginApiUserDto(
     val fullName: String? = null,
     val branchId: Long? = null,
     val roles: List<String> = emptyList()
+)
+
+@Serializable
+data class RefreshTokenRequestDto(
+    val refreshToken: String
+)
+
+@Serializable
+data class RefreshTokenApiResponseDto(
+    val success: Boolean,
+    val data: RefreshTokenDataDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class RefreshTokenDataDto(
+    val token: String,
+    val refreshToken: String = "",
+    val expiry: String? = null
 )
 
 @Serializable

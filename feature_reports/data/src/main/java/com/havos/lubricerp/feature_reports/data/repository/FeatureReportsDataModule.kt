@@ -1,5 +1,7 @@
 package com.havos.lubricerp.feature_reports.data.repository
 
+import com.havos.lubricerp.core.database.BiometricAuthManager
+import com.havos.lubricerp.core.network.SessionTokenProvider
 import com.havos.lubricerp.feature_reports.data.remote.auth.AuthRemoteApi
 import com.havos.lubricerp.feature_reports.data.remote.auth.AuthRemoteDataSource
 import com.havos.lubricerp.feature_reports.data.remote.reports.ReportsRemoteApi
@@ -13,4 +15,6 @@ val featureReportsDataModule = module {
     single<ReportsRemoteDataSource> { ReportsRemoteApi(get()) }
     single<AuthRepository> { AuthRepositoryImpl(get(), get(), get()) }
     single<ReportsRepository> { ReportsRepositoryImpl(get()) }
+    single<SessionTokenProvider> { SessionTokenProviderImpl(get(), get(), get()) }
+    single { BiometricAuthManager() }
 }

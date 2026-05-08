@@ -25,13 +25,21 @@ class AuthRepositoryImpl(
 
     override fun observeSession(): Flow<AuthSession?> {
         return secureSessionStore.sessionFlow.map { session ->
-            session?.let { AuthSession(username = it.username, token = it.token) }
+            session?.let {
+                AuthSession(
+                    username = it.username,
+                    token = it.token,
+                    refreshToken = it.refreshToken
+                )
+            }
         }
     }
 
     override fun observeRememberedUsername(): Flow<String> = secureSessionStore.rememberedUsernameFlow
 
     override fun observeRememberMeEnabled(): Flow<Boolean> = secureSessionStore.rememberMeEnabledFlow
+
+    override fun observeBiometricEnabled(): Flow<Boolean> = secureSessionStore.biometricEnabledFlow
 
     override fun observeProfile(): Flow<UserProfile?> {
         return secureProfileStore.profileFlow.map { it?.toDomain() }
@@ -48,7 +56,8 @@ class AuthRepositoryImpl(
                     secureSessionStore.saveSession(
                         SessionData(
                             username = result.data.username,
-                            token = result.data.token
+                            token = result.data.token,
+                            refreshToken = result.data.refreshToken
                         )
                     )
                     secureProfileStore.clearProfile()
@@ -101,9 +110,48 @@ class AuthRepositoryImpl(
         }
     }
 
+    override suspend fun refreshSession(): ResultState<AuthSession> {
+        return withContext(Dispatchers.IO) {
+            val session = secureSessionStore.sessionFlow.first()
+            val refreshToken = session?.refreshToken.orEmpty()
+            if (refreshToken.isBlank()) {
+                return@withContext ResultState.Error("No refresh token available")
+            }
+
+            when (val result = authRemoteDataSource.refreshToken(refreshToken)) {
+                is ResultState.Success -> {
+                    val currentUsername = session?.username.orEmpty()
+                    secureSessionStore.saveSession(
+                        SessionData(
+                            username = currentUsername,
+                            token = result.data.token,
+                            refreshToken = result.data.refreshToken.ifBlank { refreshToken }
+                        )
+                    )
+                    ResultState.Success(
+                        AuthSession(
+                            username = currentUsername,
+                            token = result.data.token,
+                            refreshToken = result.data.refreshToken.ifBlank { refreshToken }
+                        )
+                    )
+                }
+                is ResultState.Error -> result
+                ResultState.Loading -> ResultState.Loading
+            }
+        }
+    }
+
+    override suspend fun setBiometricEnabled(enabled: Boolean) {
+        secureSessionStore.setBiometricEnabled(enabled)
+    }
+
     override suspend fun logout() {
         withContext(Dispatchers.IO) {
-            authRemoteDataSource.logout()
+            val token = secureSessionStore.sessionFlow.first()?.token.orEmpty()
+            if (token.isNotBlank()) {
+                authRemoteDataSource.logout(token)
+            }
             secureProfileStore.clearProfile()
             secureSessionStore.clearSession()
         }

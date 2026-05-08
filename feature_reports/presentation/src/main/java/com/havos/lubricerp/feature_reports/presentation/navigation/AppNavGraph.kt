@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
@@ -15,7 +16,9 @@ import androidx.navigation.navArgument
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.havos.lubricerp.core.network.NetworkMonitor
 import com.havos.lubricerp.core.network.ResolvedNetworkConfig
+import com.havos.lubricerp.core.ui.components.NetworkStatusBar
 import com.havos.lubricerp.feature_reports.presentation.customer.CustomerDataRoute
 import com.havos.lubricerp.feature_reports.presentation.home.HomeRoute
 import com.havos.lubricerp.feature_reports.presentation.login.LoginRoute
@@ -34,6 +37,8 @@ fun GoalErpNavGraph(
     val rootViewModel: RootViewModel = koinViewModel()
     val rootState by rootViewModel.state.collectAsStateWithLifecycle()
     koinInject<ResolvedNetworkConfig>()
+    val networkMonitor = koinInject<NetworkMonitor>()
+    val isOnline by networkMonitor.isOnline.collectAsStateWithLifecycle(initialValue = true)
 
     Box(modifier = modifier.fillMaxSize()) {
         NavHost(
@@ -144,5 +149,9 @@ fun GoalErpNavGraph(
             }
         }
 
+        NetworkStatusBar(
+            isOnline = isOnline,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }

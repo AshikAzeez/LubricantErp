@@ -3,7 +3,9 @@ package com.havos.lubricerp.feature_reports.presentation.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.havos.lubricerp.core.database.SecureSessionStore
+import com.havos.lubricerp.feature_reports.domain.usecase.ObserveBiometricEnabledUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveProfileUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.SetBiometricEnabledUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,7 +14,9 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val secureSessionStore: SecureSessionStore,
-    private val observeProfileUseCase: ObserveProfileUseCase
+    private val observeProfileUseCase: ObserveProfileUseCase,
+    private val observeBiometricEnabledUseCase: ObserveBiometricEnabledUseCase,
+    private val setBiometricEnabledUseCase: SetBiometricEnabledUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(SettingsUiState())
@@ -22,6 +26,12 @@ class SettingsViewModel(
         viewModelScope.launch {
             secureSessionStore.themeModeFlow.collect { mode ->
                 _state.update { it.copy(selectedThemeMode = mode) }
+            }
+        }
+
+        viewModelScope.launch {
+            observeBiometricEnabledUseCase().collect { enabled ->
+                _state.update { it.copy(biometricEnabled = enabled) }
             }
         }
 
@@ -48,6 +58,11 @@ class SettingsViewModel(
             is SettingsIntent.ThemeChanged -> {
                 viewModelScope.launch {
                     secureSessionStore.setThemeMode(intent.mode)
+                }
+            }
+            is SettingsIntent.BiometricToggled -> {
+                viewModelScope.launch {
+                    setBiometricEnabledUseCase(intent.enabled)
                 }
             }
         }

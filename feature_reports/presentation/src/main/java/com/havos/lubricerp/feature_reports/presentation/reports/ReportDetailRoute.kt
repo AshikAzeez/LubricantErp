@@ -19,6 +19,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
+import com.havos.lubricerp.core.ui.components.OfflinePlaceholder
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -52,6 +54,7 @@ fun ReportDetailRoute(
                     ReportDetailAction.ApplyFilter -> viewModel.onIntent(ReportDetailIntent.ApplyFilter)
                     ReportDetailAction.ResetFilter -> viewModel.onIntent(ReportDetailIntent.ResetFilter)
                     ReportDetailAction.ToggleTopCustomers -> viewModel.onIntent(ReportDetailIntent.ToggleTopCustomers)
+                    ReportDetailAction.Retry -> viewModel.onIntent(ReportDetailIntent.Load(reportKey))
                 }
             }
         )
@@ -93,6 +96,14 @@ internal fun ReportDetailScreen(
             return@Scaffold
         }
 
+        if (state.isOffline) {
+            OfflinePlaceholder(
+                onRetry = { onAction(ReportDetailAction.Retry) },
+                modifier = contentModifier
+            )
+            return@Scaffold
+        }
+
         state.errorMessage?.let { message ->
             if (state.selectedReport == ReportItem.TANK_STOCK_SUMMARY) {
                 TankStockSummaryScreen(
@@ -101,9 +112,11 @@ internal fun ReportDetailScreen(
                 )
                 return@Scaffold
             }
-            Column(modifier = contentModifier.padding(16.dp)) {
-                Text(text = message, color = MaterialTheme.colorScheme.error)
-            }
+            ErrorPlaceholder(
+                message = message,
+                onRetry = { onAction(ReportDetailAction.Retry) },
+                modifier = contentModifier
+            )
             return@Scaffold
         }
 

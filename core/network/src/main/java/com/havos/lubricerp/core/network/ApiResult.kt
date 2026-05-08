@@ -1,8 +1,13 @@
 package com.havos.lubricerp.core.network
 
+import com.havos.lubricerp.core.common.NetworkErrorKind
 import com.havos.lubricerp.core.common.ResultState
 import io.ktor.client.call.body
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.network.sockets.SocketTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.statement.HttpResponse
+import io.ktor.utils.io.errors.IOException
 
 suspend inline fun <reified T> safeApiCall(
     crossinline block: suspend () -> HttpResponse
@@ -12,9 +17,30 @@ suspend inline fun <reified T> safeApiCall(
         if (response.status.value in 200..299) {
             ResultState.Success(response.body<T>())
         } else {
-            ResultState.Error("Request failed with code ${response.status.value}")
+            ResultState.Error(
+                message = "Request failed with code ${response.status.value}",
+                networkErrorKind = when (response.status.value) {
+                    in 500..599 -> NetworkErrorKind.SERVER_ERROR
+                    401, 403    -> NetworkErrorKind.AUTH_ERROR
+                    else        -> NetworkErrorKind.UNKNOWN
+                }
+            )
         }
     }.getOrElse { throwable ->
-        ResultState.Error(throwable.message ?: "Unexpected network error", throwable)
+        val kind = when {
+            throwable is IOException ||
+            "unable to resolve host" in (throwable.message?.lowercase() ?: "") ||
+            "network is unreachable" in (throwable.message?.lowercase() ?: "") ||
+            "failed to connect" in (throwable.message?.lowercase() ?: "") -> NetworkErrorKind.OFFLINE
+            throwable is HttpRequestTimeoutException ||
+            throwable is ConnectTimeoutException ||
+            throwable is SocketTimeoutException -> NetworkErrorKind.TIMEOUT
+            else -> NetworkErrorKind.UNKNOWN
+        }
+        ResultState.Error(
+            message = throwable.message ?: "Unexpected network error",
+            cause = throwable,
+            networkErrorKind = kind
+        )
     }
 }

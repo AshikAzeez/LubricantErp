@@ -3,6 +3,7 @@ package com.havos.lubricerp.feature_reports.data.remote.reports
 import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
+import com.havos.lubricerp.feature_reports.data.dto.CustomerMobileSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.ExpenseSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.NetProfitReportDto
 import com.havos.lubricerp.feature_reports.data.dto.ProductSalesItemDto
@@ -25,6 +26,7 @@ interface ReportsRemoteDataSource {
     suspend fun getStockOverviewTanks(token: String): ResultState<List<StockOverviewTankItemDto>>
     suspend fun getCustomers(token: String): ResultState<List<CustomerDto>>
     suspend fun getCustomerLedger(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntryDto>>
+    suspend fun getCustomerMobileSummary(token: String, customerId: Long): ResultState<CustomerMobileSummaryDto>
     suspend fun getReportSalesSummary(token: String, fromDate: String, toDate: String): ResultState<List<ReportSalesSummaryItemDto>>
     suspend fun getProductSales(token: String, fromDate: String, toDate: String): ResultState<List<ProductSalesItemDto>>
     suspend fun getNetProfit(token: String, fromDate: String, toDate: String): ResultState<NetProfitReportDto>

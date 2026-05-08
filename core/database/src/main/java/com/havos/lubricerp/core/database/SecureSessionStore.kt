@@ -19,13 +19,15 @@ private val Context.secureDataStore by preferencesDataStore(name = "goal_erp_sec
 
 data class SessionData(
     val username: String,
-    val token: String
+    val token: String,
+    val refreshToken: String = ""
 )
 
 interface SecureSessionStore {
     val sessionFlow: Flow<SessionData?>
     val rememberedUsernameFlow: Flow<String>
     val rememberMeEnabledFlow: Flow<Boolean>
+    val biometricEnabledFlow: Flow<Boolean>
     val themeModeFlow: Flow<ThemeMode>
     val salesFilterFlow: Flow<Pair<String, String>?>
 
@@ -33,6 +35,7 @@ interface SecureSessionStore {
     suspend fun saveRememberedUsername(username: String)
     suspend fun clearRememberedUsername()
     suspend fun setRememberMeEnabled(enabled: Boolean)
+    suspend fun setBiometricEnabled(enabled: Boolean)
     suspend fun setThemeMode(themeMode: ThemeMode)
     suspend fun saveSalesFilter(fromDate: String, toDate: String)
     suspend fun clearSalesFilter()
@@ -52,10 +55,17 @@ class SecureSessionStoreImpl(
         .map { preferences ->
             val encryptedToken = preferences[Keys.TOKEN] ?: return@map null
             val encryptedUser = preferences[Keys.USERNAME] ?: return@map null
-            SessionData(
-                username = cryptoManager.decrypt(encryptedUser),
-                token = cryptoManager.decrypt(encryptedToken)
-            )
+            val encryptedRefresh = preferences[Keys.REFRESH_TOKEN] ?: ""
+            try {
+                SessionData(
+                    username = cryptoManager.decrypt(encryptedUser),
+                    token = cryptoManager.decrypt(encryptedToken),
+                    refreshToken = if (encryptedRefresh.isNotBlank()) cryptoManager.decrypt(encryptedRefresh) else ""
+                )
+            } catch (_: Exception) {
+                clearSession()
+                null
+            }
         }
         .flowOn(Dispatchers.IO)
 
@@ -63,7 +73,11 @@ class SecureSessionStoreImpl(
         .catch { emit(emptyPreferences()) }
         .map { preferences ->
             val encryptedUsername = preferences[Keys.REMEMBERED_USERNAME] ?: return@map ""
-            cryptoManager.decrypt(encryptedUsername)
+            try {
+                cryptoManager.decrypt(encryptedUsername)
+            } catch (_: Exception) {
+                ""
+            }
         }
         .flowOn(Dispatchers.IO)
 
@@ -72,11 +86,20 @@ class SecureSessionStoreImpl(
         .map { preferences -> preferences[Keys.REMEMBER_ME_ENABLED] ?: false }
         .flowOn(Dispatchers.IO)
 
+    override val biometricEnabledFlow: Flow<Boolean> = datastore.data
+        .catch { emit(emptyPreferences()) }
+        .map { preferences -> preferences[Keys.BIOMETRIC_ENABLED] ?: false }
+        .flowOn(Dispatchers.IO)
+
     override val themeModeFlow: Flow<ThemeMode> = datastore.data
         .catch { emit(emptyPreferences()) }
         .map { preferences ->
             val encryptedValue = preferences[Keys.THEME_MODE] ?: return@map ThemeMode.SYSTEM
-            ThemeMode.from(cryptoManager.decrypt(encryptedValue))
+            try {
+                ThemeMode.from(cryptoManager.decrypt(encryptedValue))
+            } catch (_: Exception) {
+                ThemeMode.SYSTEM
+            }
         }
         .flowOn(Dispatchers.IO)
 
@@ -94,6 +117,9 @@ class SecureSessionStoreImpl(
             datastore.edit { preferences ->
                 preferences[Keys.USERNAME] = cryptoManager.encrypt(sessionData.username)
                 preferences[Keys.TOKEN] = cryptoManager.encrypt(sessionData.token)
+                if (sessionData.refreshToken.isNotBlank()) {
+                    preferences[Keys.REFRESH_TOKEN] = cryptoManager.encrypt(sessionData.refreshToken)
+                }
             }
         }
     }
@@ -122,6 +148,14 @@ class SecureSessionStoreImpl(
         withContext(Dispatchers.IO) {
             datastore.edit { preferences ->
                 preferences[Keys.REMEMBER_ME_ENABLED] = enabled
+            }
+        }
+    }
+
+    override suspend fun setBiometricEnabled(enabled: Boolean) {
+        withContext(Dispatchers.IO) {
+            datastore.edit { preferences ->
+                preferences[Keys.BIOMETRIC_ENABLED] = enabled
             }
         }
     }
@@ -157,6 +191,8 @@ class SecureSessionStoreImpl(
             datastore.edit { preferences ->
                 preferences.remove(Keys.USERNAME)
                 preferences.remove(Keys.TOKEN)
+                preferences.remove(Keys.REFRESH_TOKEN)
+                preferences.remove(Keys.BIOMETRIC_ENABLED)
                 preferences.remove(Keys.SALES_FILTER_FROM)
                 preferences.remove(Keys.SALES_FILTER_TO)
             }
@@ -166,8 +202,10 @@ class SecureSessionStoreImpl(
     private object Keys {
         val USERNAME = stringPreferencesKey("username")
         val TOKEN = stringPreferencesKey("token")
+        val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
         val REMEMBERED_USERNAME = stringPreferencesKey("remembered_username")
         val REMEMBER_ME_ENABLED = booleanPreferencesKey("remember_me_enabled")
+        val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val SALES_FILTER_FROM = stringPreferencesKey("sales_filter_from")
         val SALES_FILTER_TO = stringPreferencesKey("sales_filter_to")

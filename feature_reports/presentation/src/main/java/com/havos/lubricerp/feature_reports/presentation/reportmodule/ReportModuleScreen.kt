@@ -39,7 +39,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -55,13 +54,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
-import com.havos.lubricerp.feature_reports.presentation.reports.DatePickerButton
+import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
+import com.havos.lubricerp.core.ui.components.OfflinePlaceholder
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
-import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
 import com.havos.lubricerp.feature_reports.domain.model.ReportSalesSummaryItem
+import com.havos.lubricerp.feature_reports.presentation.reports.DatePickerButton
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportItem
+import kotlinx.coroutines.launch
 
 private enum class SalesSortField { NONE, CUSTOMER, TOTAL, BALANCE }
 
@@ -127,11 +127,20 @@ internal fun ReportModuleScreen(
                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
 
-            when (selectedTab) {
-                0 -> SalesSummaryTab(state = state, onAction = onAction)
-                1 -> ProductSalesTab(state = state, onAction = onAction)
-                2 -> NetProfitTab(state = state, onAction = onAction)
-                3 -> ExpenseSummaryTab(state = state, onAction = onAction)
+            when {
+                state.isOffline -> OfflinePlaceholder(
+                    onRetry = { onAction(ReportModuleAction.ApplyFilter) }
+                )
+                state.error != null -> ErrorPlaceholder(
+                    message = state.error,
+                    onRetry = { onAction(ReportModuleAction.ApplyFilter) }
+                )
+                else -> when (selectedTab) {
+                    0 -> SalesSummaryTab(state = state, onAction = onAction)
+                    1 -> ProductSalesTab(state = state, onAction = onAction)
+                    2 -> NetProfitTab(state = state, onAction = onAction)
+                    3 -> ExpenseSummaryTab(state = state, onAction = onAction)
+                }
             }
         }
     }

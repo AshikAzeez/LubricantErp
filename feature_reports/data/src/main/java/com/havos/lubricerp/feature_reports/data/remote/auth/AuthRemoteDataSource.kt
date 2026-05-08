@@ -7,6 +7,7 @@ import com.havos.lubricerp.feature_reports.data.dto.ProfileDataDto
 
 interface AuthRemoteDataSource {
     suspend fun login(request: LoginRequestDto): ResultState<LoginResponseDto>
-    suspend fun logout(): ResultState<Unit>
+    suspend fun logout(token: String): ResultState<Unit>
+    suspend fun refreshToken(refreshToken: String): ResultState<LoginResponseDto>
     suspend fun getProfile(token: String): ResultState<ProfileDataDto>
 }

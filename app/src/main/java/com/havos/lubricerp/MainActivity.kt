@@ -1,7 +1,7 @@
 package com.havos.lubricerp
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.core.Animatable
@@ -31,7 +31,7 @@ import com.havos.lubricerp.feature_reports.presentation.navigation.GoalErpNavGra
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
     private val secureSessionStore: SecureSessionStore by inject()
     private var themeMode: ThemeMode by mutableStateOf(ThemeMode.SYSTEM)
 

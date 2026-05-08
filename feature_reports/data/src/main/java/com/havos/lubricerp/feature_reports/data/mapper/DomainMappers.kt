@@ -2,6 +2,7 @@ package com.havos.lubricerp.feature_reports.data.mapper
 
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
+import com.havos.lubricerp.feature_reports.data.dto.CustomerMobileSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.ExpenseSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.NetProfitReportDto
 import com.havos.lubricerp.feature_reports.data.dto.ProductSalesItemDto
@@ -20,6 +21,7 @@ import com.havos.lubricerp.feature_reports.data.dto.TankInfoDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
+import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
@@ -39,7 +41,8 @@ import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
 
 fun LoginResponseDto.toDomain(): AuthSession = AuthSession(
     username = username,
-    token = token
+    token = token,
+    refreshToken = refreshToken
 )
 
 fun ProfileDataDto.toDomain(): UserProfile = UserProfile(
@@ -190,6 +193,21 @@ fun ExpenseSummaryItemDto.toDomain(): ExpenseSummaryItem = ExpenseSummaryItem(
     vendorName = vendorName,
     paymentCount = paymentCount,
     totalPaid = totalPaid
+)
+
+fun CustomerMobileSummaryDto.toDomain(): CustomerMobileSummary = CustomerMobileSummary(
+    id = id,
+    name = name,
+    code = code,
+    phone = phone,
+    email = email,
+    gstNumber = gstNumber,
+    address = address,
+    outstandingAmount = outstandingAmount,
+    overdueAmount = overdueAmount,
+    lastPurchaseDate = lastPurchaseDate,
+    lastInvoiceNumber = lastInvoiceNumber,
+    totalLifetimePurchases = totalLifetimePurchases
 )
 
 fun SalesSummaryItemDto.toDomain(): SalesSummaryItem = SalesSummaryItem(

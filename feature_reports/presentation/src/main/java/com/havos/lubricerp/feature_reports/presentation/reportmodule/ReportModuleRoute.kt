@@ -1,10 +1,15 @@
 package com.havos.lubricerp.feature_reports.presentation.reportmodule
 
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportModuleRoute(
     reportItemKey: String,
@@ -12,10 +17,16 @@ fun ReportModuleRoute(
     viewModel: ReportModuleViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    ReportModuleScreen(
-        reportItemKey = reportItemKey,
-        state = state,
-        onAction = viewModel::onAction,
-        onBackClick = onBackClick
-    )
+    PullToRefreshBox(
+        isRefreshing = state.isRefreshing,
+        onRefresh = { viewModel.onAction(ReportModuleAction.Refresh) },
+        modifier = Modifier.fillMaxSize()
+    ) {
+        ReportModuleScreen(
+            reportItemKey = reportItemKey,
+            state = state,
+            onAction = viewModel::onAction,
+            onBackClick = onBackClick
+        )
+    }
 }

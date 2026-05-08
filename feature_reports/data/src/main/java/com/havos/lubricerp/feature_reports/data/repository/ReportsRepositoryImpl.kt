@@ -7,6 +7,7 @@ import com.havos.lubricerp.feature_reports.domain.model.DashboardSummary
 import com.havos.lubricerp.feature_reports.domain.model.DateRangeFilter
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
+import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
@@ -90,6 +91,14 @@ class ReportsRepositoryImpl(
     override suspend fun getCustomerLedger(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntry>> {
         return when (val result = reportsRemoteDataSource.getCustomerLedger(token, customerId, fromDate, toDate)) {
             is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getCustomerMobileSummary(token: String, customerId: Long): ResultState<CustomerMobileSummary> {
+        return when (val result = reportsRemoteDataSource.getCustomerMobileSummary(token, customerId)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }

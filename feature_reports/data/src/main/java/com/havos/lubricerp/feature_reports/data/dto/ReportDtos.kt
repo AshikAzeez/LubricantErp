@@ -240,6 +240,30 @@ data class ExpenseSummaryApiResponseDto(
 )
 
 @Serializable
+data class CustomerMobileSummaryDto(
+    val id: Long,
+    val name: String,
+    val code: String,
+    val phone: String = "",
+    val email: String = "",
+    val gstNumber: String = "",
+    val address: String = "",
+    val outstandingAmount: Double = 0.0,
+    val overdueAmount: Double = 0.0,
+    val lastPurchaseDate: String? = null,
+    val lastInvoiceNumber: String? = null,
+    val totalLifetimePurchases: Double = 0.0
+)
+
+@Serializable
+data class CustomerMobileSummaryApiResponseDto(
+    val success: Boolean,
+    val data: CustomerMobileSummaryDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
 data class SalesSummaryItemDto(
     val customerId: Long,
     val customerName: String,

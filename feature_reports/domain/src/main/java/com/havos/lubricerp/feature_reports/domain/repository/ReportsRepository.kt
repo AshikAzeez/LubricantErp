@@ -7,6 +7,7 @@ import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
+import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
@@ -29,6 +30,7 @@ interface ReportsRepository {
     suspend fun getStockOverviewTanks(token: String): ResultState<List<StockOverviewTankItem>>
     suspend fun getCustomers(token: String): ResultState<List<Customer>>
     suspend fun getCustomerLedger(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntry>>
+    suspend fun getCustomerMobileSummary(token: String, customerId: Long): ResultState<CustomerMobileSummary>
     suspend fun getReportSalesSummary(token: String, filter: DateRangeFilter): ResultState<List<ReportSalesSummaryItem>>
     suspend fun getProductSales(token: String, filter: DateRangeFilter): ResultState<List<ProductSalesItem>>
     suspend fun getNetProfit(token: String, filter: DateRangeFilter): ResultState<NetProfitReport>
