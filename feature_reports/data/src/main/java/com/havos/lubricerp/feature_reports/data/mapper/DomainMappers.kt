@@ -1,6 +1,7 @@
 package com.havos.lubricerp.feature_reports.data.mapper
 
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.NotificationItemDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerMobileSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.ExpenseSummaryItemDto
@@ -36,6 +37,7 @@ import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
 import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainRow
 import com.havos.lubricerp.feature_reports.domain.model.RawMaterialStockItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
+import com.havos.lubricerp.feature_reports.domain.model.NotificationItem
 import com.havos.lubricerp.feature_reports.domain.model.TankInfo
 import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
 
@@ -220,4 +222,16 @@ fun SalesSummaryItemDto.toDomain(): SalesSummaryItem = SalesSummaryItem(
     totalAmount = totalAmount,
     paidAmount = paidAmount,
     balanceAmount = balanceAmount
+)
+
+fun NotificationItemDto.toDomain(): NotificationItem = NotificationItem(
+    id = id,
+    title = title,
+    message = message,
+    type = type,
+    linkUrl = linkUrl,
+    isRead = isRead,
+    readAt = readAt,
+    createdAt = createdAt,
+    timeAgo = timeAgo
 )

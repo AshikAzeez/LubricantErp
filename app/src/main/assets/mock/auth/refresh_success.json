@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "data": {
+    "token": "demo_token_goal_erp_refreshed_456",
+    "refreshToken": "demo_refresh_token_789_new",
+    "expiry": "2026-12-31T23:59:59Z",
+    "issuedAt": "2026-05-08T10:05:00Z"
+  },
+  "message": null,
+  "errors": null,
+  "_requestId": "req_refresh_mock_001"
+}

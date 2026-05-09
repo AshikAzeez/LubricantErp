@@ -1,0 +1,48 @@
+{
+  "success": true,
+  "data": [
+    {
+      "tankId": 1,
+      "tankName": "Tank Alpha",
+      "tankCode": "TK-001",
+      "locationName": "Warehouse A",
+      "productGrade": "20W-40",
+      "capacityLiters": 50000.0,
+      "currentStockLiters": 32400.0,
+      "fillPercentage": 64.8,
+      "availableCapacity": 17600.0,
+      "stockInMT": 27.54,
+      "capacityInMT": 42.5
+    },
+    {
+      "tankId": 2,
+      "tankName": "Tank Beta",
+      "tankCode": "TK-002",
+      "locationName": "Warehouse A",
+      "productGrade": "Gear Oil 90",
+      "capacityLiters": 30000.0,
+      "currentStockLiters": 8700.0,
+      "fillPercentage": 29.0,
+      "availableCapacity": 21300.0,
+      "stockInMT": 7.83,
+      "capacityInMT": 27.0
+    },
+    {
+      "tankId": 3,
+      "tankName": "Tank Gamma",
+      "tankCode": "TK-003",
+      "locationName": "Warehouse B",
+      "productGrade": "Hydraulic Oil 68",
+      "capacityLiters": 40000.0,
+      "currentStockLiters": 39100.0,
+      "fillPercentage": 97.75,
+      "availableCapacity": 900.0,
+      "stockInMT": 33.24,
+      "capacityInMT": 34.0
+    }
+  ],
+  "message": null,
+  "errors": null,
+  "_generatedAt": "2026-05-08T10:00:00Z",
+  "_totalTanks": 3
+}

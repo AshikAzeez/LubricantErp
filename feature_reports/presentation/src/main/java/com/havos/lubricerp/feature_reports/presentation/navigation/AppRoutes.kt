@@ -7,6 +7,7 @@ object AppRoutes {
     const val SETTINGS = "settings"
     const val REPORT_DETAIL = "report_detail/{reportKey}"
     const val CUSTOMER_DATA = "customer_data"
+    const val NOTIFICATIONS = "notifications"
     const val REPORT_MODULE = "report_module/{reportItemKey}"
 
     fun reportDetail(reportKey: String): String = "report_detail/$reportKey"

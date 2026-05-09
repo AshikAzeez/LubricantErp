@@ -20,4 +20,5 @@ dependencies {
     implementation(project(":core:common"))
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.koin.core)
+    implementation(libs.androidx.paging.runtime.ktx)
 }

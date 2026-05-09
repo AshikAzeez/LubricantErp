@@ -5,8 +5,13 @@
     "email": "admin@baseoils.com",
     "fullName": "System Administrator",
     "branchId": 1,
-    "roles": ["Admin"]
+    "roles": ["Admin"],
+    "avatarUrl": null,
+    "phoneNumber": "+971501234567",
+    "department": "Management",
+    "isActive": true
   },
   "message": null,
-  "errors": null
+  "errors": null,
+  "_requestId": "req_profile_mock_001"
 }

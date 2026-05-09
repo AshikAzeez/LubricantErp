@@ -16,7 +16,8 @@ enum class ReportMenu(
     val key: String,
     val title: String,
     val icon: ImageVector,
-    val subMenus: List<ReportItem>
+    val subMenus: List<ReportItem>,
+    val show: Boolean = true,
 ) {
     TANK_REPORTS(
         key = "tank_reports",
@@ -26,7 +27,8 @@ enum class ReportMenu(
             ReportItem.TANK_STOCK_SUMMARY,
             ReportItem.DIP_VARIANCE,
             ReportItem.TANK_STOCK_LEDGER
-        )
+        ),
+        show = false
     ),
     WAREHOUSE_REPORTS(
         key = "warehouse_reports",
@@ -35,13 +37,14 @@ enum class ReportMenu(
         subMenus = listOf(
             ReportItem.SKU_STOCK_REPORT,
             ReportItem.SLOW_MOVING_STOCK
-        )
+        ), show = false
     ),
     RAW_MATERIAL_STOCK(
         key = "raw_material_stock",
         title = "Raw Material Stock",
         icon = Icons.Default.Inventory2,
-        subMenus = listOf(ReportItem.RAW_MATERIAL_STOCK)
+        subMenus = listOf(ReportItem.RAW_MATERIAL_STOCK),
+        show = false
     ),
     PACKAGING_REPORTS(
         key = "packaging_reports",
@@ -51,6 +54,7 @@ enum class ReportMenu(
             ReportItem.PACKAGING_LOSS_GAIN,
             ReportItem.PACKAGING_SUMMARY
         )
+        ,show = false
     ),
     SALES_REPORTS(
         key = "sales_reports",
@@ -75,7 +79,8 @@ enum class ReportMenu(
             ReportItem.GRN_SUMMARY,
             ReportItem.STATE_WISE_PURCHASE,
             ReportItem.DISTRICT_WISE_PURCHASE
-        )
+        ),
+        show = false
     ),
     CONSOLIDATED_STOCK(
         key = "consolidated_stock",
@@ -104,7 +109,7 @@ enum class ReportMenu(
 
 enum class ReportItem(
     val key: String,
-    val title: String
+    val title: String,
 ) {
     TANK_STOCK_SUMMARY("tank_stock_summary", "Tank Stock Summary"),
     DIP_VARIANCE("dip_variance", "Dip Variance Report"),

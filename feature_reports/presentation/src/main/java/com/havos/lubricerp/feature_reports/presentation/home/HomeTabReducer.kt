@@ -28,8 +28,25 @@ object HomeTabReducer {
             outstandingReceivables = data.outstandingReceivables,
             pendingPayables = data.pendingPayables,
             lowStockAlertCount = data.lowStockAlertCount,
+            topSellingProducts = data.topSellingProducts,
             recentInvoices = data.recentInvoices
         )
+    }
+
+    fun reduceForNetProfit(state: HomeTabUiState, netProfit: Double): HomeTabUiState {
+        return state.copy(netProfit = netProfit, isNetProfitLoading = false)
+    }
+
+    fun reduceForNetProfitLoading(state: HomeTabUiState): HomeTabUiState {
+        return state.copy(isNetProfitLoading = true)
+    }
+
+    fun reduceForNetProfitPeriod(state: HomeTabUiState, period: NetProfitPeriod): HomeTabUiState {
+        return state.copy(netProfitPeriod = period, isNetProfitLoading = true)
+    }
+
+    fun reduceForNetProfitCustomDate(state: HomeTabUiState, fromDate: String, toDate: String): HomeTabUiState {
+        return state.copy(netProfitCustomFrom = fromDate, netProfitCustomTo = toDate)
     }
 
     fun reduceForDashboardError(state: HomeTabUiState, message: String, isOffline: Boolean = false): HomeTabUiState {

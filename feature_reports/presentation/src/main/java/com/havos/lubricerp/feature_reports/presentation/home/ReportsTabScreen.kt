@@ -1,5 +1,6 @@
 package com.havos.lubricerp.feature_reports.presentation.home
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -46,6 +47,7 @@ import com.havos.lubricerp.core.ui.components.DashboardCardUi
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
 import kotlinx.coroutines.flow.collectLatest
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportsTabScreen(
@@ -67,26 +69,6 @@ fun ReportsTabScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            if (state.isProfileLoading) {
-                GreetingShimmerCard(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
-            } else if (state.greetingName.isNotBlank()) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = MaterialTheme.shapes.medium,
-                    color = MaterialTheme.colorScheme.surfaceContainer,
-                    tonalElevation = 1.dp
-                ) {
-                    Text(
-                        text = "Hello, ${state.greetingName}",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)
-                    )
-                }
-            }
-
             Text(
                 text = "Reports",
                 style = MaterialTheme.typography.titleLarge,
@@ -140,6 +122,7 @@ fun ReportsTabScreen(
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun DashboardCardGrid(
     items: List<DashboardCardUi>,

@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "name": "Al Noor Trucks",
+    "code": "C-001",
+    "phone": "9876543210",
+    "email": "alnoor@trucks.ae",
+    "gstNumber": "29ABCDE1234F1Z5",
+    "address": "Industrial Area, Dubai",
+    "outstandingAmount": 25200.0,
+    "overdueAmount": 0.0,
+    "lastPurchaseDate": "2026-05-01",
+    "lastInvoiceNumber": "SO2026050001",
+    "totalLifetimePurchases": 1248000.0
+  },
+  "message": null,
+  "errors": null,
+  "_generatedAt": "2026-05-08T10:00:00Z",
+  "_creditLimit": 1000000.0,
+  "_paymentTermDays": 30
+}

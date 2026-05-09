@@ -6,6 +6,7 @@ import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.core.common.isOffline
 import com.havos.lubricerp.core.network.NetworkMonitor
 import com.havos.lubricerp.feature_reports.domain.model.DateRangeFilter
+import com.havos.lubricerp.feature_reports.domain.usecase.EnsureProfileLoadedUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetExpenseSummaryUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetNetProfitUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetProductSalesUseCase
@@ -28,6 +29,7 @@ import java.util.TimeZone
 
 class ReportModuleViewModel(
     private val observeSessionUseCase: ObserveSessionUseCase,
+    private val ensureProfileLoadedUseCase: EnsureProfileLoadedUseCase,
     private val getReportSalesSummaryUseCase: GetReportSalesSummaryUseCase,
     private val getProductSalesUseCase: GetProductSalesUseCase,
     private val getNetProfitUseCase: GetNetProfitUseCase,
@@ -36,6 +38,7 @@ class ReportModuleViewModel(
 ) : ViewModel() {
 
     private var isFetchInFlight = false
+    private var userRoles: List<String> = emptyList()
 
     private val _state = MutableStateFlow(
         ReportModuleUiState(
@@ -46,7 +49,19 @@ class ReportModuleViewModel(
     val state: StateFlow<ReportModuleUiState> = _state.asStateFlow()
 
     init {
-        fetchAll()
+        viewModelScope.launch {
+            when (val result = ensureProfileLoadedUseCase()) {
+                is ResultState.Success -> {
+                    userRoles = result.data.roles
+                    val hasAccess = userRoles.any {
+                        it.equals("Admin", ignoreCase = true) || it.equals("Manager", ignoreCase = true)
+                    }
+                    _state.update { it.copy(canViewNetProfit = hasAccess) }
+                }
+                else -> Unit
+            }
+            fetchAll()
+        }
         observeConnectivity()
     }
 
@@ -99,7 +114,7 @@ class ReportModuleViewModel(
             val filter = DateRangeFilter(fromDate = snapshot.fromDate, toDate = snapshot.toDate)
             val salesDeferred   = async { getReportSalesSummaryUseCase(token, filter) }
             val productDeferred = async { getProductSalesUseCase(token, filter) }
-            val profitDeferred  = async { getNetProfitUseCase(token, filter) }
+            val profitDeferred  = async { getNetProfitUseCase(token, filter, userRoles) }
             val expenseDeferred = async { getExpenseSummaryUseCase(token, filter) }
             val salesResult   = salesDeferred.await()
             val productResult = productDeferred.await()
@@ -126,7 +141,8 @@ class ReportModuleViewModel(
                     },
                     netProfit = when (profitResult) {
                         is ResultState.Success -> profitResult.data
-                        is ResultState.Error -> { if (errorMsg == null) errorMsg = profitResult.message; current.netProfit }
+                        is ResultState.Error -> if (profitResult.message == GetNetProfitUseCase.ACCESS_DENIED) current.netProfit
+                                               else { if (errorMsg == null) errorMsg = profitResult.message; current.netProfit }
                         ResultState.Loading -> current.netProfit
                     },
                     expenseSummaryItems = when (expenseResult) {
@@ -179,7 +195,7 @@ class ReportModuleViewModel(
             // All 4 calls run in parallel.
             val salesDeferred   = async { getReportSalesSummaryUseCase(token, filter) }
             val productDeferred = async { getProductSalesUseCase(token, filter) }
-            val profitDeferred  = async { getNetProfitUseCase(token, filter) }
+            val profitDeferred  = async { getNetProfitUseCase(token, filter, userRoles) }
             val expenseDeferred = async { getExpenseSummaryUseCase(token, filter) }
 
             val salesResult   = salesDeferred.await()
@@ -209,7 +225,8 @@ class ReportModuleViewModel(
                     },
                     netProfit = when (profitResult) {
                         is ResultState.Success -> profitResult.data
-                        is ResultState.Error -> { if (errorMsg == null) errorMsg = profitResult.message; current.netProfit }
+                        is ResultState.Error -> if (profitResult.message == GetNetProfitUseCase.ACCESS_DENIED) current.netProfit
+                                               else { if (errorMsg == null) errorMsg = profitResult.message; current.netProfit }
                         ResultState.Loading -> current.netProfit
                     },
                     expenseSummaryItems = when (expenseResult) {

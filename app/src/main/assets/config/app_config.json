@@ -1,5 +1,5 @@
 {
-  "environment": "TEST",
+  "environment": "STAGE",
   "useMockEngine": false,
   "baseUrls": {
     "test": "http://havostech-001-site2.atempurl.com/",

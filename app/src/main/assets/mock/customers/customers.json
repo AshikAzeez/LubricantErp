@@ -1,0 +1,64 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Al Noor Trucks",
+      "code": "C-001",
+      "phone": "9876543210",
+      "email": "alnoor@trucks.ae",
+      "address": "Industrial Area, Dubai",
+      "gSTNumber": "29ABCDE1234F1Z5",
+      "state": "Dubai"
+    },
+    {
+      "id": 2,
+      "name": "Gulf Transport Co.",
+      "code": "C-002",
+      "phone": "9845612300",
+      "email": "info@gulftransport.ae",
+      "address": "Sharjah Free Zone",
+      "gSTNumber": "24XYZAB5678G2K1",
+      "state": "Sharjah"
+    },
+    {
+      "id": 3,
+      "name": "Star Logistics",
+      "code": "C-003",
+      "phone": "9911223344",
+      "email": "ops@starlog.ae",
+      "address": "Jebel Ali, Dubai",
+      "gSTNumber": null,
+      "state": "Dubai"
+    },
+    {
+      "id": 4,
+      "name": "Desert Fleet Services",
+      "code": "C-004",
+      "phone": "9700112233",
+      "email": "fleet@desert.ae",
+      "address": "Mussafah, Abu Dhabi",
+      "gSTNumber": "07PQRST9012H3M9",
+      "state": "Abu Dhabi",
+      "creditLimit": 500000.0,
+      "paymentTermDays": 30
+    },
+    {
+      "id": 5,
+      "name": "Unnamed Walk-in Customer",
+      "code": "C-005",
+      "phone": "",
+      "email": "",
+      "address": "",
+      "gSTNumber": null,
+      "state": "",
+      "creditLimit": 0.0,
+      "paymentTermDays": 0,
+      "isActive": false
+    }
+  ],
+  "message": null,
+  "errors": null,
+  "_total": 5,
+  "_generatedAt": "2026-05-08T10:00:00Z"
+}

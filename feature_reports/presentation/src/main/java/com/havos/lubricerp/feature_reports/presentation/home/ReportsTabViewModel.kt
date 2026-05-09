@@ -24,7 +24,7 @@ class ReportsTabViewModel(
 
     private val _state = MutableStateFlow(
         ReportsTabUiState(
-            cards = ReportMenu.entries.map {
+            cards = ReportMenu.entries.filter { it.show }.map {
                 DashboardCardUi(
                     id = it.key,
                     title = it.title,

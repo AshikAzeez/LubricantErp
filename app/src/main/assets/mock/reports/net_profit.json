@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "data": {
+    "totalRevenue": 3876000.0,
+    "totalPurchaseCost": 2504000.0,
+    "netProfit": 1372000.0,
+    "fromDate": "2026-05-01",
+    "toDate": "2026-05-31"
+  },
+  "message": null,
+  "errors": null,
+  "_currency": "AED",
+  "_generatedAt": "2026-05-08T10:00:00Z"
+}

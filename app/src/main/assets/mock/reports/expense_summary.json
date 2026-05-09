@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "data": [
+    {
+      "vendorName": "BaseOil Suppliers LLC",
+      "paymentCount": 6,
+      "totalPaid": 1240000.0
+    },
+    {
+      "vendorName": "Additive Chem Co.",
+      "paymentCount": 3,
+      "totalPaid": 480000.0
+    },
+    {
+      "vendorName": "Packaging Solutions",
+      "paymentCount": 4,
+      "totalPaid": 185000.0
+    },
+    {
+      "vendorName": "Freight & Logistics",
+      "paymentCount": 8,
+      "totalPaid": 96000.0
+    }
+  ],
+  "message": null,
+  "errors": null,
+  "_currency": "AED",
+  "_generatedAt": "2026-05-08T10:00:00Z"
+}

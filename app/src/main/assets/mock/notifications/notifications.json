@@ -1,0 +1,285 @@
+{
+  "success": true,
+  "data": {
+    "unreadCount": 3,
+    "items": [
+      {
+        "id": 25,
+        "title": "New Sales Order",
+        "message": "SO #SO2026050010 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/10",
+        "isRead": false,
+        "readAt": null,
+        "createdAt": "2026-05-08T08:46:00.0000000",
+        "timeAgo": "4 hr ago"
+      },
+      {
+        "id": 24,
+        "title": "Low Stock Alert",
+        "message": "Hydraulic Oil 68 in Tank Gamma is at 97% capacity — reorder base oil soon.",
+        "type": "Warning",
+        "linkUrl": "/Inventory/Tanks/3",
+        "isRead": false,
+        "readAt": null,
+        "createdAt": "2026-05-08T06:10:00.0000000",
+        "timeAgo": "6 hr ago"
+      },
+      {
+        "id": 23,
+        "title": "New Purchase Order",
+        "message": "PO #PO2026050003 has been created and requires review.",
+        "type": "Approval",
+        "linkUrl": "/PurchaseOrder/Details/5",
+        "isRead": false,
+        "readAt": null,
+        "createdAt": "2026-05-07T11:54:46.0000000",
+        "timeAgo": "1 day ago"
+      },
+      {
+        "id": 22,
+        "title": "Payment Received",
+        "message": "Payment of AED 45,200 received from Al Noor Trucks for SO2026050001.",
+        "type": "Info",
+        "linkUrl": "/Payments/Receipt/42",
+        "isRead": true,
+        "readAt": "2026-05-06T10:00:00.0000000",
+        "createdAt": "2026-05-06T09:30:00.0000000",
+        "timeAgo": "2 days ago"
+      },
+      {
+        "id": 21,
+        "title": "New Sales Order",
+        "message": "SO #SO2026050009 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/9",
+        "isRead": true,
+        "readAt": "2026-05-05T14:00:00.0000000",
+        "createdAt": "2026-05-05T13:30:00.0000000",
+        "timeAgo": "3 days ago"
+      },
+      {
+        "id": 20,
+        "title": "Invoice Overdue",
+        "message": "Invoice SO2026040088 for Gulf Transport Co. is overdue by 15 days.",
+        "type": "Warning",
+        "linkUrl": "/SalesOrder/Details/8",
+        "isRead": true,
+        "readAt": "2026-05-04T09:00:00.0000000",
+        "createdAt": "2026-05-04T08:00:00.0000000",
+        "timeAgo": "4 days ago"
+      },
+      {
+        "id": 19,
+        "title": "Stock Replenishment",
+        "message": "Gear Oil 90 in Tank Beta has been replenished to 85% capacity.",
+        "type": "Info",
+        "linkUrl": "/Inventory/Tanks/2",
+        "isRead": true,
+        "readAt": "2026-05-03T11:00:00.0000000",
+        "createdAt": "2026-05-03T10:45:00.0000000",
+        "timeAgo": "5 days ago"
+      },
+      {
+        "id": 18,
+        "title": "New Sales Order",
+        "message": "SO #SO2026050008 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/8",
+        "isRead": true,
+        "readAt": "2026-05-03T09:30:00.0000000",
+        "createdAt": "2026-05-03T09:00:00.0000000",
+        "timeAgo": "5 days ago"
+      },
+      {
+        "id": 17,
+        "title": "Purchase Order Approved",
+        "message": "PO #PO2026050002 has been approved by the manager.",
+        "type": "Approval",
+        "linkUrl": "/PurchaseOrder/Details/4",
+        "isRead": true,
+        "readAt": "2026-05-02T16:00:00.0000000",
+        "createdAt": "2026-05-02T15:30:00.0000000",
+        "timeAgo": "6 days ago"
+      },
+      {
+        "id": 16,
+        "title": "Payment Received",
+        "message": "Payment of AED 32,800 received from Gulf Transport Co. for SO2026040079.",
+        "type": "Info",
+        "linkUrl": "/Payments/Receipt/41",
+        "isRead": true,
+        "readAt": "2026-05-01T12:00:00.0000000",
+        "createdAt": "2026-05-01T11:30:00.0000000",
+        "timeAgo": "7 days ago"
+      },
+      {
+        "id": 15,
+        "title": "New Sales Order",
+        "message": "SO #SO2026050001 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/4",
+        "isRead": true,
+        "readAt": "2026-05-01T09:00:00.0000000",
+        "createdAt": "2026-05-01T08:46:00.0000000",
+        "timeAgo": "7 days ago"
+      },
+      {
+        "id": 14,
+        "title": "Low Stock Warning",
+        "message": "20W-40 Engine Oil in Tank Alpha is below 30% — consider reordering.",
+        "type": "Warning",
+        "linkUrl": "/Inventory/Tanks/1",
+        "isRead": true,
+        "readAt": "2026-04-30T10:00:00.0000000",
+        "createdAt": "2026-04-30T09:00:00.0000000",
+        "timeAgo": "1 week ago"
+      },
+      {
+        "id": 13,
+        "title": "New Purchase Order",
+        "message": "PO #PO2026040001 has been created and requires review.",
+        "type": "Approval",
+        "linkUrl": "/PurchaseOrder/Details/3",
+        "isRead": true,
+        "readAt": "2026-04-29T10:00:00.0000000",
+        "createdAt": "2026-04-28T11:54:46.0000000",
+        "timeAgo": "1 week ago"
+      },
+      {
+        "id": 12,
+        "title": "Payment Received",
+        "message": "Payment of AED 38,600 received from Al Noor Trucks for SO2026040088.",
+        "type": "Info",
+        "linkUrl": "/Payments/Receipt/38",
+        "isRead": true,
+        "readAt": "2026-04-22T10:00:00.0000000",
+        "createdAt": "2026-04-20T09:30:00.0000000",
+        "timeAgo": "2 weeks ago"
+      },
+      {
+        "id": 11,
+        "title": "New Sales Order",
+        "message": "SO #SO2026040001 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/3",
+        "isRead": true,
+        "readAt": "2026-04-27T09:07:12.0000000",
+        "createdAt": "2026-04-27T09:02:28.0000000",
+        "timeAgo": "2 weeks ago"
+      },
+      {
+        "id": 10,
+        "title": "Invoice Overdue",
+        "message": "Invoice SO2026040065 for Star Logistics is overdue by 7 days.",
+        "type": "Warning",
+        "linkUrl": "/SalesOrder/Details/7",
+        "isRead": true,
+        "readAt": "2026-04-25T09:00:00.0000000",
+        "createdAt": "2026-04-25T08:00:00.0000000",
+        "timeAgo": "2 weeks ago"
+      },
+      {
+        "id": 9,
+        "title": "New Sales Order",
+        "message": "SO #SO2026040007 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/7",
+        "isRead": true,
+        "readAt": "2026-04-23T09:00:00.0000000",
+        "createdAt": "2026-04-23T08:30:00.0000000",
+        "timeAgo": "2 weeks ago"
+      },
+      {
+        "id": 8,
+        "title": "Stock Replenishment",
+        "message": "Raw material base oil batch #BT-042 has been received at Warehouse B.",
+        "type": "Info",
+        "linkUrl": "/Inventory/RawMaterials",
+        "isRead": true,
+        "readAt": "2026-04-21T14:00:00.0000000",
+        "createdAt": "2026-04-21T13:30:00.0000000",
+        "timeAgo": "2 weeks ago"
+      },
+      {
+        "id": 7,
+        "title": "Purchase Order Approved",
+        "message": "PO #PO2026040003 has been approved.",
+        "type": "Approval",
+        "linkUrl": "/PurchaseOrder/Details/2",
+        "isRead": true,
+        "readAt": "2026-04-20T11:00:00.0000000",
+        "createdAt": "2026-04-20T10:30:00.0000000",
+        "timeAgo": "2 weeks ago"
+      },
+      {
+        "id": 6,
+        "title": "New Sales Order",
+        "message": "SO #SO2026040006 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/6",
+        "isRead": true,
+        "readAt": "2026-04-18T09:00:00.0000000",
+        "createdAt": "2026-04-18T08:30:00.0000000",
+        "timeAgo": "3 weeks ago"
+      },
+      {
+        "id": 5,
+        "title": "Payment Received",
+        "message": "Payment of AED 18,600 received from Star Logistics for SO2026040065.",
+        "type": "Info",
+        "linkUrl": "/Payments/Receipt/35",
+        "isRead": true,
+        "readAt": "2026-04-16T12:00:00.0000000",
+        "createdAt": "2026-04-16T11:30:00.0000000",
+        "timeAgo": "3 weeks ago"
+      },
+      {
+        "id": 4,
+        "title": "Low Stock Warning",
+        "message": "Coolant 50/50 inventory is below minimum reorder level.",
+        "type": "Warning",
+        "linkUrl": "/Inventory/Products",
+        "isRead": true,
+        "readAt": "2026-04-14T10:00:00.0000000",
+        "createdAt": "2026-04-14T09:00:00.0000000",
+        "timeAgo": "3 weeks ago"
+      },
+      {
+        "id": 3,
+        "title": "New Purchase Order",
+        "message": "PO #PO2026040002 has been created and requires review.",
+        "type": "Approval",
+        "linkUrl": "/PurchaseOrder/Details/1",
+        "isRead": true,
+        "readAt": "2026-04-12T10:00:00.0000000",
+        "createdAt": "2026-04-11T15:30:00.0000000",
+        "timeAgo": "4 weeks ago"
+      },
+      {
+        "id": 2,
+        "title": "New Sales Order",
+        "message": "SO #SO2026040002 has been created.",
+        "type": "Info",
+        "linkUrl": "/SalesOrder/Details/2",
+        "isRead": true,
+        "readAt": "2026-04-10T09:00:00.0000000",
+        "createdAt": "2026-04-10T08:30:00.0000000",
+        "timeAgo": "4 weeks ago"
+      },
+      {
+        "id": 1,
+        "title": "Welcome to Goal ERP",
+        "message": "Your account has been set up successfully. Welcome aboard!",
+        "type": "Info",
+        "linkUrl": "/",
+        "isRead": true,
+        "readAt": "2026-04-01T09:00:00.0000000",
+        "createdAt": "2026-04-01T08:00:00.0000000",
+        "timeAgo": "1 month ago"
+      }
+    ]
+  },
+  "message": null,
+  "errors": null
+}

@@ -20,6 +20,7 @@ data class ReportModuleUiState(
     val salesSummaryItems: List<ReportSalesSummaryItem> = emptyList(),
     val productSalesItems: List<ProductSalesItem> = emptyList(),
     val netProfit: NetProfitReport? = null,
+    val canViewNetProfit: Boolean = true,
     val expenseSummaryItems: List<ExpenseSummaryItem> = emptyList()
 ) : UiState
 

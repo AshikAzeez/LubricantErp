@@ -5,7 +5,10 @@
     "type": "Additive",
     "uom": "Kilograms",
     "costPerUnit": 420.0,
-    "reorderLevel": 80.0
+    "reorderLevel": 80.0,
+    "currentStock": 120.0,
+    "supplierId": 4,
+    "leadTimeDays": 7
   },
   {
     "code": "RM-DETPKG",
@@ -13,7 +16,10 @@
     "type": "Additive",
     "uom": "Kilograms",
     "costPerUnit": 450.0,
-    "reorderLevel": 150.0
+    "reorderLevel": 150.0,
+    "currentStock": 95.0,
+    "supplierId": 4,
+    "leadTimeDays": 10
   },
   {
     "code": "RM-PPD",
@@ -29,7 +35,10 @@
     "type": "BaseOil",
     "uom": "Liters",
     "costPerUnit": 65.0,
-    "reorderLevel": 5000.0
+    "reorderLevel": 5000.0,
+    "currentStock": 18400.0,
+    "tankId": 1,
+    "lastReceivedDate": "2026-05-03"
   },
   {
     "code": "RM-SN500",
@@ -61,6 +70,9 @@
     "type": "Additive",
     "uom": "Kilograms",
     "costPerUnit": 320.0,
-    "reorderLevel": 200.0
+    "reorderLevel": 200.0,
+    "currentStock": 155.0,
+    "supplierId": 5,
+    "isHazardous": true
   }
 ]

@@ -1,6 +1,48 @@
 {
-  "totalPlannedLiters": 0.0,
-  "totalActualLiters": 0.0,
-  "totalVarianceLiters": 0.0,
-  "rows": []
+  "totalPlannedLiters": 4800.0,
+  "totalActualLiters": 4762.5,
+  "totalVarianceLiters": -37.5,
+  "reportPeriod": "2026-05-01 to 2026-05-08",
+  "rows": [
+    {
+      "orderNo": "PKG-2026050003",
+      "date": "2026-05-08",
+      "productGrade": "20W-40 Engine Oil",
+      "sourceTank": "TK-01",
+      "plannedLiters": 1200.0,
+      "actualLiters": 1195.0,
+      "varianceLiters": -5.0,
+      "variancePercent": -0.42,
+      "status": "Completed",
+      "operatorName": "Rajan K.",
+      "batchRef": "BTH-20240508-003"
+    },
+    {
+      "orderNo": "PKG-2026050002",
+      "date": "2026-05-07",
+      "productGrade": "Gear Oil 90",
+      "sourceTank": "TK-02",
+      "plannedLiters": 800.0,
+      "actualLiters": 788.0,
+      "varianceLiters": -12.0,
+      "variancePercent": -1.5,
+      "status": "Completed",
+      "operatorName": "Suresh M.",
+      "batchRef": "BTH-20240507-002"
+    },
+    {
+      "orderNo": "PKG-2026050001",
+      "date": "2026-05-06",
+      "productGrade": "Hydraulic Oil 68",
+      "sourceTank": "TK-03",
+      "plannedLiters": 2800.0,
+      "actualLiters": 2779.5,
+      "varianceLiters": -20.5,
+      "variancePercent": -0.73,
+      "status": "Completed",
+      "operatorName": "Arun P.",
+      "batchRef": "BTH-20240506-001"
+    }
+  ],
+  "_generatedAt": "2026-05-08T10:00:00Z"
 }

@@ -1,0 +1,42 @@
+{
+  "success": true,
+  "data": [
+    {
+      "date": "2026-05-01",
+      "type": "Invoice",
+      "refNumber": "SO2026050001",
+      "debit": 45200.0,
+      "credit": 0.0,
+      "runningBalance": 45200.0
+    },
+    {
+      "date": "2026-05-03",
+      "type": "Payment",
+      "refNumber": "RCP-2026-0041",
+      "debit": 0.0,
+      "credit": 20000.0,
+      "runningBalance": 25200.0
+    },
+    {
+      "date": "2026-04-15",
+      "type": "Invoice",
+      "refNumber": "SO2026040088",
+      "debit": 38600.0,
+      "credit": 0.0,
+      "runningBalance": 63800.0
+    },
+    {
+      "date": "2026-04-20",
+      "type": "Payment",
+      "refNumber": "RCP-2026-0038",
+      "debit": 0.0,
+      "credit": 38600.0,
+      "runningBalance": 25200.0
+    }
+  ],
+  "message": null,
+  "errors": null,
+  "_openingBalance": 0.0,
+  "_closingBalance": 25200.0,
+  "_generatedAt": "2026-05-08T10:00:00Z"
+}

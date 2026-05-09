@@ -1,0 +1,33 @@
+{
+  "success": true,
+  "data": [
+    {
+      "productGrade": "20W-40 Engine Oil",
+      "deliveryType": "Bulk",
+      "totalQuantity": 18500.0,
+      "totalAmount": 1480000.0
+    },
+    {
+      "productGrade": "Gear Oil 90",
+      "deliveryType": "Drum",
+      "totalQuantity": 4200.0,
+      "totalAmount": 336000.0
+    },
+    {
+      "productGrade": "Hydraulic Oil 68",
+      "deliveryType": "Bulk",
+      "totalQuantity": 9800.0,
+      "totalAmount": 784000.0
+    },
+    {
+      "productGrade": "Coolant 50/50",
+      "deliveryType": "Can",
+      "totalQuantity": 1250.0,
+      "totalAmount": 100000.0
+    }
+  ],
+  "message": null,
+  "errors": null,
+  "_currency": "AED",
+  "_generatedAt": "2026-05-08T10:00:00Z"
+}

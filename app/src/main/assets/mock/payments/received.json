@@ -1,0 +1,30 @@
+{
+  "success": true,
+  "data": [
+    {
+      "receiptNumber": "RCP-2026-0041",
+      "customerName": "Al Noor Trucks",
+      "invoiceNumber": "SO2026040088",
+      "amount": 45200.0,
+      "paymentMode": "Bank Transfer"
+    },
+    {
+      "receiptNumber": "RCP-2026-0040",
+      "customerName": "Gulf Transport Co.",
+      "invoiceNumber": "SO2026040079",
+      "amount": 32800.0,
+      "paymentMode": "Cheque"
+    },
+    {
+      "receiptNumber": "RCP-2026-0039",
+      "customerName": "Star Logistics",
+      "invoiceNumber": "SO2026030065",
+      "amount": 18600.0,
+      "paymentMode": "Cash"
+    }
+  ],
+  "message": null,
+  "errors": null,
+  "_totalAmount": 96600.0,
+  "_generatedAt": "2026-05-08T10:00:00Z"
+}

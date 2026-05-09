@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "data": {
+    "unreadCount": 3,
+    "lastCheckedAt": "2026-05-08T09:50:00Z"
+  },
+  "message": null,
+  "errors": null,
+  "_requestId": "req_unread_mock_001"
+}

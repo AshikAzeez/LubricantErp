@@ -28,4 +28,9 @@ val featureReportsDomainModule = module {
     factory { GetProductSalesUseCase(get()) }
     factory { GetNetProfitUseCase(get()) }
     factory { GetExpenseSummaryUseCase(get()) }
+
+    factory { GetNotificationsPagedUseCase(get()) }
+    factory { GetUnreadNotificationCountUseCase(get()) }
+    factory { MarkNotificationAsReadUseCase(get()) }
+    factory { MarkAllNotificationsReadUseCase(get()) }
 }

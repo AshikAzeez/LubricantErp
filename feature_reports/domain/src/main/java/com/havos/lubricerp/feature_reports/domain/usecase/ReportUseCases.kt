@@ -113,8 +113,18 @@ class GetProductSalesUseCase(
 class GetNetProfitUseCase(
     private val repository: ReportsRepository
 ) {
-    suspend operator fun invoke(token: String, filter: DateRangeFilter): ResultState<NetProfitReport> {
+    suspend operator fun invoke(
+        token: String,
+        filter: DateRangeFilter,
+        roles: List<String>
+    ): ResultState<NetProfitReport> {
+        val hasAccess = roles.any { it.equals("Admin", ignoreCase = true) || it.equals("Manager", ignoreCase = true) }
+        if (!hasAccess) return ResultState.Error(ACCESS_DENIED)
         return repository.getNetProfit(token, filter)
+    }
+
+    companion object {
+        const val ACCESS_DENIED = "ACCESS_DENIED"
     }
 }
 

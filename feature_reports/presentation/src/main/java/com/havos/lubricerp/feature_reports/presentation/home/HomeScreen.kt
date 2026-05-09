@@ -9,9 +9,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +30,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -41,7 +42,8 @@ import org.koin.androidx.compose.koinViewModel
 
 private enum class BottomNavItem(val title: String) {
     HOME("Home"),
-    REPORTS("Reports")
+    REPORTS("Reports"),
+    NOTIFICATIONS("Alerts")
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,6 +53,7 @@ fun HomeRoute(
     onOpenCustomerData: () -> Unit = {},
     onOpenReportModule: (String) -> Unit = {},
     onOpenSettings: () -> Unit,
+    onOpenNotifications: () -> Unit = {},
     onNavigateLogin: () -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
     homeTabViewModel: HomeTabViewModel = koinViewModel(),
@@ -69,6 +72,7 @@ fun HomeRoute(
         onOpenCustomerData = onOpenCustomerData,
         onOpenReportModule = onOpenReportModule,
         onOpenSettings = onOpenSettings,
+        onOpenNotifications = onOpenNotifications,
         onLogoutClick = { showLogoutConfirmation = true }
     )
 
@@ -107,6 +111,7 @@ private fun HomeScreen(
     onOpenCustomerData: () -> Unit,
     onOpenReportModule: (String) -> Unit,
     onOpenSettings: () -> Unit,
+    onOpenNotifications: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
     Scaffold(
@@ -144,24 +149,43 @@ private fun HomeScreen(
                 BottomNavItem.entries.forEachIndexed { index, item ->
                     NavigationBarItem(
                         icon = {
-                            Icon(
-                                imageVector =                                 if (selectedTab == index) {
-                                    when (item) {
-                                        BottomNavItem.HOME -> Icons.Filled.Home
-                                        BottomNavItem.REPORTS -> Icons.AutoMirrored.Filled.List
-                                    }
-                                } else {
-                                    when (item) {
-                                        BottomNavItem.HOME -> Icons.Outlined.Home
-                                        BottomNavItem.REPORTS -> Icons.AutoMirrored.Outlined.List
-                                    }
-                                },
-                                contentDescription = item.title
-                            )
+                            when (item) {
+                                BottomNavItem.NOTIFICATIONS -> {
+                                    Icon(
+                                        imageVector = if (selectedTab == index)
+                                            Icons.Filled.Notifications
+                                        else
+                                            Icons.Outlined.Notifications,
+                                        contentDescription = item.title
+                                    )
+                                }
+                                else -> {
+                                    Icon(
+                                        imageVector = if (selectedTab == index) {
+                                            when (item) {
+                                                BottomNavItem.HOME -> Icons.Filled.Home
+                                                else -> Icons.AutoMirrored.Filled.List
+                                            }
+                                        } else {
+                                            when (item) {
+                                                BottomNavItem.HOME -> Icons.Outlined.Home
+                                                else -> Icons.AutoMirrored.Outlined.List
+                                            }
+                                        },
+                                        contentDescription = item.title
+                                    )
+                                }
+                            }
                         },
                         label = { Text(item.title) },
                         selected = selectedTab == index,
-                        onClick = { onTabSelected(index) }
+                        onClick = {
+                            if (item == BottomNavItem.NOTIFICATIONS) {
+                                onOpenNotifications()
+                            } else {
+                                onTabSelected(index)
+                            }
+                        }
                     )
                 }
             }
@@ -173,7 +197,7 @@ private fun HomeScreen(
                 .padding(innerPadding)
         ) {
             when (selectedTab) {
-                0 -> HomeTabContent()
+                0 -> HomeTabContent(onOpenReport = onOpenReport)
                 1 -> ReportsTabContent(
                     state = reportsState,
                     reportsTabViewModel = reportsTabViewModel,
@@ -181,15 +205,16 @@ private fun HomeScreen(
                     onOpenCustomerData = onOpenCustomerData,
                     onOpenReportModule = onOpenReportModule
                 )
+                else -> HomeTabContent(onOpenReport = onOpenReport)
             }
         }
     }
 }
 
 @Composable
-private fun HomeTabContent() {
+private fun HomeTabContent(onOpenReport: (String) -> Unit = {}) {
     val viewModel: HomeTabViewModel = koinViewModel()
-    HomeTabScreen(viewModel = viewModel)
+    HomeTabScreen(viewModel = viewModel, onNavigateToReport = onOpenReport)
 }
 
 @Composable

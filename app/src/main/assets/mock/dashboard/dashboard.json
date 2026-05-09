@@ -1,0 +1,43 @@
+{
+  "success": true,
+  "data": {
+    "todaySalesAmount": 125400.0,
+    "todaySalesCount": 8,
+    "monthlySalesAmount": 3876000.0,
+    "monthlySalesCount": 143,
+    "outstandingReceivables": 987500.0,
+    "pendingPayables": 412000.0,
+    "lowStockAlertCount": 2,
+    "topSellingProducts": ["20W-40 Engine Oil", "Gear Oil 90", "Hydraulic Oil 68"],
+    "recentInvoices": [
+      {
+        "id": 101,
+        "invoiceNumber": "SO2026050001",
+        "customerName": "Al Noor Trucks",
+        "amount": 45200.0,
+        "date": "2026-05-08",
+        "paymentStatus": "Unpaid"
+      },
+      {
+        "id": 100,
+        "invoiceNumber": "SO2026050002",
+        "customerName": "Gulf Transport Co.",
+        "amount": 32800.0,
+        "date": "2026-05-08",
+        "paymentStatus": "Paid"
+      },
+      {
+        "id": 99,
+        "invoiceNumber": "SO2026040097",
+        "customerName": "Star Logistics",
+        "amount": 18600.0,
+        "date": "2026-05-07",
+        "paymentStatus": "Partial"
+      }
+    ]
+  },
+  "message": null,
+  "errors": null,
+  "_generatedAt": "2026-05-08T10:00:00Z",
+  "_cacheHit": false
+}

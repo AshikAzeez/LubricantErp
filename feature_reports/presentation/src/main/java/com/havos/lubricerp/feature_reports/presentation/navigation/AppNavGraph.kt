@@ -21,6 +21,7 @@ import com.havos.lubricerp.core.network.ResolvedNetworkConfig
 import com.havos.lubricerp.core.ui.components.NetworkStatusBar
 import com.havos.lubricerp.feature_reports.presentation.customer.CustomerDataRoute
 import com.havos.lubricerp.feature_reports.presentation.home.HomeRoute
+import com.havos.lubricerp.feature_reports.presentation.notification.NotificationRoute
 import com.havos.lubricerp.feature_reports.presentation.login.LoginRoute
 import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModuleRoute
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportDetailRoute
@@ -106,6 +107,9 @@ fun GoalErpNavGraph(
                     onOpenSettings = {
                         navController.navigate(AppRoutes.SETTINGS)
                     },
+                    onOpenNotifications = {
+                        navController.navigate(AppRoutes.NOTIFICATIONS)
+                    },
                     onNavigateLogin = {
                         navController.navigate(AppRoutes.LOGIN) {
                             popUpTo(AppRoutes.HOME) { inclusive = true }
@@ -133,6 +137,12 @@ fun GoalErpNavGraph(
 
             composable(AppRoutes.CUSTOMER_DATA) {
                 CustomerDataRoute(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(AppRoutes.NOTIFICATIONS) {
+                NotificationRoute(
                     onBackClick = { navController.popBackStack() }
                 )
             }

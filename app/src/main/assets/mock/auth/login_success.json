@@ -2,15 +2,21 @@
   "success": true,
   "data": {
     "token": "demo_token_goal_erp_123",
+    "refreshToken": "demo_refresh_token_abc_xyz",
     "expiry": "2026-12-31T23:59:59Z",
     "user": {
       "id": 1,
       "email": "admin@baseoils.com",
       "fullName": "System Administrator",
       "branchId": 1,
-      "roles": ["Admin"]
-    }
+      "roles": ["Admin"],
+      "lastLoginAt": "2026-05-08T10:00:00Z",
+      "permissions": ["READ", "WRITE", "ADMIN"]
+    },
+    "sessionId": "sess_mock_001"
   },
   "message": null,
-  "errors": null
+  "errors": null,
+  "_version": "2.1",
+  "_requestId": "req_login_mock_001"
 }

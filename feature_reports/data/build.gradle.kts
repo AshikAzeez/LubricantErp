@@ -29,4 +29,5 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.koin.core)
+    implementation(libs.androidx.paging.runtime.ktx)
 }
