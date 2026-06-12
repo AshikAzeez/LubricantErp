@@ -17,11 +17,19 @@ import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainRowDto
 import com.havos.lubricerp.feature_reports.data.dto.ProfileDataDto
 import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.RecentInvoiceDto
+import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.FastMovingItemDto
+import com.havos.lubricerp.feature_reports.data.dto.LowStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
 import com.havos.lubricerp.feature_reports.data.dto.TankInfoDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
+import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
+import com.havos.lubricerp.feature_reports.domain.model.FastMovingItem
+import com.havos.lubricerp.feature_reports.domain.model.LowStockItem
+import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
@@ -40,6 +48,8 @@ import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
 import com.havos.lubricerp.feature_reports.domain.model.NotificationItem
 import com.havos.lubricerp.feature_reports.domain.model.TankInfo
 import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
 
 fun LoginResponseDto.toDomain(): AuthSession = AuthSession(
     username = username,
@@ -123,11 +133,15 @@ fun RecentInvoiceDto.toDomain(): RecentInvoice = RecentInvoice(
 )
 
 fun PaymentReceivedItemDto.toDomain(): PaymentReceivedItem = PaymentReceivedItem(
+    id = id,
     receiptNumber = receiptNumber,
+    paymentDate = paymentDate,
     customerName = customerName,
     invoiceNumber = invoiceNumber,
     amount = amount,
-    paymentMode = paymentMode
+    paymentMode = paymentMode,
+    reference = reference,
+    remarks = remarks
 )
 
 fun CustomerDto.toDomain(): Customer = Customer(
@@ -147,7 +161,8 @@ fun CustomerLedgerEntryDto.toDomain(): CustomerLedgerEntry = CustomerLedgerEntry
     refNumber = refNumber,
     debit = debit,
     credit = credit,
-    runningBalance = runningBalance
+    runningBalance = runningBalance,
+    invoiceId = invoiceId
 )
 
 fun StockOverviewTankItemDto.toDomain(): StockOverviewTankItem = StockOverviewTankItem(
@@ -234,4 +249,56 @@ fun NotificationItemDto.toDomain(): NotificationItem = NotificationItem(
     readAt = readAt,
     createdAt = createdAt,
     timeAgo = timeAgo
+)
+
+fun WarehouseStockItemDto.toDomain(): WarehouseStockItem = WarehouseStockItem(
+    warehouseId = warehouseId,
+    warehouseName = warehouseName,
+    productSKUId = productSKUId,
+    productSKUName = productSKUName,
+    productSKUCode = productSKUCode,
+    productGrade = productGrade,
+    productFamily = productFamily,
+    currentStock = currentStock,
+    reorderLevel = reorderLevel
+)
+
+fun ConsolidatedStockItemDto.toDomain(): ConsolidatedStockItem = ConsolidatedStockItem(
+    itemType = itemType,
+    itemCode = itemCode,
+    itemName = itemName,
+    quantity = quantity,
+    unit = unit,
+    location = location
+)
+
+fun LowStockItemDto.toDomain(): LowStockItem = LowStockItem(
+    productSKUId = productSKUId,
+    productSKUName = productSKUName,
+    productSKUCode = productSKUCode,
+    productGrade = productGrade,
+    productFamily = productFamily,
+    warehouseName = warehouseName,
+    currentStock = currentStock,
+    reorderLevel = reorderLevel,
+    shortageQuantity = shortageQuantity
+)
+
+fun FastMovingItemDto.toDomain(): FastMovingItem = FastMovingItem(
+    rank = rank,
+    productSKUId = productSKUId,
+    productSKUName = productSKUName,
+    productSKUCode = productSKUCode,
+    productGrade = productGrade,
+    productFamily = productFamily,
+    quantitySold = quantitySold,
+    totalRevenue = totalRevenue
+)
+
+fun RecordPaymentResponseDto.toDomain(): RecordPaymentResponse = RecordPaymentResponse(
+    receiptNumber = receiptNumber,
+    invoiceId = invoiceId,
+    amountPaid = amountPaid,
+    newBalance = newBalance,
+    newPaymentStatus = newPaymentStatus
 )

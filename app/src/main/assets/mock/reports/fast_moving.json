@@ -1,0 +1,57 @@
+{
+  "success": true,
+  "data": [
+    {
+      "rank": 1,
+      "productSKUId": 1,
+      "productSKUName": "CF4 15W40 1L",
+      "productSKUCode": "SKU-CF4-15W40-1L",
+      "productGrade": "CF4 15W40",
+      "productFamily": "Engine Oil",
+      "quantitySold": 1200,
+      "totalRevenue": 576000.00
+    },
+    {
+      "rank": 2,
+      "productSKUId": 4,
+      "productSKUName": "Gear Oil EP90 1L",
+      "productSKUCode": "SKU-GEO-EP90-1L",
+      "productGrade": "EP90",
+      "productFamily": "Gear Oil",
+      "quantitySold": 840,
+      "totalRevenue": 336000.00
+    },
+    {
+      "rank": 3,
+      "productSKUId": 3,
+      "productSKUName": "CF4 20W50 1L",
+      "productSKUCode": "SKU-CF4-20W50-1L",
+      "productGrade": "CF4 20W50",
+      "productFamily": "Engine Oil",
+      "quantitySold": 720,
+      "totalRevenue": 302400.00
+    },
+    {
+      "rank": 4,
+      "productSKUId": 2,
+      "productSKUName": "CF4 15W40 5L",
+      "productSKUCode": "SKU-CF4-15W40-5L",
+      "productGrade": "CF4 15W40",
+      "productFamily": "Engine Oil",
+      "quantitySold": 480,
+      "totalRevenue": 552000.00
+    },
+    {
+      "rank": 5,
+      "productSKUId": 8,
+      "productSKUName": "Hydraulic Oil 46 5L",
+      "productSKUCode": "SKU-HYD-46-5L",
+      "productGrade": "ISO VG 46",
+      "productFamily": "Hydraulic Oil",
+      "quantitySold": 300,
+      "totalRevenue": 285000.00
+    }
+  ],
+  "message": null,
+  "errors": null
+}

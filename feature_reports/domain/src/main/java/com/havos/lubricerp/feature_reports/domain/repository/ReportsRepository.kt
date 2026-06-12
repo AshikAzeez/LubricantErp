@@ -15,7 +15,13 @@ import com.havos.lubricerp.feature_reports.domain.model.ReportSalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
 import com.havos.lubricerp.feature_reports.domain.model.RawMaterialStockItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
+import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.FastMovingItem
+import com.havos.lubricerp.feature_reports.domain.model.LowStockItem
 import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
 
 interface ReportsRepository {
     suspend fun getTankStockSummary(): ResultState<TankStockSummary>
@@ -35,4 +41,13 @@ interface ReportsRepository {
     suspend fun getProductSales(token: String, filter: DateRangeFilter): ResultState<List<ProductSalesItem>>
     suspend fun getNetProfit(token: String, filter: DateRangeFilter): ResultState<NetProfitReport>
     suspend fun getExpenseSummary(token: String, filter: DateRangeFilter): ResultState<List<ExpenseSummaryItem>>
+
+    suspend fun getWarehouseStock(token: String, warehouseId: Int?): ResultState<List<WarehouseStockItem>>
+
+    suspend fun getConsolidatedStock(token: String): ResultState<List<ConsolidatedStockItem>>
+
+    suspend fun getLowStock(token: String, threshold: Int): ResultState<List<LowStockItem>>
+
+    suspend fun getFastMoving(token: String, days: Int, top: Int): ResultState<List<FastMovingItem>>
+    suspend fun recordPayment(token: String, request: RecordPaymentRequest): ResultState<RecordPaymentResponse>
 }

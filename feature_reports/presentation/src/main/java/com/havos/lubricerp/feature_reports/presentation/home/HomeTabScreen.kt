@@ -1,10 +1,19 @@
 package com.havos.lubricerp.feature_reports.presentation.home
 
-import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,6 +37,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.ViewList
+import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.Inventory
 import androidx.compose.material.icons.filled.PeopleAlt
 import androidx.compose.material.icons.filled.Receipt
@@ -46,6 +58,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -67,11 +80,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.time.Instant
-import java.time.LocalDate
-import java.time.LocalTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
 import com.havos.lubricerp.core.ui.components.HomeTabShimmer
@@ -125,64 +135,66 @@ fun HomeTabScreen(
                 }
             } else {
                 item {
-                    KpiRow(
-                        title = "Sales This Month",
-                        value = formatCurrency(state.monthlySalesAmount),
-                        subtitle = "${state.monthlySalesCount} invoices",
-                        icon = Icons.Filled.Receipt,
-                        iconBgColor = Color(0xFF4CAF50),
-                    )
+                    val primaryColor = MaterialTheme.colorScheme.primary
+                    val errorColor = MaterialTheme.colorScheme.error
+                    val kpiItems = buildList {
+                        add(
+                            KpiItem(
+                                title = "Sales This Month",
+                                value = formatCurrency(state.monthlySalesAmount),
+                                subtitle = "${state.monthlySalesCount} invoices",
+                                icon = Icons.Filled.Receipt,
+                                iconBgColor = Color(0xFF4CAF50),
+                            )
+                        )
+                        add(
+                            KpiItem(
+                                title = "Sales Today",
+                                value = formatCurrency(state.todaySalesAmount),
+                                subtitle = "${state.todaySalesCount} orders",
+                                icon = Icons.Filled.ShoppingCart,
+                                iconBgColor = Color(0xFF2196F3),
+                            )
+                        )
+                        if (state.canViewFinancials) {
+                            add(
+                                KpiItem(
+                                    title = "Outstanding Receivables",
+                                    value = formatCurrency(state.outstandingReceivables),
+                                    subtitle = "From customers",
+                                    icon = Icons.Filled.PeopleAlt,
+                                    iconBgColor = Color(0xFFFF9800),
+                                    valueColor = primaryColor
+                                )
+                            )
+                            add(
+                                KpiItem(
+                                    title = "Outstanding Payables",
+                                    value = formatCurrency(state.pendingPayables),
+                                    subtitle = "To vendors",
+                                    icon = Icons.Filled.AttachMoney,
+                                    iconBgColor = Color(0xFFF44336),
+                                    valueColor = errorColor
+                                )
+                            )
+                        }
+                        if (state.lowStockAlertCount > 0) {
+                            add(
+                                KpiItem(
+                                    title = "Low Stock Alerts",
+                                    value = state.lowStockAlertCount.toString(),
+                                    subtitle = "Items need reorder",
+                                    icon = Icons.Filled.Warning,
+                                    iconBgColor = Color(0xFFFF5722),
+                                    valueColor = errorColor
+                                )
+                            )
+                        }
+                    }
+                    KpiToggleSection(items = kpiItems)
                 }
                 item {
-                    KpiRow(
-                        title = "Sales Today",
-                        value = formatCurrency(state.todaySalesAmount),
-                        subtitle = "${state.todaySalesCount} orders",
-                        icon = Icons.Filled.ShoppingCart,
-                        iconBgColor = Color(0xFF2196F3),
-                    )
-                }
-                if (state.canViewFinancials) {
-                    item {
-                        KpiRow(
-                            title = "Outstanding Receivables",
-                            value = formatCurrency(state.outstandingReceivables),
-                            subtitle = "From customers",
-                            icon = Icons.Filled.PeopleAlt,
-                            iconBgColor = Color(0xFFFF9800),
-                            valueColor = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    item {
-                        KpiRow(
-                            title = "Outstanding Payables",
-                            value = formatCurrency(state.pendingPayables),
-                            subtitle = "To vendors",
-                            icon = Icons.Filled.AttachMoney,
-                            iconBgColor = Color(0xFFF44336),
-                            valueColor = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-                if (state.lowStockAlertCount > 0) {
-                    item {
-                        KpiRow(
-                            title = "Low Stock Alerts",
-                            value = state.lowStockAlertCount.toString(),
-                            subtitle = "Items need reorder",
-                            icon = Icons.Filled.Warning,
-                            iconBgColor = Color(0xFFFF5722),
-                            valueColor = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-                item {
-                    KpiRow(
-                        title = "Tank Utilization",
-                        value = "View All",
-                        subtitle = "See tank stock report",
-                        icon = Icons.Filled.Inventory,
-                        iconBgColor = Color(0xFF9C27B0),
+                    TankUtilizationCard(
                         onClick = { onNavigateToReport("tank_stock_summary") }
                     )
                 }
@@ -318,7 +330,7 @@ private fun TopSellingProductsCard(products: List<String>) {
 
 @Composable
 private fun GreetingBannerCard(name: String) {
-    val hour = LocalTime.now().hour
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     val greeting = when {
         hour < 12 -> "Good Morning"
         hour < 17 -> "Good Afternoon"
@@ -329,8 +341,8 @@ private fun GreetingBannerCard(name: String) {
         hour < 17 -> "🌤"
         else      -> "🌙"
     }
-    val dateLabel = LocalDate.now()
-        .format(DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy"))
+    val dateLabel = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
+        .format(Calendar.getInstance().time)
     val initials = name.trim().split(" ")
         .take(2).joinToString("") { it.first().uppercaseChar().toString() }
 
@@ -462,6 +474,285 @@ private fun KpiRow(
                     imageVector = icon,
                     contentDescription = null,
                     tint = iconBgColor,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun TankUtilizationCard(
+    onClick: () -> Unit
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "arrowBounce")
+    val arrowOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 4f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "arrowOffset"
+    )
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF9C27B0).copy(alpha = 0.08f)
+        ),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            Color(0xFF9C27B0).copy(alpha = 0.25f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Tank Utilization",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color(0xFF9C27B0)
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "View Report",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "See tank stock report",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF9C27B0).copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Inventory,
+                    contentDescription = null,
+                    tint = Color(0xFF9C27B0),
+                    modifier = Modifier.size(22.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = "View tank stock report",
+                tint = Color(0xFF9C27B0).copy(alpha = 0.7f),
+                modifier = Modifier.offset(x = arrowOffset.dp)
+            )
+        }
+    }
+}
+
+private data class KpiItem(
+    val title: String,
+    val value: String,
+    val subtitle: String,
+    val icon: ImageVector,
+    val iconBgColor: Color,
+    val valueColor: Color = Color.Unspecified,
+)
+
+@Composable
+private fun KpiToggleSection(
+    items: List<KpiItem>
+) {
+    var isGridView by remember { mutableStateOf(true) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Key Metrics",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+            IconButton(onClick = { isGridView = !isGridView }) {
+                Icon(
+                    imageVector = if (isGridView) Icons.AutoMirrored.Filled.ViewList
+                                  else Icons.Filled.GridView,
+                    contentDescription = if (isGridView) "Switch to list view"
+                                         else "Switch to grid view",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        AnimatedContent(
+            targetState = isGridView,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(300)) togetherWith
+                fadeOut(animationSpec = tween(300)) using
+                SizeTransform(clip = false)
+            },
+            label = "kpiViewToggle"
+        ) { grid ->
+            if (grid) {
+                KpiGridContent(items)
+            } else {
+                KpiListContent(items)
+            }
+        }
+    }
+}
+
+@Composable
+private fun KpiGridContent(items: List<KpiItem>) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        items.chunked(2).forEach { rowItems ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                rowItems.forEach { item ->
+                    CompactKpiCard(
+                        item = item,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                if (rowItems.size < 2) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun KpiListContent(items: List<KpiItem>) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items.forEach { item ->
+            FullWidthKpiCard(item = item)
+        }
+    }
+}
+
+@Composable
+private fun CompactKpiCard(
+    item: KpiItem,
+    modifier: Modifier = Modifier
+) {
+    val valueColor = if (item.valueColor != Color.Unspecified) item.valueColor
+                     else MaterialTheme.colorScheme.onSurface
+
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(12.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .clip(CircleShape)
+                    .background(item.iconBgColor.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = null,
+                    tint = item.iconBgColor,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = item.title,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = item.value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = valueColor,
+                maxLines = 1
+            )
+            Text(
+                text = item.subtitle,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@Composable
+private fun FullWidthKpiCard(item: KpiItem) {
+    val valueColor = if (item.valueColor != Color.Unspecified) item.valueColor
+                     else MaterialTheme.colorScheme.onSurface
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.title,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = item.value,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = valueColor
+                )
+                Text(
+                    text = item.subtitle,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(item.iconBgColor.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = item.icon,
+                    contentDescription = null,
+                    tint = item.iconBgColor,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -671,7 +962,7 @@ private fun NetProfitDashboardCard(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NetProfitDatePickerDialog(
@@ -687,12 +978,12 @@ private fun NetProfitDatePickerDialog(
                 onClick = {
                     val millis = pickerState.selectedDateMillis
                     if (millis != null) {
-                        val local = Instant.ofEpochMilli(millis)
-                            .atZone(ZoneId.of("UTC"))
-                            .toLocalDate()
-                        val mm = local.monthValue.toString().padStart(2, '0')
-                        val dd = local.dayOfMonth.toString().padStart(2, '0')
-                        onDateSelected("${local.year}-$mm-$dd")
+                        val utcCal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
+                            timeInMillis = millis
+                        }
+                        val mm = (utcCal.get(java.util.Calendar.MONTH) + 1).toString().padStart(2, '0')
+                        val dd = utcCal.get(java.util.Calendar.DAY_OF_MONTH).toString().padStart(2, '0')
+                        onDateSelected("${utcCal.get(java.util.Calendar.YEAR)}-$mm-$dd")
                     }
                 }
             ) { Text("OK") }
@@ -709,7 +1000,7 @@ private fun NetProfitDatePickerDialog(
 }
 
 private val indiaCurrencyFmt: NumberFormat =
-    NumberFormat.getNumberInstance(Locale("en", "IN")).apply {
+    NumberFormat.getNumberInstance(Locale.forLanguageTag("en-IN")).apply {
         minimumFractionDigits = 2
         maximumFractionDigits = 2
     }

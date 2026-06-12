@@ -120,7 +120,12 @@ fun GoalErpNavGraph(
 
             composable(AppRoutes.SETTINGS) {
                 SettingsRoute(
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = { navController.popBackStack() },
+                    onNavigateLogin = {
+                        navController.navigate(AppRoutes.LOGIN) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    }
                 )
             }
 

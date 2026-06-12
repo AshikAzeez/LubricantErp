@@ -26,13 +26,11 @@ val coreNetworkModule = module {
         Json {
             ignoreUnknownKeys = true
             isLenient = true
+            coerceInputValues = true
         }
     }
 
-    single { AppConfigDataSource(androidContext(), get()) }
-    single { NetworkConfigResolver(androidContext(), get()) }
     single { MockAssetResponseProvider(androidContext()) }
-    single<ResolvedNetworkConfig> { get<NetworkConfigResolver>().resolve() }
     single { NetworkMonitor(androidContext()) }
 
     single {
@@ -42,7 +40,7 @@ val coreNetworkModule = module {
         val isDebuggableApp =
             (androidContext().applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
         val enableVerboseLogs = isDebuggableApp && networkConfig.environment != AppEnvironment.PRODUCTION
-        val logLevel = if (enableVerboseLogs) LogLevel.BODY else LogLevel.NONE
+        val logLevel = if (enableVerboseLogs) LogLevel.ALL else LogLevel.NONE
         val logTag = if (networkConfig.useMockEngine) {
             "GoalERP-Mock(${networkConfig.environment})"
         } else {
@@ -75,8 +73,7 @@ val coreNetworkModule = module {
                     }
                     sendWithoutRequest { request ->
                         val path = request.url.encodedPath
-                        path.contains("api/") &&
-                            !path.contains("api/auth/login") &&
+                        !path.contains("api/auth/login") &&
                             !path.contains("api/auth/refresh")
                     }
                 }

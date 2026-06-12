@@ -1,14 +1,8 @@
 package com.havos.lubricerp.feature_reports.presentation.reports
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.EaseInOutQuart
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,30 +11,33 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
+import androidx.compose.material.icons.outlined.SearchOff
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,7 +47,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -58,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.launch
 import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
@@ -110,75 +107,180 @@ internal fun SalesSummaryScreen(
     val toMillis = remember(state.toDate) { runCatching { utcDateFmt.parse(state.toDate)?.time }.getOrNull() }
     val outline = MaterialTheme.colorScheme.outlineVariant
     val chipShape = remember { RoundedCornerShape(6.dp) }
-    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val showScrollTop = remember { derivedStateOf { listState.firstVisibleItemIndex > 0 } }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val pagerState = rememberPagerState(pageCount = { 2 })
+    val tabScope = scope
 
-    // snapshotFlow is correct here: emits only when isScrollInProgress transitions to true,
-    // without restarting the entire effect on every Boolean change.
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.isScrollInProgress }
-            .collect { scrolling -> if (scrolling) keyboardController?.hide() }
+    if (state.isLoading) {
+        SalesSummaryShimmer(modifier = modifier)
+        return
     }
 
-    Box(modifier = modifier) {
+    Column(modifier = modifier.fillMaxSize()) {
+        DateFilterBar(
+            fromDate = state.fromDate,
+            toDate = state.toDate,
+            dateError = state.dateError,
+            fromMillis = fromMillis,
+            toMillis = toMillis,
+            onFromDateChanged = { onAction(ReportDetailAction.FromDateChanged(it)) },
+            onToDateChanged = { onAction(ReportDetailAction.ToDateChanged(it)) }
+        )
+
+        TabRow(
+            selectedTabIndex = pagerState.currentPage,
+            containerColor = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ) {
+            listOf("Sales Summary", if (payments.isNotEmpty()) "Payments (${payments.size})" else "Payments Received").forEachIndexed { index, label ->
+                Tab(
+                    selected = pagerState.currentPage == index,
+                    onClick = {
+                        tabScope.launch { pagerState.animateScrollToPage(index) }
+                        keyboardController?.hide()
+                    },
+                    text = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Normal
+                        )
+                    }
+                )
+            }
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            verticalAlignment = Alignment.Top
+        ) { page ->
+            when (page) {
+                0 -> SalesSummaryTab(
+                    items = items,
+                    filtered = filtered,
+                    totalAmount = totalAmount,
+                    totalInvoices = totalInvoices,
+                    totalBalance = totalBalance,
+                    searchQuery = state.searchQuery,
+                    showTopCustomers = state.showTopCustomers,
+                    sortField = sortField,
+                    sortAsc = sortAsc,
+                    outline = outline,
+                    chipShape = chipShape,
+                    currencyFmt = currencyFmt,
+                    onSearchChanged = { onAction(ReportDetailAction.SearchChanged(it)) },
+                    onToggleTopCustomers = { onAction(ReportDetailAction.ToggleTopCustomers) },
+                    onSort = { field ->
+                        if (sortField == field) sortAsc = !sortAsc
+                        else { sortField = field; sortAsc = true }
+                    }
+                )
+                1 -> PaymentsTab(
+                    payments = payments,
+                    totalReceived = totalReceived,
+                    currencyFmt = currencyFmt
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DateFilterBar(
+    fromDate: String,
+    toDate: String,
+    dateError: String?,
+    fromMillis: Long?,
+    toMillis: Long?,
+    onFromDateChanged: (String) -> Unit,
+    onToDateChanged: (String) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
+                .padding(horizontal = 10.dp, vertical = 6.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            DatePickerButton(
+                label = "From",
+                value = fromDate,
+                onDateSelected = onFromDateChanged,
+                modifier = Modifier.weight(1f),
+                maxDateMillis = toMillis
+            )
+            DatePickerButton(
+                label = "To",
+                value = toDate,
+                onDateSelected = onToDateChanged,
+                modifier = Modifier.weight(1f),
+                minDateMillis = fromMillis
+            )
+        }
+        if (dateError != null) {
+            Text(
+                text = dateError,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onErrorContainer,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(MaterialTheme.colorScheme.errorContainer)
+                    .padding(horizontal = 10.dp, vertical = 6.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SalesSummaryTab(
+    items: List<SalesSummaryItem>,
+    filtered: List<SalesSummaryItem>,
+    totalAmount: Double,
+    totalInvoices: Int,
+    totalBalance: Double,
+    searchQuery: String,
+    showTopCustomers: Boolean,
+    sortField: SalesSortField,
+    sortAsc: Boolean,
+    outline: Color,
+    chipShape: RoundedCornerShape,
+    currencyFmt: java.text.NumberFormat,
+    onSearchChanged: (String) -> Unit,
+    onToggleTopCustomers: () -> Unit,
+    onSort: (SalesSortField) -> Unit
+) {
+    val listState = rememberLazyListState()
+    val tabKeyboardController = LocalSoftwareKeyboardController.current
+    LaunchedEffect(listState) {
+        snapshotFlow { listState.isScrollInProgress }
+            .collect { scrolling -> if (scrolling) tabKeyboardController?.hide() }
+    }
+
     LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(0.dp),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
             horizontal = 12.dp,
-            vertical = 8.dp
-        )
+            vertical = 4.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         item {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                DatePickerButton(
-                    label = "From",
-                    value = state.fromDate,
-                    onDateSelected = { onAction(ReportDetailAction.FromDateChanged(it)) },
-                    modifier = Modifier.weight(1f),
-                    maxDateMillis = toMillis
-                )
-                DatePickerButton(
-                    label = "To",
-                    value = state.toDate,
-                    onDateSelected = { onAction(ReportDetailAction.ToDateChanged(it)) },
-                    modifier = Modifier.weight(1f),
-                    minDateMillis = fromMillis
-                )
-            }
-        }
-
-        if (state.dateError != null) {
-            item {
-                Text(
-                    text = state.dateError,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(MaterialTheme.colorScheme.errorContainer)
-                        .padding(horizontal = 10.dp, vertical = 6.dp)
-                )
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(6.dp)) }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
+                    .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 MiniStatCard(
@@ -200,20 +302,84 @@ internal fun SalesSummaryScreen(
             }
         }
 
-        item { Spacer(modifier = Modifier.height(8.dp)) }
+        item { Spacer(modifier = Modifier.height(4.dp)) }
 
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CompactSearchBar(
+                    value = searchQuery,
+                    onValueChange = onSearchChanged,
+                    placeholder = "Search customer…",
+                    modifier = Modifier.weight(1f),
+                    outline = outline
+                )
+                TopCustomersToggle(
+                    selected = showTopCustomers,
+                    onClick = onToggleTopCustomers,
+                    chipShape = chipShape
+                )
+            }
+        }
+
+        item { Spacer(modifier = Modifier.height(4.dp)) }
+
+        if (filtered.isEmpty()) {
+            item {
+                if (items.isEmpty()) {
+                    EmptyState(icon = Icons.AutoMirrored.Outlined.ReceiptLong, message = "No sales data for selected period.")
+                } else {
+                    EmptyState(icon = Icons.Outlined.SearchOff, message = "No results for \"${searchQuery}\".")
+                }
+            }
+        } else {
+            item {
+                SalesSortableHeader(
+                    sortField = sortField,
+                    sortAsc = sortAsc,
+                    onSort = onSort
+                )
+            }
+            items(filtered, key = { it.customerId }) { item ->
+                SalesCustomerRow(item = item, currencyFmt = currencyFmt)
+            }
+        }
+
+        item { Spacer(modifier = Modifier.height(80.dp)) }
+    }
+}
+
+@Composable
+private fun PaymentsTab(
+    payments: List<PaymentReceivedItem>,
+    totalReceived: Double,
+    currencyFmt: java.text.NumberFormat
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            horizontal = 12.dp,
+            vertical = 8.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
         item {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    text = "Payment Received Today",
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Payment Received Today",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     MiniStatCard(label = "Receipts", value = payments.size.toString())
                     MiniStatCard(
@@ -225,16 +391,11 @@ internal fun SalesSummaryScreen(
             }
         }
 
-        item { Spacer(modifier = Modifier.height(4.dp)) }
+        item { Spacer(modifier = Modifier.height(8.dp)) }
 
         if (payments.isEmpty()) {
             item {
-                Text(
-                    text = "No payments received today.",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
+                EmptyState(icon = Icons.Outlined.Payments, message = "No payments received today.")
             }
         } else {
             item { SectionHeader(col1 = "Customer / Receipt", col2 = "Amount") }
@@ -243,99 +404,116 @@ internal fun SalesSummaryScreen(
             }
         }
 
-        item { Spacer(modifier = Modifier.height(8.dp)) }
-
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CompactSearchBar(
-                    value = state.searchQuery,
-                    onValueChange = { onAction(ReportDetailAction.SearchChanged(it)) },
-                    placeholder = "Search customer…",
-                    modifier = Modifier.weight(1f),
-                    outline = outline
-                )
-                TopCustomersToggle(
-                    selected = state.showTopCustomers,
-                    onClick = { onAction(ReportDetailAction.ToggleTopCustomers) },
-                    chipShape = chipShape
-                )
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(4.dp)) }
-
-        if (filtered.isEmpty()) {
-            item {
-                Text(
-                    text = if (items.isEmpty()) "No data for selected period."
-                    else "No results for \"${state.searchQuery}\".",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(vertical = 6.dp)
-                )
-            }
-        } else {
-            item {
-                SalesSortableHeader(
-                    sortField = sortField,
-                    sortAsc = sortAsc,
-                    onSort = { field ->
-                        if (sortField == field) sortAsc = !sortAsc
-                        else { sortField = field; sortAsc = true }
-                    }
-                )
-            }
-            items(filtered, key = { it.customerId }) { item ->
-                SalesCustomerRow(item = item, currencyFmt = currencyFmt)
-            }
-        }
-
         item { Spacer(modifier = Modifier.height(80.dp)) }
-    }
-
-    AnimatedVisibility(
-        visible = showScrollTop.value,
-        enter = fadeIn(),
-        exit = fadeOut(),
-        modifier = Modifier
-            .align(Alignment.BottomEnd)
-            .padding(end = 16.dp, bottom = 24.dp)
-            .navigationBarsPadding()
-    ) {
-        Box(
-            modifier = Modifier
-                .size(44.dp)
-                .shadow(6.dp, CircleShape)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
-                .clickable {
-                    scope.launch {
-                        val totalOffset = listState.firstVisibleItemIndex *
-                            listState.layoutInfo.visibleItemsInfo.firstOrNull()?.size?.toFloat().let { it ?: 0f } +
-                            listState.firstVisibleItemScrollOffset.toFloat()
-                        listState.animateScrollBy(
-                            value = -totalOffset,
-                            animationSpec = tween(durationMillis = 600, easing = EaseInOutQuart)
-                        )
-                    }
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Filled.KeyboardArrowUp,
-                contentDescription = "Scroll to top",
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
     }
 }
 
+@Composable
+private fun EmptyState(
+    icon: ImageVector,
+    message: String,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 32.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                modifier = Modifier.size(48.dp)
+            )
+            Text(
+                text = message,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun SalesSummaryShimmer(modifier: Modifier = Modifier) {
+    val brush = com.havos.lubricerp.core.ui.components.shimmerBrush()
+    LazyColumn(
+        modifier = modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        item {
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                repeat(3) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(52.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(brush)
+                    )
+                }
+            }
+        }
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(brush)
+            )
+        }
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(24.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(brush)
+            )
+        }
+        items(6) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.55f)
+                            .height(12.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(brush)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth(0.35f)
+                            .height(10.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(brush)
+                    )
+                }
+                Spacer(Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .width(72.dp)
+                        .height(12.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(brush)
+                )
+            }
+            Spacer(Modifier.height(1.dp))
+        }
+    }
+}
 
 @Composable
 private fun CompactSearchBar(
@@ -802,14 +980,38 @@ private fun PaymentReceivedRow(
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                if (item.paymentDate.isNotBlank()) {
+                    Text(
+                        text = item.paymentDate,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
+                }
             }
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    text = "₹${currencyFmt.format(item.amount)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.End
+                )
+                item.reference?.takeIf { it.isNotBlank() }?.let { ref ->
+                    Text(
+                        text = ref,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+        }
+        item.remarks?.takeIf { it.isNotBlank() }?.let { remark ->
             Text(
-                text = "₹${currencyFmt.format(item.amount)}",
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.primary,
-                textAlign = TextAlign.End,
-                modifier = Modifier.width(80.dp)
+                text = remark,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(start = 12.dp, end = 12.dp, bottom = 4.dp)
             )
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

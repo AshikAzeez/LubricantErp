@@ -14,11 +14,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -32,13 +33,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -47,15 +52,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.core.common.ThemeMode
+import com.havos.lubricerp.core.ui.components.CollectEffect
 import com.havos.lubricerp.core.ui.components.ThemeRevealTransitionBus
+import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsRoute(
     onBackClick: () -> Unit,
+    onNavigateLogin: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle().value
+    var showLogoutConfirmation by rememberSaveable { mutableStateOf(false) }
+
+    CollectEffect(effects = viewModel.effect) { effect ->
+        when (effect) {
+            SettingsEffect.NavigateToLogin -> onNavigateLogin()
+        }
+    }
+
     SettingsScreen(
         state = state,
         onAction = { action ->
@@ -63,13 +79,36 @@ fun SettingsRoute(
                 is SettingsAction.ThemeSelected -> {
                     viewModel.onIntent(SettingsIntent.ThemeChanged(action.mode))
                 }
-                is SettingsAction.BiometricToggled -> {
-                    viewModel.onIntent(SettingsIntent.BiometricToggled(action.enabled))
+                is SettingsAction.LogoutClicked -> {
+                    showLogoutConfirmation = true
                 }
             }
         },
         onBackClick = onBackClick
     )
+
+    if (showLogoutConfirmation) {
+        AlertDialog(
+            onDismissRequest = { showLogoutConfirmation = false },
+            title = { Text("Confirm Logout") },
+            text = { Text("Do you want to logout from Goal Lubricants ERP?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showLogoutConfirmation = false
+                        viewModel.onIntent(SettingsIntent.LogoutClicked)
+                    }
+                ) {
+                    Text("Logout")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutConfirmation = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -171,7 +210,7 @@ private fun SettingsScreen(
 
             item {
                 Text(
-                    text = "Security",
+                    text = "Account",
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp)
                 )
@@ -179,24 +218,28 @@ private fun SettingsScreen(
 
             item {
                 Card(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .clickable { onAction(SettingsAction.LogoutClicked) },
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                     )
                 ) {
                     ListItem(
                         leadingContent = {
-                            Icon(Icons.Default.Fingerprint, contentDescription = null)
-                        },
-                        headlineContent = { Text("Biometric Login") },
-                        supportingContent = {
-                            Text("Use fingerprint, face, or device PIN to sign in")
-                        },
-                        trailingContent = {
-                            Switch(
-                                checked = state.biometricEnabled,
-                                onCheckedChange = { onAction(SettingsAction.BiometricToggled(it)) }
+                            Icon(
+                                Icons.AutoMirrored.Filled.Logout,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
                             )
+                        },
+                        headlineContent = {
+                            Text(
+                                "Logout",
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        supportingContent = {
+                            Text("Sign out of your account")
                         }
                     )
                 }

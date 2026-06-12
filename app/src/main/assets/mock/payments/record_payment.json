@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "message": "Payment of ₹48,750.00 recorded. Receipt No: RCP-2526-0202",
+  "data": {
+    "receiptNumber": "RCP-2526-0202",
+    "invoiceId": 1042,
+    "amountPaid": 48750.00,
+    "newBalance": 0.00,
+    "newPaymentStatus": "Paid"
+  },
+  "errors": null
+}

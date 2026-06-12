@@ -52,6 +52,18 @@ class MockAssetResponseProvider(
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/tank-stock") ->
             respondAsset(this, "mock/reports/stock_overview_tanks.json")
 
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/warehouse-stock") ->
+            respondAsset(this, "mock/reports/warehouse_stock.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/consolidated-stock") ->
+            respondAsset(this, "mock/reports/consolidated_stock.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/low-stock") ->
+            respondAsset(this, "mock/reports/low_stock.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/fast-moving") ->
+            respondAsset(this, "mock/reports/fast_moving.json")
+
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/sales-summary") ->
             respondAsset(this, "mock/reports/report_sales_summary.json")
 
@@ -78,6 +90,11 @@ class MockAssetResponseProvider(
 
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/customers") ->
             respondAsset(this, "mock/customers/customers.json")
+
+        // ── Payments ─────────────────────────────────────────────────────────
+        request.method == HttpMethod.Post && normalizedPath(request).contains("api/payments") &&
+            !normalizedPath(request).contains("received") ->
+            respondAsset(this, "mock/payments/record_payment.json")
 
         // ── Notifications ─────────────────────────────────────────────────────
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/notifications/unread-count") ->

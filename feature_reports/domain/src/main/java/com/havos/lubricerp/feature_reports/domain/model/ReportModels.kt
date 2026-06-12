@@ -73,11 +73,15 @@ data class RecentInvoice(
 )
 
 data class PaymentReceivedItem(
+    val id: Long,
     val receiptNumber: String,
+    val paymentDate: String,
     val customerName: String,
     val invoiceNumber: String,
     val amount: Double,
-    val paymentMode: String
+    val paymentMode: String,
+    val reference: String?,
+    val remarks: String?
 )
 
 data class SalesSummaryItem(
@@ -107,9 +111,10 @@ data class CustomerLedgerEntry(
     val date: String,
     val type: String,
     val refNumber: String,
-    val debit: Double,
-    val credit: Double,
-    val runningBalance: Double
+    val debit: Double = 0.0,
+    val credit: Double = 0.0,
+    val runningBalance: Double = 0.0,
+    val invoiceId: Long = 0
 )
 
 data class ReportSalesSummaryItem(
@@ -172,4 +177,65 @@ data class StockOverviewTankItem(
     val availableCapacity: Double,
     val stockInMT: Double,
     val capacityInMT: Double
+)
+
+data class WarehouseStockItem(
+    val warehouseId: Int,
+    val warehouseName: String,
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val productGrade: String,
+    val productFamily: String,
+    val currentStock: Int,
+    val reorderLevel: Int
+)
+
+data class ConsolidatedStockItem(
+    val itemType: String,
+    val itemCode: String,
+    val itemName: String,
+    val quantity: Double,
+    val unit: String,
+    val location: String
+)
+
+data class LowStockItem(
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val productGrade: String,
+    val productFamily: String,
+    val warehouseName: String,
+    val currentStock: Int,
+    val reorderLevel: Int,
+    val shortageQuantity: Int
+)
+
+data class FastMovingItem(
+    val rank: Int,
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val productGrade: String,
+    val productFamily: String,
+    val quantitySold: Int,
+    val totalRevenue: Double
+)
+
+data class RecordPaymentRequest(
+    val invoiceId: Long,
+    val amount: Double,
+    val paymentMode: String,
+    val paymentDate: String,
+    val reference: String = "",
+    val remarks: String = ""
+)
+
+data class RecordPaymentResponse(
+    val receiptNumber: String,
+    val invoiceId: Long,
+    val amountPaid: Double,
+    val newBalance: Double,
+    val newPaymentStatus: String
 )

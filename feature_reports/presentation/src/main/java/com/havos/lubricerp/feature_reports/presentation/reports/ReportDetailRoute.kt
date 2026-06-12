@@ -55,6 +55,10 @@ fun ReportDetailRoute(
                     ReportDetailAction.ResetFilter -> viewModel.onIntent(ReportDetailIntent.ResetFilter)
                     ReportDetailAction.ToggleTopCustomers -> viewModel.onIntent(ReportDetailIntent.ToggleTopCustomers)
                     ReportDetailAction.Retry -> viewModel.onIntent(ReportDetailIntent.Load(reportKey))
+                    is ReportDetailAction.TabSelected -> viewModel.onIntent(ReportDetailIntent.TabSelected(action.index))
+                    is ReportDetailAction.LowStockThresholdChanged -> viewModel.onIntent(ReportDetailIntent.LowStockThresholdChanged(action.value))
+                    is ReportDetailAction.FastMovingDaysChanged -> viewModel.onIntent(ReportDetailIntent.FastMovingDaysChanged(action.value))
+                    is ReportDetailAction.FastMovingTopChanged -> viewModel.onIntent(ReportDetailIntent.FastMovingTopChanged(action.value))
                 }
             }
         )
@@ -87,7 +91,7 @@ internal fun ReportDetailScreen(
             .fillMaxSize()
             .padding(innerPadding)
 
-        if (state.isLoading) {
+        if (state.isLoading && state.selectedReport != ReportItem.SALES_SUMMARY) {
             if (state.selectedReport == ReportItem.TANK_STOCK_SUMMARY) {
                 TankStockSummaryShimmerScreen(modifier = contentModifier)
             } else {

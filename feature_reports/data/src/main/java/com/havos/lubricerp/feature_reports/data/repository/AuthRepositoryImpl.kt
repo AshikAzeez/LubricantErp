@@ -39,8 +39,6 @@ class AuthRepositoryImpl(
 
     override fun observeRememberMeEnabled(): Flow<Boolean> = secureSessionStore.rememberMeEnabledFlow
 
-    override fun observeBiometricEnabled(): Flow<Boolean> = secureSessionStore.biometricEnabledFlow
-
     override fun observeProfile(): Flow<UserProfile?> {
         return secureProfileStore.profileFlow.map { it?.toDomain() }
     }
@@ -142,15 +140,13 @@ class AuthRepositoryImpl(
         }
     }
 
-    override suspend fun setBiometricEnabled(enabled: Boolean) {
-        secureSessionStore.setBiometricEnabled(enabled)
-    }
-
     override suspend fun logout() {
         withContext(Dispatchers.IO) {
             val token = secureSessionStore.sessionFlow.first()?.token.orEmpty()
-            if (token.isNotBlank()) {
-                authRemoteDataSource.logout(token)
+            runCatching {
+                if (token.isNotBlank()) {
+                    authRemoteDataSource.logout(token)
+                }
             }
             secureProfileStore.clearProfile()
             secureSessionStore.clearSession()

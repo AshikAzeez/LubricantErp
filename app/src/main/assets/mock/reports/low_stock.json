@@ -1,0 +1,51 @@
+{
+  "success": true,
+  "data": [
+    {
+      "productSKUId": 1,
+      "productSKUName": "CF4 15W40 1L",
+      "productSKUCode": "SKU-CF4-15W40-1L",
+      "productGrade": "CF4 15W40",
+      "productFamily": "Engine Oil",
+      "warehouseName": "Main Warehouse",
+      "currentStock": 8,
+      "reorderLevel": 50,
+      "shortageQuantity": 42
+    },
+    {
+      "productSKUId": 9,
+      "productSKUName": "API SL 10W30 1L",
+      "productSKUCode": "SKU-SL-10W30-1L",
+      "productGrade": "API SL 10W30",
+      "productFamily": "Engine Oil",
+      "warehouseName": "Main Warehouse",
+      "currentStock": 5,
+      "reorderLevel": 30,
+      "shortageQuantity": 25
+    },
+    {
+      "productSKUId": 11,
+      "productSKUName": "Hydraulic Oil 46 1L",
+      "productSKUCode": "SKU-HYD-46-1L",
+      "productGrade": "ISO VG 46",
+      "productFamily": "Hydraulic Oil",
+      "warehouseName": "Main Warehouse",
+      "currentStock": 0,
+      "reorderLevel": 20,
+      "shortageQuantity": 20
+    },
+    {
+      "productSKUId": 6,
+      "productSKUName": "Gear Oil EP90 5L",
+      "productSKUCode": "SKU-GEO-EP90-5L",
+      "productGrade": "EP90",
+      "productFamily": "Gear Oil",
+      "warehouseName": "Secondary Warehouse",
+      "currentStock": 3,
+      "reorderLevel": 25,
+      "shortageQuantity": 22
+    }
+  ],
+  "message": null,
+  "errors": null
+}

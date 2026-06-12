@@ -44,10 +44,32 @@ fun CustomerDataRoute(
                     viewModel.onIntent(CustomerDataIntent.LoadLedger)
                 CustomerDataAction.LoadMobileSummary ->
                     viewModel.onIntent(CustomerDataIntent.LoadMobileSummary)
+                is CustomerDataAction.LedgerDatePreset ->
+                    viewModel.onIntent(CustomerDataIntent.LedgerDatePreset(action.label, action.fromDate, action.toDate))
                 CustomerDataAction.Retry ->
                     viewModel.onIntent(CustomerDataIntent.Load)
                 CustomerDataAction.Refresh ->
                     viewModel.onIntent(CustomerDataIntent.Refresh)
+                CustomerDataAction.ShowPaymentSheet ->
+                    viewModel.onIntent(CustomerDataIntent.ShowPaymentSheet)
+                CustomerDataAction.DismissPaymentSheet ->
+                    viewModel.onIntent(CustomerDataIntent.DismissPaymentSheet)
+                is CustomerDataAction.PaymentFormInvoiceChanged ->
+                    viewModel.onIntent(CustomerDataIntent.PaymentFormInvoiceChanged(action.invoiceId))
+                is CustomerDataAction.PaymentFormAmountChanged ->
+                    viewModel.onIntent(CustomerDataIntent.PaymentFormAmountChanged(action.amount))
+                is CustomerDataAction.PaymentFormModeChanged ->
+                    viewModel.onIntent(CustomerDataIntent.PaymentFormModeChanged(action.mode))
+                is CustomerDataAction.PaymentFormDateChanged ->
+                    viewModel.onIntent(CustomerDataIntent.PaymentFormDateChanged(action.date))
+                is CustomerDataAction.PaymentFormReferenceChanged ->
+                    viewModel.onIntent(CustomerDataIntent.PaymentFormReferenceChanged(action.reference))
+                is CustomerDataAction.PaymentFormRemarksChanged ->
+                    viewModel.onIntent(CustomerDataIntent.PaymentFormRemarksChanged(action.remarks))
+                CustomerDataAction.SubmitPayment ->
+                    viewModel.onIntent(CustomerDataIntent.SubmitPayment)
+                CustomerDataAction.PaymentResultDismissed ->
+                    viewModel.onIntent(CustomerDataIntent.PaymentResultDismissed)
             }
         }
     )

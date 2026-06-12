@@ -18,7 +18,14 @@ import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
 import com.havos.lubricerp.feature_reports.domain.model.RawMaterialStockItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
 import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.FastMovingItem
+import com.havos.lubricerp.feature_reports.domain.model.LowStockItem
+import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
 import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
 
 class ReportsRepositoryImpl(
     private val reportsRemoteDataSource: ReportsRemoteDataSource
@@ -131,6 +138,54 @@ class ReportsRepositoryImpl(
     override suspend fun getExpenseSummary(token: String, filter: DateRangeFilter): ResultState<List<ExpenseSummaryItem>> {
         return when (val result = reportsRemoteDataSource.getExpenseSummary(token, filter.fromDate, filter.toDate)) {
             is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getWarehouseStock(token: String, warehouseId: Int?): ResultState<List<WarehouseStockItem>> {
+        return when (val result = reportsRemoteDataSource.getWarehouseStock(token, warehouseId)) {
+            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getConsolidatedStock(token: String): ResultState<List<ConsolidatedStockItem>> {
+        return when (val result = reportsRemoteDataSource.getConsolidatedStock(token)) {
+            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getLowStock(token: String, threshold: Int): ResultState<List<LowStockItem>> {
+        return when (val result = reportsRemoteDataSource.getLowStock(token, threshold)) {
+            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getFastMoving(token: String, days: Int, top: Int): ResultState<List<FastMovingItem>> {
+        return when (val result = reportsRemoteDataSource.getFastMoving(token, days, top)) {
+            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun recordPayment(token: String, request: RecordPaymentRequest): ResultState<RecordPaymentResponse> {
+        val dto = RecordPaymentRequestDto(
+            invoiceId = request.invoiceId,
+            amount = request.amount,
+            paymentMode = request.paymentMode,
+            paymentDate = request.paymentDate,
+            reference = request.reference,
+            remarks = request.remarks
+        )
+        return when (val result = reportsRemoteDataSource.recordPayment(token, dto)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }

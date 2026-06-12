@@ -84,6 +84,7 @@ class AuthRemoteApi(
         return when (
             val result = safeApiCall<LogoutResponseDto> {
                 client.post("api/auth/logout") {
+                    headers.append(HttpHeaders.Authorization, "Bearer $token")
                     headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
                 }
             }
@@ -137,6 +138,7 @@ class AuthRemoteApi(
         return when (
             val result = safeApiCall<ProfileApiResponseDto> {
                 client.get("api/auth/profile") {
+                    headers.append(HttpHeaders.Authorization, "Bearer $token")
                     headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
                 }
             }

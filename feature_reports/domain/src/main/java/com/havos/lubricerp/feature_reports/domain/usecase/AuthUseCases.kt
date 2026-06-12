@@ -66,16 +66,3 @@ class RefreshSessionUseCase(
     }
 }
 
-class ObserveBiometricEnabledUseCase(
-    private val authRepository: AuthRepository
-) {
-    operator fun invoke(): Flow<Boolean> = authRepository.observeBiometricEnabled()
-}
-
-class SetBiometricEnabledUseCase(
-    private val authRepository: AuthRepository
-) {
-    suspend operator fun invoke(enabled: Boolean) {
-        authRepository.setBiometricEnabled(enabled)
-    }
-}

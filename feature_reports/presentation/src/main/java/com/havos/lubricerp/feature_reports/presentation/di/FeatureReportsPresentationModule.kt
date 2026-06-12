@@ -15,13 +15,13 @@ import org.koin.dsl.module
 
 val featureReportsPresentationModule = module {
     viewModel { RootViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get(), get(), get(), get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
     viewModel { HomeViewModel(get(), get(), get(), get()) }
     viewModel { HomeTabViewModel(get(), get(), get(), get(), get()) }
     viewModel { ReportsTabViewModel(get(), get()) }
-    viewModel { ReportDetailViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
-    viewModel { SettingsViewModel(get(), get(), get(), get()) }
-    viewModel { CustomerDataViewModel(get(), get(), get(), get(), get()) }
+    viewModel { ReportDetailViewModel(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { SettingsViewModel(get(), get(), get()) }
+    viewModel { CustomerDataViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { ReportModuleViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { NotificationViewModel(get(), get(), get(), get()) }
 }

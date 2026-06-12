@@ -6,6 +6,7 @@ import com.havos.lubricerp.core.common.UiState
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
 import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
 
 @Stable
 data class CustomerDataUiState(
@@ -24,8 +25,27 @@ data class CustomerDataUiState(
     val ledgerFromDate: String = "",
     val ledgerToDate: String = "",
     /** Outstanding amounts cached from previously viewed customers (customerId -> outstanding). */
-    val cachedOutstanding: Map<Long, Double> = emptyMap()
-) : UiState
+    val cachedOutstanding: Map<Long, Double> = emptyMap(),
+    val isRecordingPayment: Boolean = false,
+    val paymentResult: RecordPaymentResponse? = null,
+    val paymentError: String? = null,
+    val showPaymentSheet: Boolean = false,
+    val paymentFormInvoiceId: Long = 0,
+    val paymentFormAmount: String = "",
+    val paymentFormMode: String = "Cash",
+    val paymentFormDate: String = "",
+    val paymentFormReference: String = "",
+    val paymentFormRemarks: String = "",
+    val paymentFormFieldErrors: Map<String, String> = emptyMap()
+) : UiState {
+    companion object {
+        const val FIELD_INVOICE = "invoice"
+        const val FIELD_AMOUNT = "amount"
+        const val FIELD_DATE = "date"
+        const val FIELD_REFERENCE = "reference"
+        const val FIELD_REMARKS = "remarks"
+    }
+}
 
 sealed interface CustomerDataIntent : UiIntent {
     data object Load : CustomerDataIntent
@@ -37,6 +57,17 @@ sealed interface CustomerDataIntent : UiIntent {
     data class LedgerToDateChanged(val date: String) : CustomerDataIntent
     data object LoadLedger : CustomerDataIntent
     data object LoadMobileSummary : CustomerDataIntent
+    data class LedgerDatePreset(val label: String, val fromDate: String, val toDate: String) : CustomerDataIntent
+    data object ShowPaymentSheet : CustomerDataIntent
+    data object DismissPaymentSheet : CustomerDataIntent
+    data class PaymentFormInvoiceChanged(val invoiceId: Long) : CustomerDataIntent
+    data class PaymentFormAmountChanged(val amount: String) : CustomerDataIntent
+    data class PaymentFormModeChanged(val mode: String) : CustomerDataIntent
+    data class PaymentFormDateChanged(val date: String) : CustomerDataIntent
+    data class PaymentFormReferenceChanged(val reference: String) : CustomerDataIntent
+    data class PaymentFormRemarksChanged(val remarks: String) : CustomerDataIntent
+    data object SubmitPayment : CustomerDataIntent
+    data object PaymentResultDismissed : CustomerDataIntent
 }
 
 sealed interface CustomerDataAction {
@@ -49,6 +80,17 @@ sealed interface CustomerDataAction {
     data class LedgerToDateChanged(val date: String) : CustomerDataAction
     data object LoadLedger : CustomerDataAction
     data object LoadMobileSummary : CustomerDataAction
+    data class LedgerDatePreset(val label: String, val fromDate: String, val toDate: String) : CustomerDataAction
     data object Retry : CustomerDataAction
     data object Refresh : CustomerDataAction
+    data object ShowPaymentSheet : CustomerDataAction
+    data object DismissPaymentSheet : CustomerDataAction
+    data class PaymentFormInvoiceChanged(val invoiceId: Long) : CustomerDataAction
+    data class PaymentFormAmountChanged(val amount: String) : CustomerDataAction
+    data class PaymentFormModeChanged(val mode: String) : CustomerDataAction
+    data class PaymentFormDateChanged(val date: String) : CustomerDataAction
+    data class PaymentFormReferenceChanged(val reference: String) : CustomerDataAction
+    data class PaymentFormRemarksChanged(val remarks: String) : CustomerDataAction
+    data object SubmitPayment : CustomerDataAction
+    data object PaymentResultDismissed : CustomerDataAction
 }

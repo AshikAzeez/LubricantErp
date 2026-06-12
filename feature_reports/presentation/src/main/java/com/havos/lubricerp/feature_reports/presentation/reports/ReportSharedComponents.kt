@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -144,7 +145,8 @@ internal fun DatePickerButton(
     onDateSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     minDateMillis: Long? = null,
-    maxDateMillis: Long? = null
+    maxDateMillis: Long? = null,
+    borderColor: Color? = null
 ) {
     val utcFmt = remember {
         SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
@@ -153,7 +155,7 @@ internal fun DatePickerButton(
     }
 
     val todayEndOfDay = remember {
-        Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+        Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 23)
             set(Calendar.MINUTE, 59)
             set(Calendar.SECOND, 59)
@@ -190,7 +192,7 @@ internal fun DatePickerButton(
     }
 
     val shape = RoundedCornerShape(6.dp)
-    val borderColor = if (isError) MaterialTheme.colorScheme.error
+    val borderColor = borderColor ?: if (isError) MaterialTheme.colorScheme.error
                       else MaterialTheme.colorScheme.outlineVariant
 
     Column(modifier = modifier) {

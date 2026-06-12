@@ -12,6 +12,8 @@ import com.havos.lubricerp.feature_reports.domain.usecase.GetCustomerLedgerUseCa
 import com.havos.lubricerp.feature_reports.domain.usecase.GetCustomerMobileSummaryUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetCustomersUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.RecordPaymentUseCase
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,6 +29,7 @@ class CustomerDataViewModel(
     private val getCustomersUseCase: GetCustomersUseCase,
     private val getCustomerLedgerUseCase: GetCustomerLedgerUseCase,
     private val getCustomerMobileSummaryUseCase: GetCustomerMobileSummaryUseCase,
+    private val recordPaymentUseCase: RecordPaymentUseCase,
     private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
 
@@ -75,7 +78,10 @@ class CustomerDataViewModel(
             is CustomerDataIntent.SearchChanged -> _state.update { it.copy(searchQuery = intent.query) }
             is CustomerDataIntent.CustomerSelected -> selectCustomer(intent.customer)
             CustomerDataIntent.CustomerDismissed -> _state.update {
-                it.copy(selectedCustomer = null, mobileSummary = null, ledgerEntries = emptyList())
+                it.copy(
+                    selectedCustomer = null, mobileSummary = null, ledgerEntries = emptyList(),
+                    showPaymentSheet = false, paymentResult = null, paymentError = null
+                )
             }
             is CustomerDataIntent.LedgerFromDateChanged -> _state.update { it.copy(ledgerFromDate = intent.date) }
             is CustomerDataIntent.LedgerToDateChanged -> _state.update { it.copy(ledgerToDate = intent.date) }
@@ -84,6 +90,70 @@ class CustomerDataViewModel(
             }
             CustomerDataIntent.LoadMobileSummary -> {
                 _state.value.selectedCustomer?.let { loadMobileSummary(it.id) }
+            }
+            is CustomerDataIntent.LedgerDatePreset -> {
+                _state.update { it.copy(ledgerFromDate = intent.fromDate, ledgerToDate = intent.toDate) }
+                _state.value.selectedCustomer?.let { loadLedger(it) }
+            }
+            CustomerDataIntent.ShowPaymentSheet -> {
+                _state.update {
+                    it.copy(
+                        showPaymentSheet = true,
+                        paymentResult = null,
+                        paymentError = null,
+                        paymentFormFieldErrors = emptyMap(),
+                        paymentFormInvoiceId = 0,
+                        paymentFormAmount = "",
+                        paymentFormMode = "Cash",
+                        paymentFormDate = "",
+                        paymentFormReference = "",
+                        paymentFormRemarks = ""
+                    )
+                }
+            }
+            CustomerDataIntent.DismissPaymentSheet -> _state.update {
+                it.copy(showPaymentSheet = false, paymentResult = null, paymentError = null, paymentFormFieldErrors = emptyMap())
+            }
+            is CustomerDataIntent.PaymentFormInvoiceChanged -> _state.update {
+                it.copy(paymentFormInvoiceId = intent.invoiceId, paymentFormFieldErrors = it.paymentFormFieldErrors - CustomerDataUiState.FIELD_INVOICE)
+            }
+            is CustomerDataIntent.PaymentFormAmountChanged -> {
+                val maxAmount = 99_999_999.99
+                val sanitized = intent.amount
+                    .filter { it.isDigit() || it == '.' }
+                    .let { value ->
+                        val parts = value.split(".")
+                        if (parts.size > 2) parts.take(2).joinToString(".")
+                        else if (parts.getOrNull(1)?.length ?: 0 > 2) "${parts[0]}.${parts[1].take(2)}"
+                        else value
+                    }
+                    .let { value ->
+                        val num = value.toDoubleOrNull()
+                        if (num != null && num > maxAmount) "99999999.99"
+                        else value
+                    }
+                _state.update {
+                    it.copy(paymentFormAmount = sanitized, paymentFormFieldErrors = it.paymentFormFieldErrors - CustomerDataUiState.FIELD_AMOUNT)
+                }
+            }
+            is CustomerDataIntent.PaymentFormModeChanged -> _state.update {
+                it.copy(paymentFormMode = intent.mode)
+            }
+            is CustomerDataIntent.PaymentFormDateChanged -> _state.update {
+                it.copy(paymentFormDate = intent.date, paymentFormFieldErrors = it.paymentFormFieldErrors - CustomerDataUiState.FIELD_DATE)
+            }
+            is CustomerDataIntent.PaymentFormReferenceChanged -> _state.update {
+                it.copy(paymentFormReference = intent.reference.take(30))
+            }
+            is CustomerDataIntent.PaymentFormRemarksChanged -> _state.update {
+                val clean = intent.remarks
+                    .take(100)
+                    .filter { c -> c.isLetterOrDigit() || c.isWhitespace() || c in ".,-_/():;!?@#&+='%" }
+                it.copy(paymentFormRemarks = clean)
+            }
+            CustomerDataIntent.SubmitPayment -> recordPayment()
+            CustomerDataIntent.PaymentResultDismissed -> _state.update {
+                it.copy(paymentResult = null, paymentError = null)
             }
         }
     }
@@ -228,6 +298,98 @@ class CustomerDataViewModel(
                 }
                 is ResultState.Error -> _state.update {
                     it.copy(isLedgerLoading = false, ledgerEntries = emptyList())
+                }
+                ResultState.Loading -> Unit
+            }
+        }
+    }
+
+    private fun recordPayment() {
+        val snapshot = _state.value
+        val errors = mutableMapOf<String, String>()
+
+        val invoiceId = snapshot.paymentFormInvoiceId
+        if (invoiceId == 0L) {
+            errors[CustomerDataUiState.FIELD_INVOICE] = "Select an invoice"
+        }
+
+        val amount = snapshot.paymentFormAmount.toDoubleOrNull()
+        if (amount == null || amount <= 0) {
+            errors[CustomerDataUiState.FIELD_AMOUNT] = "Enter a valid amount"
+        }
+
+        val dateBlank = snapshot.paymentFormDate.isBlank()
+        if (dateBlank) {
+            errors[CustomerDataUiState.FIELD_DATE] = "Select a date"
+        }
+
+        if (errors.isNotEmpty()) {
+            _state.update { it.copy(paymentFormFieldErrors = errors) }
+            return
+        }
+
+        // Per-invoice amount validation
+        val invoiceEntry = snapshot.ledgerEntries.find { it.invoiceId == invoiceId }
+        if (invoiceEntry != null && amount!! > invoiceEntry.debit) {
+            val fmt = java.text.NumberFormat.getNumberInstance(java.util.Locale.forLanguageTag("en-IN")).apply {
+                minimumFractionDigits = 2; maximumFractionDigits = 2
+            }
+            _state.update {
+                it.copy(
+                    paymentFormFieldErrors = mapOf(
+                        CustomerDataUiState.FIELD_AMOUNT to
+                            "Amount exceeds invoice debit (₹${fmt.format(invoiceEntry.debit)})"
+                    )
+                )
+            }
+            return
+        }
+
+        // Total outstanding check
+        val outstanding = snapshot.mobileSummary?.outstandingAmount ?: 0.0
+        if (outstanding > 0 && amount!! > outstanding) {
+            val fmt = java.text.NumberFormat.getNumberInstance(java.util.Locale.forLanguageTag("en-IN")).apply {
+                minimumFractionDigits = 2; maximumFractionDigits = 2
+            }
+            _state.update {
+                it.copy(
+                    paymentFormFieldErrors = mapOf(
+                        CustomerDataUiState.FIELD_AMOUNT to
+                            "Amount (₹${fmt.format(amount)}) exceeds total outstanding (₹${fmt.format(outstanding)})"
+                    )
+                )
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _state.update { it.copy(isRecordingPayment = true, paymentError = null, paymentFormFieldErrors = emptyMap()) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            val request = RecordPaymentRequest(
+                invoiceId = invoiceId,
+                amount = amount!!,
+                paymentMode = snapshot.paymentFormMode,
+                paymentDate = snapshot.paymentFormDate,
+                reference = snapshot.paymentFormReference,
+                remarks = snapshot.paymentFormRemarks
+            )
+            when (val result = recordPaymentUseCase(token, request)) {
+                is ResultState.Success -> {
+                    val customer = snapshot.selectedCustomer
+                    _state.update {
+                        it.copy(
+                            isRecordingPayment = false,
+                            paymentResult = result.data,
+                            paymentError = null
+                        )
+                    }
+                    customer?.let { c ->
+                        loadMobileSummary(c.id)
+                        loadLedger(c)
+                    }
+                }
+                is ResultState.Error -> _state.update {
+                    it.copy(isRecordingPayment = false, paymentError = result.message)
                 }
                 ResultState.Loading -> Unit
             }

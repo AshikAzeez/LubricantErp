@@ -1,0 +1,62 @@
+{
+  "success": true,
+  "data": [
+    {
+      "warehouseId": 1,
+      "warehouseName": "Main Warehouse",
+      "productSKUId": 1,
+      "productSKUName": "CF4 15W40 1L",
+      "productSKUCode": "SKU-CF4-15W40-1L",
+      "productGrade": "CF4 15W40",
+      "productFamily": "Engine Oil",
+      "currentStock": 8,
+      "reorderLevel": 50
+    },
+    {
+      "warehouseId": 1,
+      "warehouseName": "Main Warehouse",
+      "productSKUId": 2,
+      "productSKUName": "CF4 15W40 5L",
+      "productSKUCode": "SKU-CF4-15W40-5L",
+      "productGrade": "CF4 15W40",
+      "productFamily": "Engine Oil",
+      "currentStock": 145,
+      "reorderLevel": 30
+    },
+    {
+      "warehouseId": 1,
+      "warehouseName": "Main Warehouse",
+      "productSKUId": 4,
+      "productSKUName": "Gear Oil EP90 1L",
+      "productSKUCode": "SKU-GEO-EP90-1L",
+      "productGrade": "EP90",
+      "productFamily": "Gear Oil",
+      "currentStock": 320,
+      "reorderLevel": 100
+    },
+    {
+      "warehouseId": 2,
+      "warehouseName": "Secondary Warehouse",
+      "productSKUId": 1,
+      "productSKUName": "CF4 15W40 1L",
+      "productSKUCode": "SKU-CF4-15W40-1L",
+      "productGrade": "CF4 15W40",
+      "productFamily": "Engine Oil",
+      "currentStock": 25,
+      "reorderLevel": 20
+    },
+    {
+      "warehouseId": 2,
+      "warehouseName": "Secondary Warehouse",
+      "productSKUId": 3,
+      "productSKUName": "CF4 20W50 1L",
+      "productSKUCode": "SKU-CF4-20W50-1L",
+      "productGrade": "CF4 20W50",
+      "productFamily": "Engine Oil",
+      "currentStock": 60,
+      "reorderLevel": 40
+    }
+  ],
+  "message": null,
+  "errors": null
+}

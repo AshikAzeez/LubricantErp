@@ -26,10 +26,26 @@ import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
+import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.FastMovingApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.FastMovingItemDto
+import com.havos.lubricerp.feature_reports.data.dto.LowStockApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.LowStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.request.parameter
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 
 class ReportsRemoteApi(
     private val client: HttpClient
@@ -82,7 +98,9 @@ class ReportsRemoteApi(
 
         return when (
             val result = safeApiCall<DashboardApiResponseDto> {
-                client.get("api/dashboard")
+                client.get("api/dashboard") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
         ) {
             is ResultState.Success -> {
@@ -112,6 +130,7 @@ class ReportsRemoteApi(
         return when (
             val result = safeApiCall<SalesSummaryApiResponseDto> {
                 client.get("api/reports/sales-summary") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
                 }
@@ -143,6 +162,7 @@ class ReportsRemoteApi(
         return when (
             val result = safeApiCall<PaymentReceivedApiResponseDto> {
                 client.get("api/payments/received") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
                 }
@@ -168,7 +188,9 @@ class ReportsRemoteApi(
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (
             val result = safeApiCall<StockOverviewTankApiResponseDto> {
-                client.get("api/reports/tank-stock")
+                client.get("api/reports/tank-stock") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
         ) {
             is ResultState.Success -> {
@@ -185,7 +207,9 @@ class ReportsRemoteApi(
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (
             val result = safeApiCall<CustomerListApiResponseDto> {
-                client.get("api/customers")
+                client.get("api/customers") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
         ) {
             is ResultState.Success -> {
@@ -202,7 +226,9 @@ class ReportsRemoteApi(
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (
             val result = safeApiCall<CustomerMobileSummaryApiResponseDto> {
-                client.get("api/customers/$customerId/mobile-summary")
+                client.get("api/customers/$customerId/mobile-summary") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
         ) {
             is ResultState.Success -> {
@@ -222,6 +248,7 @@ class ReportsRemoteApi(
         return when (
             val result = safeApiCall<ReportSalesSummaryApiResponseDto> {
                 client.get("api/reports/sales-summary") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
                 }
@@ -242,6 +269,7 @@ class ReportsRemoteApi(
         return when (
             val result = safeApiCall<ProductSalesApiResponseDto> {
                 client.get("api/reports/product-sales") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
                 }
@@ -262,6 +290,7 @@ class ReportsRemoteApi(
         return when (
             val result = safeApiCall<NetProfitApiResponseDto> {
                 client.get("api/reports/net-profit") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
                 }
@@ -282,6 +311,7 @@ class ReportsRemoteApi(
         return when (
             val result = safeApiCall<ExpenseSummaryApiResponseDto> {
                 client.get("api/reports/expense-summary") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
                 }
@@ -297,6 +327,100 @@ class ReportsRemoteApi(
         }
     }
 
+    override suspend fun getWarehouseStock(token: String, warehouseId: Int?): ResultState<List<WarehouseStockItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<WarehouseStockApiResponseDto> {
+            client.get("api/reports/warehouse-stock") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                if (warehouseId != null) parameter("warehouseId", warehouseId)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch warehouse stock")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch warehouse stock.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getConsolidatedStock(token: String): ResultState<List<ConsolidatedStockItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<ConsolidatedStockApiResponseDto> {
+            client.get("api/reports/consolidated-stock") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch consolidated stock")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch consolidated stock.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getLowStock(token: String, threshold: Int): ResultState<List<LowStockItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<LowStockApiResponseDto> {
+            client.get("api/reports/low-stock") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("threshold", threshold)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch low stock")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch low stock.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getFastMoving(token: String, days: Int, top: Int): ResultState<List<FastMovingItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<FastMovingApiResponseDto> {
+            client.get("api/reports/fast-moving") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("days", days)
+                parameter("top", top)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch fast moving")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch fast moving.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun recordPayment(token: String, request: RecordPaymentRequestDto): ResultState<RecordPaymentResponseDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<RecordPaymentApiResponseDto> {
+            client.post("api/payments") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+                setBody(request)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null)
+                    ResultState.Error(payload.message ?: "Unable to record payment")
+                else
+                    ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to record payment.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
     override suspend fun getCustomerLedger(
         token: String,
         customerId: Long,
@@ -307,6 +431,7 @@ class ReportsRemoteApi(
         return when (
             val result = safeApiCall<CustomerLedgerApiResponseDto> {
                 client.get("api/ledger/customer/$customerId") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
                     if (!fromDate.isNullOrBlank()) parameter("fromDate", fromDate)
                     if (!toDate.isNullOrBlank()) parameter("toDate", toDate)
                 }

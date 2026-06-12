@@ -15,7 +15,13 @@ import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
 import com.havos.lubricerp.feature_reports.domain.model.ReportSalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
+import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.FastMovingItem
+import com.havos.lubricerp.feature_reports.domain.model.LowStockItem
 import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
 import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
 
 class GetTankStockSummaryUseCase(
@@ -133,5 +139,45 @@ class GetExpenseSummaryUseCase(
 ) {
     suspend operator fun invoke(token: String, filter: DateRangeFilter): ResultState<List<ExpenseSummaryItem>> {
         return repository.getExpenseSummary(token, filter)
+    }
+}
+
+class GetWarehouseStockUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, warehouseId: Int?): ResultState<List<WarehouseStockItem>> {
+        return repository.getWarehouseStock(token, warehouseId)
+    }
+}
+
+class GetConsolidatedStockUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String): ResultState<List<ConsolidatedStockItem>> {
+        return repository.getConsolidatedStock(token)
+    }
+}
+
+class GetLowStockUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, threshold: Int = 10): ResultState<List<LowStockItem>> {
+        return repository.getLowStock(token, threshold)
+    }
+}
+
+class GetFastMovingUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, days: Int = 30, top: Int = 10): ResultState<List<FastMovingItem>> {
+        return repository.getFastMoving(token, days, top)
+    }
+}
+
+class RecordPaymentUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, request: RecordPaymentRequest): ResultState<RecordPaymentResponse> {
+        return repository.recordPayment(token, request)
     }
 }

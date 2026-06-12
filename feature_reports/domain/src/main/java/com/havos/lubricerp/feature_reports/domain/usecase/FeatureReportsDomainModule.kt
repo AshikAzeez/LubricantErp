@@ -11,8 +11,6 @@ val featureReportsDomainModule = module {
     factory { LoginUseCase(get()) }
     factory { LogoutUseCase(get()) }
     factory { RefreshSessionUseCase(get()) }
-    factory { ObserveBiometricEnabledUseCase(get()) }
-    factory { SetBiometricEnabledUseCase(get()) }
 
     factory { GetTankStockSummaryUseCase(get()) }
     factory { GetRawMaterialStockUseCase(get()) }
@@ -28,6 +26,11 @@ val featureReportsDomainModule = module {
     factory { GetProductSalesUseCase(get()) }
     factory { GetNetProfitUseCase(get()) }
     factory { GetExpenseSummaryUseCase(get()) }
+    factory { GetWarehouseStockUseCase(get()) }
+    factory { GetConsolidatedStockUseCase(get()) }
+    factory { GetLowStockUseCase(get()) }
+    factory { GetFastMovingUseCase(get()) }
+    factory { RecordPaymentUseCase(get()) }
 
     factory { GetNotificationsPagedUseCase(get()) }
     factory { GetUnreadNotificationCountUseCase(get()) }

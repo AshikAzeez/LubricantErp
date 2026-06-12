@@ -7,13 +7,17 @@ import com.havos.lubricerp.core.common.isOffline
 import com.havos.lubricerp.core.database.SecureSessionStore
 import com.havos.lubricerp.core.network.NetworkMonitor
 import com.havos.lubricerp.feature_reports.domain.model.DateRangeFilter
+import com.havos.lubricerp.feature_reports.domain.usecase.GetConsolidatedStockUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetDashboardUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.GetFastMovingUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.GetLowStockUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetPackagingLossGainUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetPaymentsReceivedUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetRawMaterialStockUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetSalesSummaryUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetStockOverviewUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetTankStockSummaryUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.GetWarehouseStockUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,6 +44,10 @@ class ReportDetailViewModel(
     private val observeSessionUseCase: ObserveSessionUseCase,
     private val secureSessionStore: SecureSessionStore,
     private val getStockOverviewUseCase: GetStockOverviewUseCase,
+    private val getWarehouseStockUseCase: GetWarehouseStockUseCase,
+    private val getConsolidatedStockUseCase: GetConsolidatedStockUseCase,
+    private val getLowStockUseCase: GetLowStockUseCase,
+    private val getFastMovingUseCase: GetFastMovingUseCase,
     private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
 
@@ -99,6 +107,27 @@ class ReportDetailViewModel(
             ReportDetailIntent.ResetFilter -> resetFilters()
             ReportDetailIntent.ToggleTopCustomers -> _state.update { ReportDetailReducer.reduceToggleTopCustomers(it) }
             ReportDetailIntent.Refresh -> refresh()
+            is ReportDetailIntent.TabSelected -> {
+                _state.update { ReportDetailReducer.reduceForTabSelected(it, intent.index) }
+                when (intent.index) {
+                    1 -> if (_state.value.warehouseStockItems.isEmpty()) fetchWarehouseStock()
+                    2 -> if (_state.value.consolidatedStockItems.isEmpty()) fetchConsolidatedStock()
+                    3 -> if (_state.value.lowStockItems.isEmpty()) fetchLowStock()
+                    4 -> if (_state.value.fastMovingItems.isEmpty()) fetchFastMoving()
+                }
+            }
+            is ReportDetailIntent.LowStockThresholdChanged -> {
+                _state.update { it.copy(lowStockThreshold = intent.value) }
+                fetchLowStock()
+            }
+            is ReportDetailIntent.FastMovingDaysChanged -> {
+                _state.update { it.copy(fastMovingDays = intent.value) }
+                fetchFastMoving()
+            }
+            is ReportDetailIntent.FastMovingTopChanged -> {
+                _state.update { it.copy(fastMovingTop = intent.value) }
+                fetchFastMoving()
+            }
         }
     }
 
@@ -113,7 +142,7 @@ class ReportDetailViewModel(
             ReportItem.RAW_MATERIAL_STOCK -> fetchRawMaterialStock(isRefresh = true)
             ReportItem.PACKAGING_LOSS_GAIN -> fetchPackagingLossGain(isRefresh = true)
             ReportItem.SALES_SUMMARY -> fetchSalesSummary(isRefresh = true)
-            ReportItem.CONSOLIDATED_STOCK -> fetchStockOverview(isRefresh = true)
+            ReportItem.CONSOLIDATED_STOCK -> fetchAllConsolidatedData(isRefresh = true)
             else -> _state.update { it.copy(isRefreshing = false) }
         }
     }
@@ -128,7 +157,7 @@ class ReportDetailViewModel(
             ReportItem.RAW_MATERIAL_STOCK -> fetchRawMaterialStock()
             ReportItem.PACKAGING_LOSS_GAIN -> fetchPackagingLossGain()
             ReportItem.SALES_SUMMARY -> fetchSalesSummary()
-            ReportItem.CONSOLIDATED_STOCK -> fetchStockOverview()
+            ReportItem.CONSOLIDATED_STOCK -> fetchAllConsolidatedData()
             else -> _state.update { it.copy(isLoading = false, errorMessage = null) }
         }
     }
@@ -321,7 +350,7 @@ class ReportDetailViewModel(
         }
     }
 
-    private fun fetchStockOverview(isRefresh: Boolean = false) {
+    private fun fetchAllConsolidatedData(isRefresh: Boolean = false) {
         isFetchInFlight = true
         viewModelScope.launch {
             if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
@@ -331,27 +360,163 @@ class ReportDetailViewModel(
                 isFetchInFlight = false
                 return@launch
             }
-            when (val result = getStockOverviewUseCase(token)) {
-                is ResultState.Success -> _state.update {
+            var successCount = 0
+            var anyOffline = false
+
+            val tankResult = getStockOverviewUseCase(token)
+            if (tankResult is ResultState.Success) {
+                _state.update { it.copy(stockOverviewTankItems = tankResult.data) }
+                successCount++
+            } else if (tankResult is ResultState.Error && tankResult.isOffline) anyOffline = true
+
+            val warehouseResult = getWarehouseStockUseCase(token, null)
+            if (warehouseResult is ResultState.Success) {
+                _state.update { it.copy(warehouseStockItems = warehouseResult.data) }
+                successCount++
+            } else if (warehouseResult is ResultState.Error && warehouseResult.isOffline) anyOffline = true
+
+            val consolidatedResult = getConsolidatedStockUseCase(token)
+            if (consolidatedResult is ResultState.Success) {
+                _state.update { it.copy(consolidatedStockItems = consolidatedResult.data) }
+                successCount++
+            } else if (consolidatedResult is ResultState.Error && consolidatedResult.isOffline) anyOffline = true
+
+            val lowStockResult = getLowStockUseCase(token, _state.value.lowStockThreshold)
+            if (lowStockResult is ResultState.Success) {
+                _state.update { it.copy(lowStockItems = lowStockResult.data) }
+                successCount++
+            } else if (lowStockResult is ResultState.Error && lowStockResult.isOffline) anyOffline = true
+
+            val fastMovingResult = getFastMovingUseCase(token, _state.value.fastMovingDays, _state.value.fastMovingTop)
+            if (fastMovingResult is ResultState.Success) {
+                _state.update { it.copy(fastMovingItems = fastMovingResult.data) }
+                successCount++
+            } else if (fastMovingResult is ResultState.Error && fastMovingResult.isOffline) anyOffline = true
+
+            if (successCount == 0) {
+                _state.update {
                     it.copy(
                         isLoading = false,
                         isRefreshing = false,
-                        stockOverviewTankItems = result.data,
-                        errorMessage = null,
-                        isOffline = false,
-                        retryPending = false
+                        isOffline = anyOffline,
+                        retryPending = anyOffline,
+                        errorMessage = if (anyOffline) "No internet connection" else "Unable to fetch stock data"
                     )
+                }
+            } else {
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        isRefreshing = false,
+                        isOffline = false,
+                        retryPending = false,
+                        errorMessage = null
+                    )
+                }
+            }
+            isFetchInFlight = false
+        }
+    }
+
+    private fun fetchWarehouseStock(isRefresh: Boolean = false) {
+        isFetchInFlight = true
+        viewModelScope.launch {
+            if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) {
+                _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = "Session not available.") }
+                isFetchInFlight = false
+                return@launch
+            }
+            when (val result = getWarehouseStockUseCase(token, null)) {
+                is ResultState.Success -> _state.update {
+                    ReportDetailReducer.reduceForWarehouseStockSuccess(it, result.data)
+                        .copy(isRefreshing = false, isOffline = false, retryPending = false)
                 }
                 is ResultState.Error -> _state.update {
-                    it.copy(
-                        isLoading = false,
-                        isRefreshing = false,
-                        isOffline = result.isOffline,
-                        retryPending = result.isOffline,
-                        errorMessage = if (result.isOffline) "No internet connection" else result.message
-                    )
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
                 }
-                ResultState.Loading -> Unit
+                ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
+            }
+            isFetchInFlight = false
+        }
+    }
+
+    private fun fetchConsolidatedStock(isRefresh: Boolean = false) {
+        isFetchInFlight = true
+        viewModelScope.launch {
+            if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) {
+                _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = "Session not available.") }
+                isFetchInFlight = false
+                return@launch
+            }
+            when (val result = getConsolidatedStockUseCase(token)) {
+                is ResultState.Success -> _state.update {
+                    ReportDetailReducer.reduceForConsolidatedStockSuccess(it, result.data)
+                        .copy(isRefreshing = false, isOffline = false, retryPending = false)
+                }
+                is ResultState.Error -> _state.update {
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
+                }
+                ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
+            }
+            isFetchInFlight = false
+        }
+    }
+
+    private fun fetchLowStock(isRefresh: Boolean = false) {
+        isFetchInFlight = true
+        viewModelScope.launch {
+            if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) {
+                _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = "Session not available.") }
+                isFetchInFlight = false
+                return@launch
+            }
+            when (val result = getLowStockUseCase(token, _state.value.lowStockThreshold)) {
+                is ResultState.Success -> _state.update {
+                    ReportDetailReducer.reduceForLowStockSuccess(it, result.data)
+                        .copy(isRefreshing = false, isOffline = false, retryPending = false)
+                }
+                is ResultState.Error -> _state.update {
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
+                }
+                ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
+            }
+            isFetchInFlight = false
+        }
+    }
+
+    private fun fetchFastMoving(isRefresh: Boolean = false) {
+        isFetchInFlight = true
+        viewModelScope.launch {
+            if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) {
+                _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = "Session not available.") }
+                isFetchInFlight = false
+                return@launch
+            }
+            when (val result = getFastMovingUseCase(token, _state.value.fastMovingDays, _state.value.fastMovingTop)) {
+                is ResultState.Success -> _state.update {
+                    ReportDetailReducer.reduceForFastMovingSuccess(it, result.data)
+                        .copy(isRefreshing = false, isOffline = false, retryPending = false)
+                }
+                is ResultState.Error -> _state.update {
+                    ReportDetailReducer.reduceForError(
+                        it, if (result.isOffline) "No internet connection" else result.message
+                    ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
+                }
+                ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
             }
             isFetchInFlight = false
         }

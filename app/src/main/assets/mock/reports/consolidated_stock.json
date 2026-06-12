@@ -1,0 +1,71 @@
+{
+  "success": true,
+  "data": [
+    {
+      "itemType": "BulkOil",
+      "itemCode": "TK-001",
+      "itemName": "Tank 1 — SN 150 Base Oil",
+      "quantity": 32450.50,
+      "unit": "Litres",
+      "location": "Main Tank Farm"
+    },
+    {
+      "itemType": "BulkOil",
+      "itemCode": "TK-002",
+      "itemName": "Tank 2 — SN 500 Base Oil",
+      "quantity": 18200.00,
+      "unit": "Litres",
+      "location": "Main Tank Farm"
+    },
+    {
+      "itemType": "BulkOil",
+      "itemCode": "TK-003",
+      "itemName": "Tank 3 — Additive Stock",
+      "quantity": 8400.00,
+      "unit": "Litres",
+      "location": "Main Tank Farm"
+    },
+    {
+      "itemType": "PackagedProduct",
+      "itemCode": "SKU-CF4-15W40-1L",
+      "itemName": "CF4 15W40 1L",
+      "quantity": 8,
+      "unit": "NOS",
+      "location": "Main Warehouse"
+    },
+    {
+      "itemType": "PackagedProduct",
+      "itemCode": "SKU-CF4-15W40-5L",
+      "itemName": "CF4 15W40 5L",
+      "quantity": 145,
+      "unit": "NOS",
+      "location": "Main Warehouse"
+    },
+    {
+      "itemType": "PackagedProduct",
+      "itemCode": "SKU-CF4-20W50-1L",
+      "itemName": "CF4 20W50 1L",
+      "quantity": 320,
+      "unit": "NOS",
+      "location": "Main Warehouse"
+    },
+    {
+      "itemType": "PackagedProduct",
+      "itemCode": "SKU-GEO-EP90-1L",
+      "itemName": "Gear Oil EP90 1L",
+      "quantity": 320,
+      "unit": "NOS",
+      "location": "Main Warehouse"
+    },
+    {
+      "itemType": "PackagedProduct",
+      "itemCode": "SKU-HYD-46-5L",
+      "itemName": "Hydraulic Oil 46 5L",
+      "quantity": 180,
+      "unit": "NOS",
+      "location": "Secondary Warehouse"
+    }
+  ],
+  "message": null,
+  "errors": null
+}

@@ -25,13 +25,52 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "environment"
+    productFlavors {
+        create("demo") {
+            dimension = "environment"
+            applicationIdSuffix = ".demo"
+            versionNameSuffix = "-demo"
+            buildConfigField("boolean", "USE_MOCK_ENGINE", "true")
+            buildConfigField("String", "ENVIRONMENT", "\"TEST\"")
+            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
+        }
+        create("stage") {
+            dimension = "environment"
+            applicationIdSuffix = ".stage"
+            versionNameSuffix = "-stage"
+            buildConfigField("boolean", "USE_MOCK_ENGINE", "false")
+            buildConfigField("String", "ENVIRONMENT", "\"STAGE\"")
+            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
+        }
+        create("prod") {
+            dimension = "environment"
+            buildConfigField("boolean", "USE_MOCK_ENGINE", "false")
+            buildConfigField("String", "ENVIRONMENT", "\"PRODUCTION\"")
+            buildConfigField("String", "BASE_URL", "\"https://api.goal-erp.com/\"")
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("key.jks")
+            storePassword = "goalErp@2026"
+            keyAlias = "GoalErp2026"
+            keyPassword = "goalErp@2026"
+        }
+    }
+
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            if (rootProject.file("key.jks").exists()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {
@@ -40,6 +79,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

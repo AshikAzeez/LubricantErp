@@ -8,14 +8,13 @@ import com.havos.lubricerp.core.common.UiState
 
 sealed interface SettingsIntent : UiIntent {
     data class ThemeChanged(val mode: ThemeMode) : SettingsIntent
-    data class BiometricToggled(val enabled: Boolean) : SettingsIntent
+    data object LogoutClicked : SettingsIntent
 }
 
 @Stable
 data class SettingsUiState(
     val selectedThemeMode: ThemeMode = ThemeMode.SYSTEM,
-    val profile: SettingsProfileUi? = null,
-    val biometricEnabled: Boolean = false
+    val profile: SettingsProfileUi? = null
 ) : UiState
 
 @Immutable
@@ -28,5 +27,9 @@ data class SettingsProfileUi(
 
 sealed interface SettingsAction {
     data class ThemeSelected(val mode: ThemeMode) : SettingsAction
-    data class BiometricToggled(val enabled: Boolean) : SettingsAction
+    data object LogoutClicked : SettingsAction
+}
+
+sealed interface SettingsEffect {
+    data object NavigateToLogin : SettingsEffect
 }

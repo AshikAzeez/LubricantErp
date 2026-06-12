@@ -27,7 +27,6 @@ interface SecureSessionStore {
     val sessionFlow: Flow<SessionData?>
     val rememberedUsernameFlow: Flow<String>
     val rememberMeEnabledFlow: Flow<Boolean>
-    val biometricEnabledFlow: Flow<Boolean>
     val themeModeFlow: Flow<ThemeMode>
     val salesFilterFlow: Flow<Pair<String, String>?>
 
@@ -35,7 +34,6 @@ interface SecureSessionStore {
     suspend fun saveRememberedUsername(username: String)
     suspend fun clearRememberedUsername()
     suspend fun setRememberMeEnabled(enabled: Boolean)
-    suspend fun setBiometricEnabled(enabled: Boolean)
     suspend fun setThemeMode(themeMode: ThemeMode)
     suspend fun saveSalesFilter(fromDate: String, toDate: String)
     suspend fun clearSalesFilter()
@@ -84,11 +82,6 @@ class SecureSessionStoreImpl(
     override val rememberMeEnabledFlow: Flow<Boolean> = datastore.data
         .catch { emit(emptyPreferences()) }
         .map { preferences -> preferences[Keys.REMEMBER_ME_ENABLED] ?: false }
-        .flowOn(Dispatchers.IO)
-
-    override val biometricEnabledFlow: Flow<Boolean> = datastore.data
-        .catch { emit(emptyPreferences()) }
-        .map { preferences -> preferences[Keys.BIOMETRIC_ENABLED] ?: false }
         .flowOn(Dispatchers.IO)
 
     override val themeModeFlow: Flow<ThemeMode> = datastore.data
@@ -152,14 +145,6 @@ class SecureSessionStoreImpl(
         }
     }
 
-    override suspend fun setBiometricEnabled(enabled: Boolean) {
-        withContext(Dispatchers.IO) {
-            datastore.edit { preferences ->
-                preferences[Keys.BIOMETRIC_ENABLED] = enabled
-            }
-        }
-    }
-
     override suspend fun setThemeMode(themeMode: ThemeMode) {
         withContext(Dispatchers.IO) {
             datastore.edit { preferences ->
@@ -192,7 +177,6 @@ class SecureSessionStoreImpl(
                 preferences.remove(Keys.USERNAME)
                 preferences.remove(Keys.TOKEN)
                 preferences.remove(Keys.REFRESH_TOKEN)
-                preferences.remove(Keys.BIOMETRIC_ENABLED)
                 preferences.remove(Keys.SALES_FILTER_FROM)
                 preferences.remove(Keys.SALES_FILTER_TO)
             }
@@ -205,7 +189,6 @@ class SecureSessionStoreImpl(
         val REFRESH_TOKEN = stringPreferencesKey("refresh_token")
         val REMEMBERED_USERNAME = stringPreferencesKey("remembered_username")
         val REMEMBER_ME_ENABLED = booleanPreferencesKey("remember_me_enabled")
-        val BIOMETRIC_ENABLED = booleanPreferencesKey("biometric_enabled")
         val THEME_MODE = stringPreferencesKey("theme_mode")
         val SALES_FILTER_FROM = stringPreferencesKey("sales_filter_from")
         val SALES_FILTER_TO = stringPreferencesKey("sales_filter_to")

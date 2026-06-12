@@ -1,9 +1,0 @@
-{
-  "environment": "STAGE",
-  "useMockEngine": false,
-  "baseUrls": {
-    "test": "http://havostech-001-site2.atempurl.com/",
-    "stage": "http://havostech-001-site2.atempurl.com/",
-    "production": "https://api.goal-erp.com/"
-  }
-}

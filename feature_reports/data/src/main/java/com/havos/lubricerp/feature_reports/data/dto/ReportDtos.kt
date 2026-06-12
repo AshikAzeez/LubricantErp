@@ -102,11 +102,15 @@ data class PaymentReceivedApiResponseDto(
 
 @Serializable
 data class PaymentReceivedItemDto(
+    val id: Long = 0,
     val receiptNumber: String,
+    val paymentDate: String = "",
     val customerName: String,
     val invoiceNumber: String,
     val amount: Double,
-    val paymentMode: String
+    val paymentMode: String,
+    val reference: String? = null,
+    val remarks: String? = null
 )
 
 @Serializable
@@ -136,7 +140,8 @@ data class CustomerLedgerEntryDto(
     val refNumber: String,
     val debit: Double = 0.0,
     val credit: Double = 0.0,
-    val runningBalance: Double = 0.0
+    val runningBalance: Double = 0.0,
+    val invoiceId: Long = 0
 )
 
 @Serializable
@@ -274,4 +279,111 @@ data class SalesSummaryItemDto(
     val totalAmount: Double,
     val paidAmount: Double,
     val balanceAmount: Double
+)
+
+@Serializable
+data class WarehouseStockItemDto(
+    val warehouseId: Int,
+    val warehouseName: String,
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val productGrade: String,
+    val productFamily: String,
+    val currentStock: Int,
+    val reorderLevel: Int
+)
+
+@Serializable
+data class WarehouseStockApiResponseDto(
+    val success: Boolean,
+    val data: List<WarehouseStockItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class ConsolidatedStockItemDto(
+    val itemType: String,
+    val itemCode: String,
+    val itemName: String,
+    val quantity: Double,
+    val unit: String,
+    val location: String
+)
+
+@Serializable
+data class ConsolidatedStockApiResponseDto(
+    val success: Boolean,
+    val data: List<ConsolidatedStockItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class LowStockItemDto(
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val productGrade: String,
+    val productFamily: String,
+    val warehouseName: String,
+    val currentStock: Int,
+    val reorderLevel: Int,
+    val shortageQuantity: Int
+)
+
+@Serializable
+data class LowStockApiResponseDto(
+    val success: Boolean,
+    val data: List<LowStockItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class FastMovingItemDto(
+    val rank: Int,
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val productGrade: String,
+    val productFamily: String,
+    val quantitySold: Int,
+    val totalRevenue: Double
+)
+
+@Serializable
+data class FastMovingApiResponseDto(
+    val success: Boolean,
+    val data: List<FastMovingItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class RecordPaymentRequestDto(
+    val invoiceId: Long,
+    val amount: Double,
+    val paymentMode: String,
+    val paymentDate: String,
+    val reference: String = "",
+    val remarks: String = ""
+)
+
+@Serializable
+data class RecordPaymentResponseDto(
+    val receiptNumber: String,
+    val invoiceId: Long,
+    val amountPaid: Double,
+    val newBalance: Double,
+    val newPaymentStatus: String
+)
+
+@Serializable
+data class RecordPaymentApiResponseDto(
+    val success: Boolean,
+    val data: RecordPaymentResponseDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
 )

@@ -1,30 +1,39 @@
 {
   "success": true,
+  "message": null,
   "data": [
     {
-      "receiptNumber": "RCP-2026-0041",
-      "customerName": "Al Noor Trucks",
-      "invoiceNumber": "SO2026040088",
-      "amount": 45200.0,
-      "paymentMode": "Bank Transfer"
+      "id": 201,
+      "receiptNumber": "RCP-2526-0201",
+      "paymentDate": "2026-05-24",
+      "customerName": "Ravi Motor Works",
+      "invoiceNumber": "INV-2526-1036",
+      "amount": 34200.00,
+      "paymentMode": "NEFT",
+      "reference": "NEFT2605241234",
+      "remarks": "Full payment"
     },
     {
-      "receiptNumber": "RCP-2026-0040",
-      "customerName": "Gulf Transport Co.",
-      "invoiceNumber": "SO2026040079",
-      "amount": 32800.0,
-      "paymentMode": "Cheque"
+      "id": 200,
+      "receiptNumber": "RCP-2526-0200",
+      "paymentDate": "2026-05-23",
+      "customerName": "Ahmed Trading Co.",
+      "invoiceNumber": "INV-2526-1039",
+      "amount": 50000.00,
+      "paymentMode": "Cheque",
+      "reference": "CHQ 112233",
+      "remarks": "Part payment"
     },
     {
-      "receiptNumber": "RCP-2026-0039",
-      "customerName": "Star Logistics",
-      "invoiceNumber": "SO2026030065",
-      "amount": 18600.0,
-      "paymentMode": "Cash"
+      "id": 199,
+      "receiptNumber": "RCP-2526-0199",
+      "paymentDate": "2026-05-22",
+      "customerName": "Kiran Auto Parts",
+      "invoiceNumber": "INV-2526-1035",
+      "amount": 48750.00,
+      "paymentMode": "UPI",
+      "reference": "UPI-9845012345-220526",
+      "remarks": null
     }
-  ],
-  "message": null,
-  "errors": null,
-  "_totalAmount": 96600.0,
-  "_generatedAt": "2026-05-08T10:00:00Z"
+  ]
 }
