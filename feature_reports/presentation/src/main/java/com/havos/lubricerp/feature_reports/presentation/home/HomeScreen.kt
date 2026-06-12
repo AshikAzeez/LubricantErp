@@ -50,12 +50,7 @@ private enum class BottomNavItem(val title: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeRoute(
-    onOpenReport: (String) -> Unit,
-    onOpenCustomerData: () -> Unit = {},
-    onOpenReportModule: (String) -> Unit = {},
-    onOpenSettings: () -> Unit,
-    onOpenNotifications: () -> Unit = {},
-    onNavigateLogin: () -> Unit,
+    onNavigate: (HomeNavigation) -> Unit,
     viewModel: HomeViewModel = koinViewModel(),
     homeTabViewModel: HomeTabViewModel = koinViewModel(),
     reportsTabViewModel: ReportsTabViewModel = koinViewModel()
@@ -66,8 +61,8 @@ fun HomeRoute(
 
     CollectEffect(effects = viewModel.effect) { effect ->
         when (effect) {
-            HomeEffect.NavigateToLogin -> onNavigateLogin()
-            is HomeEffect.OpenReport -> onOpenReport(effect.reportItem.key)
+            HomeEffect.NavigateToLogin -> onNavigate(HomeNavigation.NavigateLogin)
+            is HomeEffect.OpenReport -> onNavigate(HomeNavigation.OpenReport(effect.reportItem.key))
         }
     }
 
@@ -76,11 +71,7 @@ fun HomeRoute(
         onTabSelected = { selectedTab = it },
         reportsState = reportsState,
         reportsTabViewModel = reportsTabViewModel,
-        onOpenReport = onOpenReport,
-        onOpenCustomerData = onOpenCustomerData,
-        onOpenReportModule = onOpenReportModule,
-        onOpenSettings = onOpenSettings,
-        onOpenNotifications = onOpenNotifications,
+        onNavigate = onNavigate,
         onLogoutClick = { showLogoutConfirmation = true }
     )
 
@@ -115,11 +106,7 @@ private fun HomeScreen(
     onTabSelected: (Int) -> Unit,
     reportsState: ReportsTabUiState,
     reportsTabViewModel: ReportsTabViewModel,
-    onOpenReport: (String) -> Unit,
-    onOpenCustomerData: () -> Unit,
-    onOpenReportModule: (String) -> Unit,
-    onOpenSettings: () -> Unit,
-    onOpenNotifications: () -> Unit,
+    onNavigate: (HomeNavigation) -> Unit,
     onLogoutClick: () -> Unit
 ) {
     Scaffold(
@@ -135,7 +122,7 @@ private fun HomeScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = onOpenSettings) {
+                    IconButton(onClick = { onNavigate(HomeNavigation.OpenSettings) }) {
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Settings"
@@ -189,7 +176,7 @@ private fun HomeScreen(
                         selected = selectedTab == index,
                         onClick = {
                             if (item == BottomNavItem.NOTIFICATIONS) {
-                                onOpenNotifications()
+                                onNavigate(HomeNavigation.OpenNotifications)
                             } else {
                                 onTabSelected(index)
                             }
@@ -205,15 +192,15 @@ private fun HomeScreen(
                 .padding(innerPadding)
         ) {
             when (selectedTab) {
-                0 -> HomeTabContent(onOpenReport = onOpenReport)
+                0 -> HomeTabContent(onOpenReport = { onNavigate(HomeNavigation.OpenReport(it)) })
                 1 -> ReportsTabContent(
                     state = reportsState,
                     reportsTabViewModel = reportsTabViewModel,
-                    onOpenReport = onOpenReport,
-                    onOpenCustomerData = onOpenCustomerData,
-                    onOpenReportModule = onOpenReportModule
+                    onOpenReport = { onNavigate(HomeNavigation.OpenReport(it)) },
+                    onOpenCustomerData = { onNavigate(HomeNavigation.OpenCustomerData) },
+                    onOpenReportModule = { onNavigate(HomeNavigation.OpenReportModule(it)) }
                 )
-                else -> HomeTabContent(onOpenReport = onOpenReport)
+                else -> HomeTabContent(onOpenReport = { onNavigate(HomeNavigation.OpenReport(it)) })
             }
         }
     }

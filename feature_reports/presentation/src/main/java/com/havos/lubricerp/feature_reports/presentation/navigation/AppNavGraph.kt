@@ -21,6 +21,7 @@ import com.havos.lubricerp.core.network.ResolvedNetworkConfig
 import com.havos.lubricerp.core.ui.components.NetworkStatusBar
 import com.havos.lubricerp.feature_reports.presentation.customer.CustomerDataRoute
 import com.havos.lubricerp.feature_reports.presentation.home.HomeRoute
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation
 import com.havos.lubricerp.feature_reports.presentation.notification.NotificationRoute
 import com.havos.lubricerp.feature_reports.presentation.login.LoginRoute
 import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModuleRoute
@@ -95,24 +96,28 @@ fun GoalErpNavGraph(
 
             composable(AppRoutes.HOME) {
                 HomeRoute(
-                    onOpenReport = { reportKey ->
-                        navController.navigate(AppRoutes.reportDetail(reportKey))
-                    },
-                    onOpenCustomerData = {
-                        navController.navigate(AppRoutes.CUSTOMER_DATA)
-                    },
-                    onOpenReportModule = { reportItemKey ->
-                        navController.navigate(AppRoutes.reportModule(reportItemKey))
-                    },
-                    onOpenSettings = {
-                        navController.navigate(AppRoutes.SETTINGS)
-                    },
-                    onOpenNotifications = {
-                        navController.navigate(AppRoutes.NOTIFICATIONS)
-                    },
-                    onNavigateLogin = {
-                        navController.navigate(AppRoutes.LOGIN) {
-                            popUpTo(AppRoutes.HOME) { inclusive = true }
+                    onNavigate = { navigation ->
+                        when (navigation) {
+                            is HomeNavigation.OpenReport -> {
+                                navController.navigate(AppRoutes.reportDetail(navigation.reportKey))
+                            }
+                            HomeNavigation.OpenCustomerData -> {
+                                navController.navigate(AppRoutes.CUSTOMER_DATA)
+                            }
+                            is HomeNavigation.OpenReportModule -> {
+                                navController.navigate(AppRoutes.reportModule(navigation.reportItemKey))
+                            }
+                            HomeNavigation.OpenSettings -> {
+                                navController.navigate(AppRoutes.SETTINGS)
+                            }
+                            HomeNavigation.OpenNotifications -> {
+                                navController.navigate(AppRoutes.NOTIFICATIONS)
+                            }
+                            HomeNavigation.NavigateLogin -> {
+                                navController.navigate(AppRoutes.LOGIN) {
+                                    popUpTo(AppRoutes.HOME) { inclusive = true }
+                                }
+                            }
                         }
                     }
                 )

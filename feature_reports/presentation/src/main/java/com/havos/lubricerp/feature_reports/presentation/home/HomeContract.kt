@@ -26,6 +26,15 @@ sealed interface HomeEffect {
     data object NavigateToLogin : HomeEffect
 }
 
+sealed interface HomeNavigation {
+    data class OpenReport(val reportKey: String) : HomeNavigation
+    data object OpenCustomerData : HomeNavigation
+    data class OpenReportModule(val reportItemKey: String) : HomeNavigation
+    data object OpenSettings : HomeNavigation
+    data object OpenNotifications : HomeNavigation
+    data object NavigateLogin : HomeNavigation
+}
+
 sealed interface HomeAction {
     data class CardClicked(val menuKey: String) : HomeAction
     data class SubMenuClicked(val reportItem: ReportItem) : HomeAction
