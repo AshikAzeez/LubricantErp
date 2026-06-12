@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
+import com.havos.lubricerp.core.ui.components.CollectEffect
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
@@ -62,6 +63,13 @@ fun HomeRoute(
     val reportsState by reportsTabViewModel.state.collectAsStateWithLifecycle()
     var showLogoutConfirmation by rememberSaveable { mutableStateOf(false) }
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+
+    CollectEffect(effects = viewModel.effect) { effect ->
+        when (effect) {
+            HomeEffect.NavigateToLogin -> onNavigateLogin()
+            is HomeEffect.OpenReport -> onOpenReport(effect.reportItem.key)
+        }
+    }
 
     HomeScreen(
         selectedTab = selectedTab,
