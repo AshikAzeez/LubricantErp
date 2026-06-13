@@ -22,6 +22,8 @@ import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
+import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
+import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
 
 class GetTankStockSummaryUseCase(
@@ -179,5 +181,21 @@ class RecordPaymentUseCase(
 ) {
     suspend operator fun invoke(token: String, request: RecordPaymentRequest): ResultState<RecordPaymentResponse> {
         return repository.recordPayment(token, request)
+    }
+}
+
+class GetPaymentsPendingUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String): ResultState<List<PaymentPendingCustomer>> {
+        return repository.getPaymentsPending(token)
+    }
+}
+
+class GetAccountsSummaryUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, filter: DateRangeFilter): ResultState<AccountsSummary> {
+        return repository.getAccountsSummary(token, filter)
     }
 }

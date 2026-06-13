@@ -21,6 +21,8 @@ import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
 
 interface ReportsRemoteDataSource {
     suspend fun getTankStockSummary(): ResultState<TankStockSummaryDto>
@@ -46,4 +48,6 @@ interface ReportsRemoteDataSource {
 
     suspend fun getFastMoving(token: String, days: Int, top: Int): ResultState<List<FastMovingItemDto>>
     suspend fun recordPayment(token: String, request: RecordPaymentRequestDto): ResultState<RecordPaymentResponseDto>
+    suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomerDto>>
+    suspend fun getAccountsSummary(token: String, fromDate: String, toDate: String): ResultState<AccountsSummaryDto>
 }

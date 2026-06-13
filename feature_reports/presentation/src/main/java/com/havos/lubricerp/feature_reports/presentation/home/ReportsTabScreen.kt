@@ -47,6 +47,20 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.core.ui.components.DashboardCardUi
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
 import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.runtime.remember
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.animation.core.animateFloatAsState
+
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,31 +104,64 @@ fun ReportsTabScreen(
     state.selectedMenu?.let { menu ->
         ModalBottomSheet(
             onDismissRequest = { onAction(ReportsTabAction.DismissBottomSheet) },
-            sheetState = sheetState
+            sheetState = sheetState,
+            dragHandle = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, bottom = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(40.dp)
+                            .height(5.dp)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f))
+                    )
+                }
+            }
         ) {
             Text(
                 text = menu.title,
                 style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)
             )
             menu.subMenus.forEach { report ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
+                        .clip(RoundedCornerShape(12.dp))
                         .clickable { onAction(ReportsTabAction.SubMenuClicked(report)) },
                     colors = CardDefaults.outlinedCardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow
                     ),
-                    border = CardDefaults.outlinedCardBorder()
+                    border = androidx.compose.foundation.BorderStroke(
+                        0.5.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+                    )
                 ) {
                     ListItem(
                         headlineContent = {
                             Text(
                                 text = report.title,
-                                style = MaterialTheme.typography.titleSmall
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold
                             )
-                        }
+                        },
+                        trailingContent = {
+                            Icon(
+                                imageVector = androidx.compose.material.icons.Icons.AutoMirrored.Filled.ArrowForward,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
+                                modifier = androidx.compose.ui.Modifier.size(16.dp)
+                            )
+                        },
+                        colors = androidx.compose.material3.ListItemDefaults.colors(
+                            containerColor = Color.Transparent
+                        )
                     )
                 }
             }
@@ -146,35 +193,74 @@ private fun DashboardCardGrid(
             horizontalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             items(items, key = { it.id }) { card ->
+                val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                val pressed by interactionSource.collectIsPressedAsState()
+                val focused by interactionSource.collectIsFocusedAsState()
+                val hovered by interactionSource.collectIsHoveredAsState()
+                val scale by animateFloatAsState(
+                    targetValue = if (pressed) 0.97f else 1f,
+                    animationSpec = tween(150),
+                    label = "dashboardCardScale"
+                )
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { onCardClick(card) },
+                        .scale(scale)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) { onCardClick(card) },
                     colors = CardDefaults.elevatedCardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                        containerColor = when {
+                            pressed || focused -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+                            hovered -> MaterialTheme.colorScheme.surfaceContainerHigh
+                            else -> MaterialTheme.colorScheme.surfaceContainer
+                        }
                     ),
                     elevation = CardDefaults.elevatedCardElevation(
-                        defaultElevation = 2.dp
+                        defaultElevation = if (pressed) 4.dp else 2.dp,
+                        pressedElevation = 6.dp
                     ),
                     border = androidx.compose.foundation.BorderStroke(
                         0.5.dp,
-                        MaterialTheme.colorScheme.outlineVariant
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                     )
                 ) {
                     Column(
                         modifier = Modifier
+                            .background(
+                                Brush.linearGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.02f)
+                                    )
+                                ),
+                                shape = RoundedCornerShape(16.dp)
+                            )
                             .fillMaxWidth()
                             .padding(vertical = 24.dp, horizontal = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        androidx.compose.material3.Icon(
-                            imageVector = card.icon,
-                            contentDescription = card.title,
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            androidx.compose.material3.Icon(
+                                imageVector = card.icon,
+                                contentDescription = card.title,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                        }
                         Text(
                             text = card.title,
                             style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(top = 12.dp)
                         )
                     }

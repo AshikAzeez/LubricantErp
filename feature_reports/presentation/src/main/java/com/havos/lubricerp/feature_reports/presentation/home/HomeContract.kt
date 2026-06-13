@@ -30,6 +30,7 @@ sealed interface HomeNavigation {
     data class OpenReport(val reportKey: String) : HomeNavigation
     data object OpenCustomerData : HomeNavigation
     data class OpenReportModule(val reportItemKey: String) : HomeNavigation
+    data object OpenPaymentReport : HomeNavigation
     data object OpenSettings : HomeNavigation
     data object OpenNotifications : HomeNavigation
     data object NavigateLogin : HomeNavigation

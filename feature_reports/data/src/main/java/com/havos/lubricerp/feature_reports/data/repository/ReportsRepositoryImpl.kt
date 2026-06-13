@@ -24,6 +24,8 @@ import com.havos.lubricerp.feature_reports.domain.model.LowStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
+import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
+import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
 
@@ -170,6 +172,22 @@ class ReportsRepositoryImpl(
     override suspend fun getFastMoving(token: String, days: Int, top: Int): ResultState<List<FastMovingItem>> {
         return when (val result = reportsRemoteDataSource.getFastMoving(token, days, top)) {
             is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomer>> {
+        return when (val result = reportsRemoteDataSource.getPaymentsPending(token)) {
+            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getAccountsSummary(token: String, filter: DateRangeFilter): ResultState<AccountsSummary> {
+        return when (val result = reportsRemoteDataSource.getAccountsSummary(token, filter.fromDate, filter.toDate)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }

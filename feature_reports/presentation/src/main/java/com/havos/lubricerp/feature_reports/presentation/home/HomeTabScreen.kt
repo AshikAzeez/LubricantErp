@@ -23,6 +23,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -89,6 +91,7 @@ import com.havos.lubricerp.core.ui.components.OfflinePlaceholder
 import com.havos.lubricerp.feature_reports.domain.model.RecentInvoice
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.compose.ui.platform.LocalLocale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,132 +107,152 @@ fun HomeTabScreen(
         onRefresh = { viewModel.refresh() },
         modifier = Modifier.fillMaxSize()
     ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
-    ) {
-        if (state.isProfileLoading || state.isDashboardLoading) {
-            item {
-                HomeTabShimmer(modifier = Modifier.fillMaxWidth())
-            }
-        } else {
-            if (state.greetingName.isNotBlank()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 16.dp)
+        ) {
+            if (state.isProfileLoading || state.isDashboardLoading) {
                 item {
-                    GreetingBannerCard(name = state.greetingName)
-                }
-            }
-
-            if (state.isOffline) {
-                item {
-                    OfflinePlaceholder(onRetry = { viewModel.refresh() })
-                }
-            } else if (state.dashboardError != null) {
-                item {
-                    ErrorPlaceholder(
-                        message = state.dashboardError!!,
-                        onRetry = { viewModel.refresh() }
-                    )
+                    HomeTabShimmer(modifier = Modifier.fillMaxWidth())
                 }
             } else {
-                item {
-                    val primaryColor = MaterialTheme.colorScheme.primary
-                    val errorColor = MaterialTheme.colorScheme.error
-                    val kpiItems = buildList {
-                        add(
-                            KpiItem(
-                                title = "Sales This Month",
-                                value = formatCurrency(state.monthlySalesAmount),
-                                subtitle = "${state.monthlySalesCount} invoices",
-                                icon = Icons.Filled.Receipt,
-                                iconBgColor = Color(0xFF4CAF50),
-                            )
+                if (state.greetingName.isNotBlank()) {
+                    item {
+                        GreetingBannerCard(name = state.greetingName)
+                    }
+                }
+
+                if (state.isOffline) {
+                    item {
+                        OfflinePlaceholder(onRetry = { viewModel.refresh() })
+                    }
+                } else if (state.dashboardError != null) {
+                    item {
+                        ErrorPlaceholder(
+                            message = state.dashboardError!!,
+                            onRetry = { viewModel.refresh() }
                         )
-                        add(
-                            KpiItem(
-                                title = "Sales Today",
-                                value = formatCurrency(state.todaySalesAmount),
-                                subtitle = "${state.todaySalesCount} orders",
-                                icon = Icons.Filled.ShoppingCart,
-                                iconBgColor = Color(0xFF2196F3),
-                            )
-                        )
-                        if (state.canViewFinancials) {
+                    }
+                } else {
+                    item {
+                        val primaryColor = MaterialTheme.colorScheme.primary
+                        val errorColor = MaterialTheme.colorScheme.error
+                        val kpiItems = buildList {
                             add(
                                 KpiItem(
-                                    title = "Outstanding Receivables",
-                                    value = formatCurrency(state.outstandingReceivables),
-                                    subtitle = "From customers",
-                                    icon = Icons.Filled.PeopleAlt,
-                                    iconBgColor = Color(0xFFFF9800),
-                                    valueColor = primaryColor
+                                    title = "Sales This Month",
+                                    value = formatCurrency(state.monthlySalesAmount),
+                                    subtitle = "${state.monthlySalesCount} invoices",
+                                    icon = Icons.Filled.Receipt,
+                                    iconBgColor = Color(0xFF4CAF50),
+                                    gradientColors = listOf(
+                                        com.havos.lubricerp.core.ui.theme.GradientReceiptsStart,
+                                        com.havos.lubricerp.core.ui.theme.GradientReceiptsEnd
+                                    )
                                 )
                             )
                             add(
                                 KpiItem(
-                                    title = "Outstanding Payables",
-                                    value = formatCurrency(state.pendingPayables),
-                                    subtitle = "To vendors",
-                                    icon = Icons.Filled.AttachMoney,
-                                    iconBgColor = Color(0xFFF44336),
-                                    valueColor = errorColor
+                                    title = "Sales Today",
+                                    value = formatCurrency(state.todaySalesAmount),
+                                    subtitle = "${state.todaySalesCount} orders",
+                                    icon = Icons.Filled.ShoppingCart,
+                                    iconBgColor = Color(0xFF2196F3),
+                                    gradientColors = listOf(
+                                        com.havos.lubricerp.core.ui.theme.GradientSalesStart,
+                                        com.havos.lubricerp.core.ui.theme.GradientSalesEnd
+                                    )
                                 )
+                            )
+                            if (state.canViewFinancials) {
+                                add(
+                                    KpiItem(
+                                        title = "Outstanding Receivables",
+                                        value = formatCurrency(state.outstandingReceivables),
+                                        subtitle = "From customers",
+                                        icon = Icons.Filled.PeopleAlt,
+                                        iconBgColor = Color(0xFFFF9800),
+                                        valueColor = primaryColor,
+                                        gradientColors = listOf(
+                                            com.havos.lubricerp.core.ui.theme.GradientReceivablesStart,
+                                            com.havos.lubricerp.core.ui.theme.GradientReceivablesEnd
+                                        )
+                                    )
+                                )
+                                add(
+                                    KpiItem(
+                                        title = "Outstanding Payables",
+                                        value = formatCurrency(state.pendingPayables),
+                                        subtitle = "To vendors",
+                                        icon = Icons.Filled.AttachMoney,
+                                        iconBgColor = Color(0xFFF44336),
+                                        valueColor = errorColor,
+                                        gradientColors = listOf(
+                                            com.havos.lubricerp.core.ui.theme.GradientPayablesStart,
+                                            com.havos.lubricerp.core.ui.theme.GradientPayablesEnd
+                                        )
+                                    )
+                                )
+                            }
+                            if (state.lowStockAlertCount > 0) {
+                                add(
+                                    KpiItem(
+                                        title = "Low Stock Alerts",
+                                        value = state.lowStockAlertCount.toString(),
+                                        subtitle = "Items need reorder",
+                                        icon = Icons.Filled.Warning,
+                                        iconBgColor = Color(0xFFFF5722),
+                                        valueColor = errorColor,
+                                        gradientColors = listOf(
+                                            com.havos.lubricerp.core.ui.theme.GradientPayablesStart,
+                                            com.havos.lubricerp.core.ui.theme.GradientPayablesEnd
+                                        )
+                                    )
+                                )
+                            }
+                        }
+                        KpiToggleSection(items = kpiItems)
+                    }
+                    item {
+                        TankUtilizationCard(
+                            onClick = { onNavigateToReport("tank_stock_summary") }
+                        )
+                    }
+
+                    if (state.canViewFinancials) {
+                        item {
+                            NetProfitDashboardCard(
+                                state = state,
+                                onIntent = onIntent
                             )
                         }
-                        if (state.lowStockAlertCount > 0) {
-                            add(
-                                KpiItem(
-                                    title = "Low Stock Alerts",
-                                    value = state.lowStockAlertCount.toString(),
-                                    subtitle = "Items need reorder",
-                                    icon = Icons.Filled.Warning,
-                                    iconBgColor = Color(0xFFFF5722),
-                                    valueColor = errorColor
-                                )
-                            )
+                    }
+
+                    if (state.topSellingProducts.isNotEmpty()) {
+                        item {
+                            TopSellingProductsCard(products = state.topSellingProducts)
                         }
                     }
-                    KpiToggleSection(items = kpiItems)
-                }
-                item {
-                    TankUtilizationCard(
-                        onClick = { onNavigateToReport("tank_stock_summary") }
-                    )
-                }
 
-                if (state.canViewFinancials) {
-                    item {
-                        NetProfitDashboardCard(
-                            state = state,
-                            onIntent = onIntent
-                        )
-                    }
-                }
-
-                if (state.topSellingProducts.isNotEmpty()) {
-                    item {
-                        TopSellingProductsCard(products = state.topSellingProducts)
-                    }
-                }
-
-                if (state.recentInvoices.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Recent Transactions",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                    items(state.recentInvoices, key = { it.id }) { invoice ->
-                        RecentInvoiceRow(invoice = invoice)
+                    if (state.recentInvoices.isNotEmpty()) {
+                        item {
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Recent Transactions",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                        items(state.recentInvoices, key = { it.id }) { invoice ->
+                            RecentInvoiceRow(invoice = invoice)
+                        }
                     }
                 }
             }
         }
-    }
     }
 }
 
@@ -237,91 +260,162 @@ fun HomeTabScreen(
 private fun TopSellingProductsCard(products: List<String>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
-                        .clip(CircleShape)
-                        .background(Color(0xFFF59E0B).copy(alpha = 0.15f)),
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    com.havos.lubricerp.core.ui.theme.GradientSalesStart,
+                                    com.havos.lubricerp.core.ui.theme.GradientSalesEnd
+                                )
+                            )
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.TrendingUp,
                         contentDescription = null,
-                        tint = Color(0xFFF59E0B),
-                        modifier = Modifier.size(16.dp)
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
                     )
                 }
-                Text(
-                    text = "Top Selling Products",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            products.forEachIndexed { index, product ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(26.dp)
-                            .clip(CircleShape)
-                            .background(
-                                when (index) {
-                                    0 -> Color(0xFFFFD700)
-                                    1 -> Color(0xFFC0C0C0)
-                                    else -> Color(0xFFCD7F32)
-                                }.copy(alpha = 0.20f)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "${index + 1}",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = when (index) {
-                                0 -> Color(0xFFB8860B)
-                                1 -> Color(0xFF707070)
-                                else -> Color(0xFF8B4513)
-                            }
-                        )
-                    }
+                Column {
                     Text(
-                        text = product,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = if (index == 0) FontWeight.SemiBold else FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.weight(1f)
+                        text = "Top Selling Products",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    if (index == 0) {
+                    Text(
+                        text = "Most popular items by sales count",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f))
+
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                products.forEachIndexed { index, product ->
+                    val rank = index + 1
+                    val badgeGradient = when (rank) {
+                        1 -> Brush.linearGradient(listOf(Color(0xFFFBBF24), Color(0xFFD97706)))
+                        2 -> Brush.linearGradient(listOf(Color(0xFF9CA3AF), Color(0xFF4B5563)))
+                        3 -> Brush.linearGradient(listOf(Color(0xFFF59E0B), Color(0xFFB45309)))
+                        else -> Brush.linearGradient(listOf(Color(0xFFE5E7EB), Color(0xFF9CA3AF)))
+                    }
+                    val badgeTextColor = when (rank) {
+                        in 1..3 -> Color.White
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                    val popularityProgress = (products.size - index).toFloat() / products.size
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.5f))
+                            .border(
+                                0.5.dp,
+                                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+                                RoundedCornerShape(12.dp)
+                            )
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp)
+                    ) {
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0xFFFFD700).copy(alpha = 0.15f))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(badgeGradient),
+                            contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                text = "#1",
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFFB8860B)
+                                text = "$rank",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.ExtraBold,
+                                color = badgeTextColor
                             )
                         }
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = product,
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = if (rank == 1) FontWeight.Bold else FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(0.9f)
+                                    .height(4.dp)
+                                    .clip(RoundedCornerShape(2.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(popularityProgress)
+                                        .fillMaxHeight()
+                                        .clip(RoundedCornerShape(2.dp))
+                                        .background(
+                                            if (rank == 1) {
+                                                Brush.linearGradient(
+                                                    listOf(Color(0xFF3B82F6), Color(0xFF60A5FA))
+                                                )
+                                            } else {
+                                                Brush.linearGradient(
+                                                    listOf(
+                                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                                                    )
+                                                )
+                                            }
+                                        )
+                                )
+                            }
+                        }
+
+                        if (rank == 1) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(Color(0xFFFBBF24).copy(alpha = 0.15f))
+                                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                            ) {
+                                Text(
+                                    text = "Best Seller",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFFD97706)
+                                )
+                            }
+                        }
                     }
-                }
-                if (index < products.lastIndex) {
-                    HorizontalDivider(
-                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                    )
                 }
             }
         }
@@ -341,7 +435,7 @@ private fun GreetingBannerCard(name: String) {
         hour < 17 -> "🌤"
         else      -> "🌙"
     }
-    val dateLabel = SimpleDateFormat("EEEE, d MMMM yyyy", Locale.getDefault())
+    val dateLabel = SimpleDateFormat("EEEE, d MMMM yyyy", LocalLocale.current.platformLocale)
         .format(Calendar.getInstance().time)
     val initials = name.trim().split(" ")
         .take(2).joinToString("") { it.first().uppercaseChar().toString() }
@@ -501,16 +595,25 @@ private fun TankUtilizationCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF9C27B0).copy(alpha = 0.08f)
+            containerColor = Color.Transparent
         ),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(16.dp),
         border = androidx.compose.foundation.BorderStroke(
             1.dp,
-            Color(0xFF9C27B0).copy(alpha = 0.25f)
+            com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.25f)
         )
     ) {
         Row(
             modifier = Modifier
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.08f),
+                            com.havos.lubricerp.core.ui.theme.GradientTanksEnd.copy(alpha = 0.02f)
+                        )
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                )
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -519,12 +622,13 @@ private fun TankUtilizationCard(
                 Text(
                     text = "Tank Utilization",
                     style = MaterialTheme.typography.labelMedium,
-                    color = Color(0xFF9C27B0)
+                    color = com.havos.lubricerp.core.ui.theme.GradientTanksStart,
+                    fontWeight = FontWeight.SemiBold
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "View Report",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -540,13 +644,13 @@ private fun TankUtilizationCard(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF9C27B0).copy(alpha = 0.15f)),
+                    .background(com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Filled.Inventory,
                     contentDescription = null,
-                    tint = Color(0xFF9C27B0),
+                    tint = com.havos.lubricerp.core.ui.theme.GradientTanksStart,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -554,7 +658,7 @@ private fun TankUtilizationCard(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = "View tank stock report",
-                tint = Color(0xFF9C27B0).copy(alpha = 0.7f),
+                tint = com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.7f),
                 modifier = Modifier.offset(x = arrowOffset.dp)
             )
         }
@@ -568,6 +672,7 @@ private data class KpiItem(
     val icon: ImageVector,
     val iconBgColor: Color,
     val valueColor: Color = Color.Unspecified,
+    val gradientColors: List<Color>? = null
 )
 
 @Composable
@@ -590,9 +695,9 @@ private fun KpiToggleSection(
             IconButton(onClick = { isGridView = !isGridView }) {
                 Icon(
                     imageVector = if (isGridView) Icons.AutoMirrored.Filled.ViewList
-                                  else Icons.Filled.GridView,
+                    else Icons.Filled.GridView,
                     contentDescription = if (isGridView) "Switch to list view"
-                                         else "Switch to grid view",
+                    else "Switch to grid view",
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -602,8 +707,8 @@ private fun KpiToggleSection(
             targetState = isGridView,
             transitionSpec = {
                 fadeIn(animationSpec = tween(300)) togetherWith
-                fadeOut(animationSpec = tween(300)) using
-                SizeTransform(clip = false)
+                        fadeOut(animationSpec = tween(300)) using
+                        SizeTransform(clip = false)
             },
             label = "kpiViewToggle"
         ) { grid ->
@@ -621,16 +726,26 @@ private fun KpiGridContent(items: List<KpiItem>) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         items.chunked(2).forEach { rowItems ->
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(IntrinsicSize.Min),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                rowItems.forEach { item ->
+                CompactKpiCard(
+                    item = rowItems[0],
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                )
+                if (rowItems.size == 2) {
                     CompactKpiCard(
-                        item = item,
-                        modifier = Modifier.weight(1f)
+                        item = rowItems[1],
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
                     )
-                }
-                if (rowItems.size < 2) {
+                } else {
+                    // Invisible spacer to keep the lone card at exactly half width
                     Spacer(modifier = Modifier.weight(1f))
                 }
             }
@@ -642,7 +757,10 @@ private fun KpiGridContent(items: List<KpiItem>) {
 private fun KpiListContent(items: List<KpiItem>) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items.forEach { item ->
-            FullWidthKpiCard(item = item)
+            FullWidthKpiCard(
+                item = item,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }
@@ -652,39 +770,52 @@ private fun CompactKpiCard(
     item: KpiItem,
     modifier: Modifier = Modifier
 ) {
-    val valueColor = if (item.valueColor != Color.Unspecified) item.valueColor
-                     else MaterialTheme.colorScheme.onSurface
+    val hasGradient = item.gradientColors != null
+    val valueColor = if (hasGradient) Color.White
+    else if (item.valueColor != Color.Unspecified) item.valueColor
+    else MaterialTheme.colorScheme.onSurface
+    val labelColor = if (hasGradient) Color.White.copy(alpha = 0.85f)
+    else MaterialTheme.colorScheme.onSurfaceVariant
 
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
+            containerColor = if (hasGradient) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(16.dp),
+        border = if (hasGradient) androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)) else null
     ) {
         Column(
-            modifier = Modifier.padding(12.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (hasGradient) Modifier.background(
+                        Brush.linearGradient(item.gradientColors!!),
+                        shape = RoundedCornerShape(16.dp)
+                    ) else Modifier
+                )
+                .padding(14.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(32.dp)
+                    .size(36.dp)
                     .clip(CircleShape)
-                    .background(item.iconBgColor.copy(alpha = 0.15f)),
+                    .background(if (hasGradient) Color.White.copy(alpha = 0.2f) else item.iconBgColor.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = item.icon,
                     contentDescription = null,
-                    tint = item.iconBgColor,
-                    modifier = Modifier.size(16.dp)
+                    tint = if (hasGradient) Color.White else item.iconBgColor,
+                    modifier = Modifier.size(18.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = item.title,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1
+                color = labelColor,
+                maxLines = 2
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -694,10 +825,11 @@ private fun CompactKpiCard(
                 color = valueColor,
                 maxLines = 1
             )
+            Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = item.subtitle,
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = labelColor,
                 maxLines = 1
             )
         }
@@ -705,19 +837,34 @@ private fun CompactKpiCard(
 }
 
 @Composable
-private fun FullWidthKpiCard(item: KpiItem) {
-    val valueColor = if (item.valueColor != Color.Unspecified) item.valueColor
-                     else MaterialTheme.colorScheme.onSurface
+private fun FullWidthKpiCard(
+    item: KpiItem,
+    modifier: Modifier = Modifier
+) {
+    val hasGradient = item.gradientColors != null
+    val valueColor = if (hasGradient) Color.White
+    else if (item.valueColor != Color.Unspecified) item.valueColor
+    else MaterialTheme.colorScheme.onSurface
+    val labelColor = if (hasGradient) Color.White.copy(alpha = 0.85f)
+    else MaterialTheme.colorScheme.onSurfaceVariant
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer
-        )
+            containerColor = if (hasGradient) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer
+        ),
+        shape = RoundedCornerShape(16.dp),
+        border = if (hasGradient) androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)) else null
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .then(
+                    if (hasGradient) Modifier.background(
+                        Brush.linearGradient(item.gradientColors!!),
+                        shape = RoundedCornerShape(16.dp)
+                    ) else Modifier
+                )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -725,7 +872,7 @@ private fun FullWidthKpiCard(item: KpiItem) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = labelColor
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -737,7 +884,7 @@ private fun FullWidthKpiCard(item: KpiItem) {
                 Text(
                     text = item.subtitle,
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = labelColor,
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
@@ -746,13 +893,13 @@ private fun FullWidthKpiCard(item: KpiItem) {
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(item.iconBgColor.copy(alpha = 0.15f)),
+                    .background(if (hasGradient) Color.White.copy(alpha = 0.2f) else item.iconBgColor.copy(alpha = 0.15f)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = item.icon,
                     contentDescription = null,
-                    tint = item.iconBgColor,
+                    tint = if (hasGradient) Color.White else item.iconBgColor,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -768,17 +915,29 @@ private fun RecentInvoiceRow(invoice: RecentInvoice) {
         "partial" -> Color(0xFFFF9800)
         else -> MaterialTheme.colorScheme.primary
     }
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        shape = RoundedCornerShape(12.dp),
+        border = androidx.compose.foundation.BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .clip(MaterialTheme.shapes.small)
+                    .clip(RoundedCornerShape(8.dp))
                     .background(statusColor.copy(alpha = 0.12f))
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
@@ -807,7 +966,6 @@ private fun RecentInvoiceRow(invoice: RecentInvoice) {
                 fontWeight = FontWeight.Bold
             )
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
@@ -943,13 +1101,13 @@ private fun NetProfitDashboardCard(
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.ExtraBold,
                     color = if (isProfit) MaterialTheme.colorScheme.tertiary
-                            else MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.error
                 )
                 Text(
                     text = if (isProfit) "Profit" else "Loss",
                     style = MaterialTheme.typography.labelSmall,
                     color = if (isProfit) MaterialTheme.colorScheme.tertiary
-                            else MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.error
                 )
             } else {
                 Text(

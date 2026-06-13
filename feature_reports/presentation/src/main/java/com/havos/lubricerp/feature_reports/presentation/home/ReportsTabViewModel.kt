@@ -72,6 +72,9 @@ class ReportsTabViewModel(
                     menu == ReportMenu.CUSTOMERS -> viewModelScope.launch {
                         _effect.emit(ReportsTabEffect.OpenCustomerData)
                     }
+                    menu == ReportMenu.PAYMENTS -> viewModelScope.launch {
+                        _effect.emit(ReportsTabEffect.OpenPaymentReport)
+                    }
                     menu == ReportMenu.REPORT_MODULE -> viewModelScope.launch {
                         _effect.emit(ReportsTabEffect.OpenReportModule(ReportItem.REPORT_SALES_SUMMARY))
                     }

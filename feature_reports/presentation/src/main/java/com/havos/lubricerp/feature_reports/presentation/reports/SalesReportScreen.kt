@@ -153,7 +153,7 @@ internal fun SalesSummaryScreen(
 
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.weight(1f).fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) { page ->
             when (page) {

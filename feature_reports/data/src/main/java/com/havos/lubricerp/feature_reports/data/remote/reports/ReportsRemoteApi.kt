@@ -38,6 +38,10 @@ import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryApiResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -417,6 +421,43 @@ class ReportsRemoteApi(
                     ResultState.Success(payload.data)
             }
             is ResultState.Error -> ResultState.Error("Unable to record payment.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomerDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<PaymentPendingApiResponseDto> {
+            client.get("api/payments/pending") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch pending payments")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch pending payments.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getAccountsSummary(token: String, fromDate: String, toDate: String): ResultState<AccountsSummaryDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<AccountsSummaryApiResponseDto> {
+            client.get("api/reports/accounts-summary") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("fromDate", fromDate)
+                parameter("toDate", toDate)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch accounts summary")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch accounts summary.")
             ResultState.Loading -> ResultState.Loading
         }
     }

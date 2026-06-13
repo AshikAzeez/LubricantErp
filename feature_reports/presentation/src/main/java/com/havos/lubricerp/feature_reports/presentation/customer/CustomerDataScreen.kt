@@ -81,6 +81,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
@@ -276,6 +277,11 @@ private fun CustomerSearchBar(
     outline: Color,
     modifier: Modifier = Modifier
 ) {
+    var isFocused by remember { mutableStateOf(false) }
+    val focusRequester = remember { FocusRequester() }
+    val borderColor = if (isFocused) MaterialTheme.colorScheme.primary else outline.copy(alpha = 0.5f)
+    val borderWidth = if (isFocused) 1.5.dp else 1.dp
+
     BasicTextField(
         value = value,
         onValueChange = onValueChange,
@@ -284,28 +290,34 @@ private fun CustomerSearchBar(
             color = MaterialTheme.colorScheme.onSurface
         ),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-        modifier = modifier,
+        modifier = modifier
+            .focusRequester(focusRequester)
+            .onFocusChanged { isFocused = it.isFocused },
         decorationBox = { inner ->
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .border(1.dp, outline, RoundedCornerShape(10.dp))
-                    .padding(horizontal = 14.dp, vertical = 11.dp),
+                    .background(
+                        color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    .border(borderWidth, borderColor, RoundedCornerShape(16.dp))
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
                     imageVector = Icons.Filled.Person,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(18.dp)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
                     if (value.isEmpty()) {
                         Text(
                             text = "Search by name, code or phone…",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                         )
                     }
                     inner()
@@ -317,6 +329,7 @@ private fun CustomerSearchBar(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .size(18.dp)
+                            .clip(CircleShape)
                             .clickable { onValueChange("") }
                     )
                 }
@@ -346,12 +359,24 @@ private fun CustomerListRow(
     val addressFirst = remember(customer.address) {
         customer.address.split(",").firstOrNull()?.trim()?.takeIf { it.isNotBlank() }
     }
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onSelect),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onSelect)
-                .padding(horizontal = 4.dp, vertical = 10.dp),
+                .padding(horizontal = 14.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
@@ -396,19 +421,22 @@ private fun CustomerListRow(
             if (customer.phone.isNotBlank()) {
                 IconButton(
                     onClick = { if (phoneValid) onCall() },
-                    modifier = Modifier.size(36.dp).alpha(if (phoneValid) 1f else 0.35f)
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f), CircleShape)
+                        .alpha(if (phoneValid) 1f else 0.35f)
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Call,
                         contentDescription = "Call",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                 }
+                Spacer(modifier = Modifier.width(6.dp))
                 WhatsAppIconButton(enabled = phoneValid, onClick = { if (phoneValid) onWhatsApp() })
             }
         }
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
     }
 }
 
@@ -418,6 +446,7 @@ private fun WhatsAppIconButton(enabled: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .size(36.dp)
             .clip(CircleShape)
+            .background(Color(0xFF25D366).copy(alpha = 0.1f))
             .alpha(if (enabled) 1f else 0.35f)
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
@@ -426,7 +455,7 @@ private fun WhatsAppIconButton(enabled: Boolean, onClick: () -> Unit) {
             painter = painterResource(R.drawable.ic_whatsapp),
             contentDescription = "WhatsApp",
             tint = Color.Unspecified,
-            modifier = Modifier.size(22.dp)
+            modifier = Modifier.size(20.dp)
         )
     }
 }
@@ -1498,15 +1527,21 @@ private fun LedgerSummaryChip(
 ) {
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(6.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        border = androidx.compose.foundation.BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
     ) {
-        Column(modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = value,
                 style = MaterialTheme.typography.bodyMedium,

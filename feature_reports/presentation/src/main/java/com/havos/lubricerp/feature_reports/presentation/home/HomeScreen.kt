@@ -193,12 +193,13 @@ private fun HomeScreen(
         ) {
             when (selectedTab) {
                 0 -> HomeTabContent(onOpenReport = { onNavigate(HomeNavigation.OpenReport(it)) })
-                1 -> ReportsTabContent(
+                    1 -> ReportsTabContent(
                     state = reportsState,
                     reportsTabViewModel = reportsTabViewModel,
                     onOpenReport = { onNavigate(HomeNavigation.OpenReport(it)) },
                     onOpenCustomerData = { onNavigate(HomeNavigation.OpenCustomerData) },
-                    onOpenReportModule = { onNavigate(HomeNavigation.OpenReportModule(it)) }
+                    onOpenReportModule = { onNavigate(HomeNavigation.OpenReportModule(it)) },
+                    onNavigate = onNavigate
                 )
                 else -> HomeTabContent(onOpenReport = { onNavigate(HomeNavigation.OpenReport(it)) })
             }
@@ -218,7 +219,8 @@ private fun ReportsTabContent(
     reportsTabViewModel: ReportsTabViewModel,
     onOpenReport: (String) -> Unit,
     onOpenCustomerData: () -> Unit,
-    onOpenReportModule: (String) -> Unit
+    onOpenReportModule: (String) -> Unit,
+    onNavigate: (HomeNavigation) -> Unit
 ) {
     LaunchedEffect(reportsTabViewModel) {
         reportsTabViewModel.effect.collectLatest { effect ->
@@ -226,6 +228,7 @@ private fun ReportsTabContent(
                 is ReportsTabEffect.OpenReport -> onOpenReport(effect.reportItem.key)
                 ReportsTabEffect.OpenCustomerData -> onOpenCustomerData()
                 is ReportsTabEffect.OpenReportModule -> onOpenReportModule(effect.reportItem.key)
+                ReportsTabEffect.OpenPaymentReport -> onNavigate(HomeNavigation.OpenPaymentReport)
             }
         }
     }

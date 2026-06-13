@@ -31,6 +31,8 @@ val featureReportsDomainModule = module {
     factory { GetLowStockUseCase(get()) }
     factory { GetFastMovingUseCase(get()) }
     factory { RecordPaymentUseCase(get()) }
+    factory { GetPaymentsPendingUseCase(get()) }
+    factory { GetAccountsSummaryUseCase(get()) }
 
     factory { GetNotificationsPagedUseCase(get()) }
     factory { GetUnreadNotificationCountUseCase(get()) }

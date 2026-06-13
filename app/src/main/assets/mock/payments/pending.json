@@ -1,0 +1,46 @@
+{
+  "success": true,
+  "message": null,
+  "data": [
+    {
+      "customerId": 5,
+      "customerName": "Sunrise Petroleum",
+      "customerCode": "CUST-005",
+      "phone": "9000111222",
+      "outstandingAmount": 127500.00,
+      "overdueAmount": 127500.00,
+      "oldestDueDate": "2026-05-23",
+      "unpaidInvoiceCount": 1
+    },
+    {
+      "customerId": 4,
+      "customerName": "Ahmed Trading Co.",
+      "customerCode": "CUST-004",
+      "phone": "9123456780",
+      "outstandingAmount": 41800.00,
+      "overdueAmount": 0.00,
+      "oldestDueDate": "2026-06-06",
+      "unpaidInvoiceCount": 1
+    },
+    {
+      "customerId": 2,
+      "customerName": "Sri Balaji Lubricants",
+      "customerCode": "CUST-002",
+      "phone": "9876543210",
+      "outstandingAmount": 62400.00,
+      "overdueAmount": 0.00,
+      "oldestDueDate": "2026-06-07",
+      "unpaidInvoiceCount": 1
+    },
+    {
+      "customerId": 1,
+      "customerName": "Kiran Auto Parts",
+      "customerCode": "CUST-001",
+      "phone": "9845012345",
+      "outstandingAmount": 48750.00,
+      "overdueAmount": 0.00,
+      "oldestDueDate": "2026-06-07",
+      "unpaidInvoiceCount": 1
+    }
+  ]
+}

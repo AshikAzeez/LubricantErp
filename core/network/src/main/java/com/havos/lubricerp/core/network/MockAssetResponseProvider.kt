@@ -80,6 +80,12 @@ class MockAssetResponseProvider(
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/payments/received") ->
             respondAsset(this, "mock/payments/received.json")
 
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/payments/pending") ->
+            respondAsset(this, "mock/payments/pending.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/accounts-summary") ->
+            respondAsset(this, "mock/payments/accounts_summary.json")
+
         // ── Customers ────────────────────────────────────────────────────────
         request.method == HttpMethod.Get && normalizedPath(request).let {
             it.contains("api/customers") && it.contains("mobile-summary")

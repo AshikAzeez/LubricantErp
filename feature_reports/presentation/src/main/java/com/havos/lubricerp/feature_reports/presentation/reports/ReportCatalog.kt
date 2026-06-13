@@ -104,6 +104,12 @@ enum class ReportMenu(
             ReportItem.REPORT_NET_PROFIT,
             ReportItem.REPORT_EXPENSE_SUMMARY
         )
+    ),
+    PAYMENTS(
+        key = "payments",
+        title = "Payments",
+        icon = Icons.Default.ReceiptLong,
+        subMenus = listOf(ReportItem.PAYMENT_REPORT)
     )
 }
 
@@ -135,7 +141,8 @@ enum class ReportItem(
     REPORT_SALES_SUMMARY("report_sales_summary", "Sales Report Summary"),
     REPORT_PRODUCT_SALES("report_product_sales", "Product Sales Report"),
     REPORT_NET_PROFIT("report_net_profit", "Profit Estimate"),
-    REPORT_EXPENSE_SUMMARY("report_expense_summary", "Expense Summary")
+    REPORT_EXPENSE_SUMMARY("report_expense_summary", "Expense Summary"),
+    PAYMENT_REPORT("payment_report", "Payment Report")
 }
 
 fun reportItemByKey(key: String): ReportItem =

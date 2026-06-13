@@ -10,6 +10,7 @@ import com.havos.lubricerp.feature_reports.presentation.customer.CustomerDataVie
 import com.havos.lubricerp.feature_reports.presentation.notification.NotificationViewModel
 import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModuleViewModel
 import com.havos.lubricerp.feature_reports.presentation.settings.SettingsViewModel
+import com.havos.lubricerp.feature_reports.presentation.payment.PaymentReportViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -24,4 +25,5 @@ val featureReportsPresentationModule = module {
     viewModel { CustomerDataViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { ReportModuleViewModel(get(), get(), get(), get(), get(), get(), get()) }
     viewModel { NotificationViewModel(get(), get(), get(), get()) }
+    viewModel { PaymentReportViewModel(get(), get(), get(), get(), get()) }
 }

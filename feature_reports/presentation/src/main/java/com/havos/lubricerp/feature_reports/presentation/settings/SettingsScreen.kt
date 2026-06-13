@@ -1,6 +1,11 @@
 package com.havos.lubricerp.feature_reports.presentation.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -172,14 +177,19 @@ private fun SettingsScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        0.5.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                     )
                 ) {
                     options.forEach { (mode, title) ->
                         val selected = state.selectedThemeMode == mode
                         ListItem(
-                            headlineContent = { Text(title) },
+                            headlineContent = { Text(title, fontWeight = FontWeight.SemiBold) },
                             trailingContent = {
                                 RadioButton(
                                     selected = selected,
@@ -189,6 +199,9 @@ private fun SettingsScreen(
                                         .width(48.dp)
                                 )
                             },
+                            colors = androidx.compose.material3.ListItemDefaults.colors(
+                                containerColor = Color.Transparent
+                            ),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .onGloballyPositioned { coordinates ->
@@ -219,9 +232,15 @@ private fun SettingsScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth()
+                        .clip(RoundedCornerShape(16.dp))
                         .clickable { onAction(SettingsAction.LogoutClicked) },
+                    shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        0.5.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                     )
                 ) {
                     ListItem(
@@ -235,12 +254,16 @@ private fun SettingsScreen(
                         headlineContent = {
                             Text(
                                 "Logout",
-                                color = MaterialTheme.colorScheme.error
+                                color = MaterialTheme.colorScheme.error,
+                                fontWeight = FontWeight.Bold
                             )
                         },
                         supportingContent = {
                             Text("Sign out of your account")
-                        }
+                        },
+                        colors = androidx.compose.material3.ListItemDefaults.colors(
+                            containerColor = Color.Transparent
+                        )
                     )
                 }
             }
@@ -255,8 +278,13 @@ private fun ProfileOverviewCard(profile: SettingsProfileUi?) {
     if (profile == null) {
         Card(
             modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+            ),
+            border = androidx.compose.foundation.BorderStroke(
+                0.5.dp,
+                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
             )
         ) {
             ListItem(
@@ -284,34 +312,46 @@ private fun ProfileOverviewCard(profile: SettingsProfileUi?) {
         profile.rolesText.split(",").map { it.trim() }.filter { it.isNotBlank() }
     }
 
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.elevatedCardColors(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        ),
+        border = androidx.compose.foundation.BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
             ) {
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    tonalElevation = 4.dp,
-                    color = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.size(64.dp)
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    com.havos.lubricerp.core.ui.theme.GradientSalesStart,
+                                    com.havos.lubricerp.core.ui.theme.GradientSalesEnd
+                                )
+                            )
+                        ),
+                    contentAlignment = androidx.compose.ui.Alignment.Center
                 ) {
-                    Box(contentAlignment = androidx.compose.ui.Alignment.Center) {
-                        Text(
-                            text = initials,
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
+                    Text(
+                        text = initials,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
                 }
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
@@ -329,24 +369,31 @@ private fun ProfileOverviewCard(profile: SettingsProfileUi?) {
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    0.5.dp,
+                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
                 )
             ) {
                 Column(modifier = Modifier.padding(vertical = 4.dp)) {
                     ListItem(
-                        leadingContent = { Icon(Icons.Default.Business, contentDescription = null) },
-                        headlineContent = { Text("Branch") },
-                        supportingContent = { Text("Branch ID: ${profile.branchId}") }
+                        leadingContent = { Icon(Icons.Default.Business, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                        headlineContent = { Text("Branch", fontWeight = FontWeight.SemiBold) },
+                        supportingContent = { Text("Branch ID: ${profile.branchId}") },
+                        colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
                     ListItem(
-                        leadingContent = { Icon(Icons.Default.Email, contentDescription = null) },
-                        headlineContent = { Text("Email") },
-                        supportingContent = { Text(profile.email) }
+                        leadingContent = { Icon(Icons.Default.Email, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                        headlineContent = { Text("Email", fontWeight = FontWeight.SemiBold) },
+                        supportingContent = { Text(profile.email) },
+                        colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
                     ListItem(
-                        leadingContent = { Icon(Icons.Default.Badge, contentDescription = null) },
-                        headlineContent = { Text("Roles") },
+                        leadingContent = { Icon(Icons.Default.Badge, contentDescription = null, tint = MaterialTheme.colorScheme.primary) },
+                        headlineContent = { Text("Roles", fontWeight = FontWeight.SemiBold) },
                         supportingContent = {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 if (roles.isEmpty()) {
@@ -367,7 +414,8 @@ private fun ProfileOverviewCard(profile: SettingsProfileUi?) {
                                     }
                                 }
                             }
-                        }
+                        },
+                        colors = androidx.compose.material3.ListItemDefaults.colors(containerColor = Color.Transparent)
                     )
                 }
             }

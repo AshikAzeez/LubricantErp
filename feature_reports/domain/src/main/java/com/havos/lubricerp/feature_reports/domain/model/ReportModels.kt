@@ -239,3 +239,28 @@ data class RecordPaymentResponse(
     val newBalance: Double,
     val newPaymentStatus: String
 )
+
+data class PaymentPendingCustomer(
+    val customerId: Long,
+    val customerName: String,
+    val customerCode: String,
+    val phone: String,
+    val outstandingAmount: Double,
+    val overdueAmount: Double,
+    val oldestDueDate: String,
+    val unpaidInvoiceCount: Int
+) {
+    val isOverdue: Boolean get() = overdueAmount > 0
+}
+
+data class AccountsSummary(
+    val fromDate: String,
+    val toDate: String,
+    val totalSales: Double,
+    val totalPurchases: Double,
+    val totalReceiptsCollected: Double,
+    val totalPaymentsMade: Double,
+    val totalOutstandingReceivables: Double,
+    val totalOutstandingPayables: Double,
+    val netCashFlow: Double
+)

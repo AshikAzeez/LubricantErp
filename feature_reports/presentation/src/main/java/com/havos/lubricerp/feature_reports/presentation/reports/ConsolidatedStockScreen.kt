@@ -81,7 +81,9 @@ internal fun ConsolidatedStockScreen(
     }
 
     LaunchedEffect(state.selectedConsolidatedTab) {
-        pagerState.animateScrollToPage(state.selectedConsolidatedTab)
+        if (pagerState.currentPage != state.selectedConsolidatedTab) {
+            pagerState.animateScrollToPage(state.selectedConsolidatedTab)
+        }
     }
 
     Column(modifier = modifier.fillMaxSize()) {
@@ -115,7 +117,7 @@ internal fun ConsolidatedStockScreen(
 
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.weight(1f).fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) { page ->
             when (page) {

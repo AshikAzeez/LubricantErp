@@ -150,6 +150,7 @@ internal fun ReportDetailScreen(
             ReportItem.REPORT_PRODUCT_SALES -> {}
             ReportItem.REPORT_NET_PROFIT -> {}
             ReportItem.REPORT_EXPENSE_SUMMARY -> {}
+            ReportItem.PAYMENT_REPORT -> {}
         }
     }
 }

@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "message": null,
+  "data": {
+    "fromDate": "2026-05-01",
+    "toDate": "2026-05-24",
+    "totalSales": 3425000.00,
+    "totalPurchases": 2315000.00,
+    "totalReceiptsCollected": 2612500.00,
+    "totalPaymentsMade": 2080000.00,
+    "totalOutstandingReceivables": 812500.00,
+    "totalOutstandingPayables": 235000.00,
+    "netCashFlow": 532500.00
+  }
+}

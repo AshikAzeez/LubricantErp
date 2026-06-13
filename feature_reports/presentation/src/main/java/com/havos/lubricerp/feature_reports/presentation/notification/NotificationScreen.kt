@@ -58,6 +58,8 @@ import androidx.paging.compose.itemKey
 import com.havos.lubricerp.feature_reports.domain.model.NotificationItem
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.foundation.shape.RoundedCornerShape
+
 
 @Composable
 fun NotificationRoute(
@@ -163,7 +165,9 @@ private fun NotificationScreen(
             Box(modifier = Modifier.weight(1f)) {
             when {
                 pagingItems.loadState.refresh is LoadState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    com.havos.lubricerp.core.ui.components.NotificationListShimmer(
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
                 pagingItems.loadState.refresh is LoadState.Error -> {
                     val error = (pagingItems.loadState.refresh as LoadState.Error).error
@@ -324,19 +328,28 @@ private fun NotificationCard(
     onMarkAsRead: () -> Unit
 ) {
     val containerColor = if (item.isRead) {
-        MaterialTheme.colorScheme.surface
+        MaterialTheme.colorScheme.surfaceContainerLow
     } else {
-        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
+        MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.08f)
     }
+    val borderColor = if (item.isRead) {
+        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+    } else {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
+    }
+    val borderWidth = if (item.isRead) 0.5.dp else 1.2.dp
 
-    OutlinedCard(
+    androidx.compose.material3.Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = containerColor
+        ),
+        border = androidx.compose.foundation.BorderStroke(borderWidth, borderColor),
         onClick = { if (!item.isRead) onMarkAsRead() }
     ) {
         Column(
-            modifier = Modifier
-                .background(containerColor)
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -354,21 +367,21 @@ private fun NotificationCard(
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = if (item.isRead) FontWeight.Normal else FontWeight.SemiBold,
+                    fontWeight = if (item.isRead) FontWeight.Medium else FontWeight.Bold,
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(Modifier.width(8.dp))
                 NotificationTypeBadge(type = item.type)
             }
-            Spacer(Modifier.height(6.dp))
+            Spacer(Modifier.height(8.dp))
             Text(
                 text = item.message,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+            Spacer(Modifier.height(10.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             Spacer(Modifier.height(8.dp))
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(Modifier.height(6.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -386,7 +399,8 @@ private fun NotificationCard(
                     ) {
                         Text(
                             text = "Mark as read",
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -398,20 +412,21 @@ private fun NotificationCard(
 @Composable
 private fun NotificationTypeBadge(type: String) {
     val (bgColor, textColor) = when (type.lowercase()) {
-        "approval" -> MaterialTheme.colorScheme.errorContainer to MaterialTheme.colorScheme.onErrorContainer
-        "warning"  -> MaterialTheme.colorScheme.tertiaryContainer to MaterialTheme.colorScheme.onTertiaryContainer
-        "info"     -> MaterialTheme.colorScheme.primaryContainer to MaterialTheme.colorScheme.onPrimaryContainer
-        else       -> MaterialTheme.colorScheme.secondaryContainer to MaterialTheme.colorScheme.onSecondaryContainer
+        "approval" -> MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.8f) to MaterialTheme.colorScheme.onErrorContainer
+        "warning"  -> MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.8f) to MaterialTheme.colorScheme.onTertiaryContainer
+        "info"     -> MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f) to MaterialTheme.colorScheme.onPrimaryContainer
+        else       -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f) to MaterialTheme.colorScheme.onSecondaryContainer
     }
     Surface(
-        shape = MaterialTheme.shapes.small,
+        shape = RoundedCornerShape(8.dp),
         color = bgColor
     ) {
         Text(
             text = type,
             style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
             color = textColor,
-            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
         )
     }
 }

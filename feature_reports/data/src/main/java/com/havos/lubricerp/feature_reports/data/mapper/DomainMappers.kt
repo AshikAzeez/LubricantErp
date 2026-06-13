@@ -50,6 +50,10 @@ import com.havos.lubricerp.feature_reports.domain.model.TankInfo
 import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
+import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
+import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 
 fun LoginResponseDto.toDomain(): AuthSession = AuthSession(
     username = username,
@@ -301,4 +305,27 @@ fun RecordPaymentResponseDto.toDomain(): RecordPaymentResponse = RecordPaymentRe
     amountPaid = amountPaid,
     newBalance = newBalance,
     newPaymentStatus = newPaymentStatus
+)
+
+fun PaymentPendingCustomerDto.toDomain(): PaymentPendingCustomer = PaymentPendingCustomer(
+    customerId = customerId,
+    customerName = customerName,
+    customerCode = customerCode,
+    phone = phone,
+    outstandingAmount = outstandingAmount,
+    overdueAmount = overdueAmount,
+    oldestDueDate = oldestDueDate,
+    unpaidInvoiceCount = unpaidInvoiceCount
+)
+
+fun AccountsSummaryDto.toDomain(): AccountsSummary = AccountsSummary(
+    fromDate = fromDate,
+    toDate = toDate,
+    totalSales = totalSales,
+    totalPurchases = totalPurchases,
+    totalReceiptsCollected = totalReceiptsCollected,
+    totalPaymentsMade = totalPaymentsMade,
+    totalOutstandingReceivables = totalOutstandingReceivables,
+    totalOutstandingPayables = totalOutstandingPayables,
+    netCashFlow = netCashFlow
 )

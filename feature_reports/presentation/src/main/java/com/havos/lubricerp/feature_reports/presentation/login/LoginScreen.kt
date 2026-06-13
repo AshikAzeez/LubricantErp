@@ -57,6 +57,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.core.ui.components.CollectEffect
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.CircleShape
+
 
 @Composable
 fun LoginRoute(
@@ -123,7 +127,15 @@ private fun LoginScreen(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(
+                androidx.compose.ui.graphics.Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+                        MaterialTheme.colorScheme.surface,
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.03f)
+                    )
+                )
+            )
             .navigationBarsPadding()
             .imePadding()
             .pointerInput(Unit) {
@@ -136,6 +148,24 @@ private fun LoginScreen(
     ) {
         val panelWidth = if (maxWidth >= 640.dp) 560.dp else maxWidth
         val logoWidth = if (maxWidth >= 640.dp) 210.dp else 170.dp
+
+        // Decorative background elements
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .size(160.dp)
+                .align(Alignment.TopStart)
+                .offset(x = (-40).dp, y = (-20).dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f))
+        )
+        androidx.compose.foundation.layout.Box(
+            modifier = Modifier
+                .size(240.dp)
+                .align(Alignment.BottomEnd)
+                .offset(x = 60.dp, y = 60.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.04f))
+        )
 
         Column(
             modifier = Modifier
@@ -168,14 +198,18 @@ private fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp),
-                shape = MaterialTheme.shapes.large,
-                tonalElevation = 2.dp,
-                shadowElevation = 6.dp,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(20.dp),
+                tonalElevation = 4.dp,
+                shadowElevation = 8.dp,
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp, 
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                ),
                 color = MaterialTheme.colorScheme.surfaceContainerLowest
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 18.dp, vertical = 22.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text(
                         text = "Sign In",
@@ -187,7 +221,8 @@ private fun LoginScreen(
                         text = "Please enter below details to access the dashboard",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
 
                     OutlinedTextField(
@@ -197,6 +232,7 @@ private fun LoginScreen(
                         leadingIcon = { Icon(Icons.Outlined.Person, contentDescription = null) },
                         modifier = Modifier.fillMaxWidth(),
                         isError = state.usernameError != null,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                         supportingText = {
                             state.usernameError?.let {
                                 Text(text = it, color = MaterialTheme.colorScheme.error)
@@ -230,6 +266,7 @@ private fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         isError = state.passwordError != null,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                         supportingText = {
                             state.passwordError?.let {
                                 Text(text = it, color = MaterialTheme.colorScheme.error)
@@ -279,6 +316,7 @@ private fun LoginScreen(
                             onAction(LoginAction.Submit)
                         },
                         enabled = canSubmit,
+                        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp)

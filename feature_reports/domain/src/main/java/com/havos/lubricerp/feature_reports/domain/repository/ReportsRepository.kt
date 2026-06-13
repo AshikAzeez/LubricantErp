@@ -22,6 +22,8 @@ import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
+import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
+import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 
 interface ReportsRepository {
     suspend fun getTankStockSummary(): ResultState<TankStockSummary>
@@ -50,4 +52,6 @@ interface ReportsRepository {
 
     suspend fun getFastMoving(token: String, days: Int, top: Int): ResultState<List<FastMovingItem>>
     suspend fun recordPayment(token: String, request: RecordPaymentRequest): ResultState<RecordPaymentResponse>
+    suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomer>>
+    suspend fun getAccountsSummary(token: String, filter: DateRangeFilter): ResultState<AccountsSummary>
 }

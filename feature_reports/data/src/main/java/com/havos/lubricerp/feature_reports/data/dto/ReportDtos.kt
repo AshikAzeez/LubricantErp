@@ -387,3 +387,44 @@ data class RecordPaymentApiResponseDto(
     val message: String? = null,
     val errors: List<String>? = null
 )
+
+@Serializable
+data class PaymentPendingCustomerDto(
+    val customerId: Long,
+    val customerName: String,
+    val customerCode: String = "",
+    val phone: String = "",
+    val outstandingAmount: Double,
+    val overdueAmount: Double = 0.0,
+    val oldestDueDate: String = "",
+    val unpaidInvoiceCount: Int = 0
+)
+
+@Serializable
+data class PaymentPendingApiResponseDto(
+    val success: Boolean,
+    val data: List<PaymentPendingCustomerDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class AccountsSummaryDto(
+    val fromDate: String = "",
+    val toDate: String = "",
+    val totalSales: Double = 0.0,
+    val totalPurchases: Double = 0.0,
+    val totalReceiptsCollected: Double = 0.0,
+    val totalPaymentsMade: Double = 0.0,
+    val totalOutstandingReceivables: Double = 0.0,
+    val totalOutstandingPayables: Double = 0.0,
+    val netCashFlow: Double = 0.0
+)
+
+@Serializable
+data class AccountsSummaryApiResponseDto(
+    val success: Boolean,
+    val data: AccountsSummaryDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)

@@ -27,6 +27,7 @@ import com.havos.lubricerp.feature_reports.presentation.login.LoginRoute
 import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModuleRoute
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportDetailRoute
 import com.havos.lubricerp.feature_reports.presentation.settings.SettingsRoute
+import com.havos.lubricerp.feature_reports.presentation.payment.PaymentReportRoute
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -113,6 +114,9 @@ fun GoalErpNavGraph(
                             HomeNavigation.OpenNotifications -> {
                                 navController.navigate(AppRoutes.NOTIFICATIONS)
                             }
+                            HomeNavigation.OpenPaymentReport -> {
+                                navController.navigate(AppRoutes.PAYMENT_REPORT)
+                            }
                             HomeNavigation.NavigateLogin -> {
                                 navController.navigate(AppRoutes.LOGIN) {
                                     popUpTo(AppRoutes.HOME) { inclusive = true }
@@ -147,6 +151,12 @@ fun GoalErpNavGraph(
 
             composable(AppRoutes.CUSTOMER_DATA) {
                 CustomerDataRoute(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(AppRoutes.PAYMENT_REPORT) {
+                PaymentReportRoute(
                     onBackClick = { navController.popBackStack() }
                 )
             }
