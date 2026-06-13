@@ -7,8 +7,8 @@ object HomeTabReducer {
         return state.copy(isProfileLoading = isLoading)
     }
 
-    fun reduceForUser(state: HomeTabUiState, name: String): HomeTabUiState {
-        return state.copy(greetingName = name, isProfileLoading = false)
+    fun reduceForUser(state: HomeTabUiState, name: String, roles: List<String> = emptyList()): HomeTabUiState {
+        return state.copy(greetingName = name, userRoles = roles, isProfileLoading = false)
     }
 
     fun reduceForDashboardLoading(state: HomeTabUiState): HomeTabUiState {

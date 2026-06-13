@@ -3,11 +3,15 @@ package com.havos.lubricerp.feature_reports.presentation.home
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -18,6 +22,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.indication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,8 +83,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -121,7 +130,10 @@ fun HomeTabScreen(
             } else {
                 if (state.greetingName.isNotBlank()) {
                     item {
-                        GreetingBannerCard(name = state.greetingName)
+                        GreetingBannerCard(
+                            name = state.greetingName,
+                            roles = state.userRoles
+                        )
                     }
                 }
 
@@ -423,7 +435,7 @@ private fun TopSellingProductsCard(products: List<String>) {
 }
 
 @Composable
-private fun GreetingBannerCard(name: String) {
+private fun GreetingBannerCard(name: String, roles: List<String>) {
     val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
     val greeting = when {
         hour < 12 -> "Good Morning"
@@ -502,6 +514,24 @@ private fun GreetingBannerCard(name: String) {
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White
                 )
+                if (roles.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(Color.White.copy(alpha = 0.18f))
+                            .border(0.5.dp, Color.White.copy(alpha = 0.35f), RoundedCornerShape(6.dp))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = roles.joinToString(", "),
+                            style = MaterialTheme.typography.labelSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
+                            fontSize = 10.sp
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = dateLabel,
@@ -579,88 +609,214 @@ private fun KpiRow(
 private fun TankUtilizationCard(
     onClick: () -> Unit
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "arrowBounce")
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    // Press-down scale: card shrinks slightly on tap for tactile feedback
+    val cardScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh
+        ),
+        label = "cardScale"
+    )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "tankCardAnim")
+
+    // Arrow slides right and fades, then snaps back — more deliberate than a linear bounce
     val arrowOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = 4f,
+        targetValue = 8f,
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
+            animation = tween(durationMillis = 900, easing = EaseInOutCubic),
             repeatMode = RepeatMode.Reverse
         ),
         label = "arrowOffset"
     )
 
-    Card(
+    // Subtle shimmer sweep across the gradient background
+    val shimmerOffset by infiniteTransition.animateFloat(
+        initialValue = -1f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmerOffset"
+    )
+
+    // Icon pulses gently to draw attention
+    val iconPulse by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = EaseInOutCubic),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "iconPulse"
+    )
+
+    // Ripple ring around icon — expands and fades
+    val rippleRadius by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rippleRadius"
+    )
+    val rippleAlpha = if (rippleRadius < 0.5f) rippleRadius * 2f else (1f - rippleRadius) * 2f
+
+    val tankColor = com.havos.lubricerp.core.ui.theme.GradientTanksStart
+    val tankColorEnd = com.havos.lubricerp.core.ui.theme.GradientTanksEnd
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Transparent
-        ),
-        shape = RoundedCornerShape(16.dp),
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.25f)
-        )
+            .scale(cardScale)
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        tankColor.copy(alpha = 0.85f),
+                        tankColorEnd.copy(alpha = 0.75f),
+                        tankColor.copy(alpha = 0.65f)
+                    )
+                )
+            )
+            // Shimmer sweep layer on top
+            .background(
+                Brush.linearGradient(
+                    colorStops = arrayOf(
+                        0f to Color.Transparent,
+                        (shimmerOffset * 0.3f + 0.35f).coerceIn(0f, 1f) to Color.White.copy(alpha = 0.10f),
+                        (shimmerOffset * 0.3f + 0.50f).coerceIn(0f, 1f) to Color.White.copy(alpha = 0.18f),
+                        (shimmerOffset * 0.3f + 0.65f).coerceIn(0f, 1f) to Color.White.copy(alpha = 0.10f),
+                        1f to Color.Transparent
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.35f),
+                        Color.White.copy(alpha = 0.10f)
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .padding(horizontal = 20.dp, vertical = 18.dp)
     ) {
         Row(
-            modifier = Modifier
-                .background(
-                    Brush.linearGradient(
-                        colors = listOf(
-                            com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.08f),
-                            com.havos.lubricerp.core.ui.theme.GradientTanksEnd.copy(alpha = 0.02f)
-                        )
-                    ),
-                    shape = RoundedCornerShape(16.dp)
-                )
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            // Left: text block
             Column(modifier = Modifier.weight(1f)) {
+                // "Tap to explore" pill badge
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color.White.copy(alpha = 0.18f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "TAP TO EXPLORE",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White.copy(alpha = 0.90f),
+                        fontSize = 9.sp,
+                        letterSpacing = 0.8.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "Tank Utilization",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = com.havos.lubricerp.core.ui.theme.GradientTanksStart,
-                    fontWeight = FontWeight.SemiBold
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
-                    text = "View Report",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    text = "Full stock breakdown & levels",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.80f)
                 )
-                Text(
-                    text = "See tank stock report",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
+                Spacer(modifier = Modifier.height(14.dp))
+
+                // "View Report →" pill CTA button
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color.White.copy(alpha = 0.22f))
+                        .border(
+                            1.dp,
+                            Color.White.copy(alpha = 0.40f),
+                            RoundedCornerShape(50.dp)
+                        )
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "View Report",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(14.dp)
+                            .offset(x = arrowOffset.dp)
+                    )
+                }
             }
-            Spacer(modifier = Modifier.width(12.dp))
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Right: pulsing icon with ripple ring
             Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(72.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Inventory,
-                    contentDescription = null,
-                    tint = com.havos.lubricerp.core.ui.theme.GradientTanksStart,
-                    modifier = Modifier.size(22.dp)
+                // Outer ripple ring
+                Box(
+                    modifier = Modifier
+                        .size((40 + rippleRadius * 32).dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = rippleAlpha * 0.12f))
                 )
+                // Inner solid circle
+                Box(
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.20f))
+                        .border(1.5.dp, Color.White.copy(alpha = 0.35f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Inventory,
+                        contentDescription = "Tank stock report",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(26.dp)
+                            .graphicsLayer { scaleX = iconPulse; scaleY = iconPulse }
+                    )
+                }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                contentDescription = "View tank stock report",
-                tint = com.havos.lubricerp.core.ui.theme.GradientTanksStart.copy(alpha = 0.7f),
-                modifier = Modifier.offset(x = arrowOffset.dp)
-            )
         }
     }
 }
@@ -984,7 +1140,15 @@ private fun NetProfitDashboardCard(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        NetProfitCard(
+            state = state,
+            onIntent = onIntent,
+            customFrom = customFrom,
+            customTo = customTo,
+            onCustomFromChange = { customFrom = it },
+            onCustomToChange = { customTo = it }
+        )
+        /*Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 text = "Net Profit",
                 style = MaterialTheme.typography.labelMedium,
@@ -1116,14 +1280,15 @@ private fun NetProfitDashboardCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        }
+        }*/
+        
     }
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NetProfitDatePickerDialog(
+fun NetProfitDatePickerDialog(
     title: String,
     onDateSelected: (String) -> Unit,
     onDismiss: () -> Unit
@@ -1163,4 +1328,4 @@ private val indiaCurrencyFmt: NumberFormat =
         maximumFractionDigits = 2
     }
 
-private fun formatCurrency(amount: Double): String = "₹${indiaCurrencyFmt.format(amount)}"
+fun formatCurrency(amount: Double): String = "₹${indiaCurrencyFmt.format(amount)}"

@@ -41,7 +41,7 @@ import com.havos.lubricerp.core.ui.components.CollectEffect
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
-private enum class BottomNavItem(val title: String) {
+enum class BottomNavItem(val title: String) {
     HOME("Home"),
     REPORTS("Reports"),
     NOTIFICATIONS("Alerts")
@@ -137,7 +137,7 @@ private fun HomeScreen(
                 }
             )
         },
-        bottomBar = {
+        /*bottomBar = {
             NavigationBar(
                 modifier = Modifier.navigationBarsPadding()
             ) {
@@ -184,7 +184,8 @@ private fun HomeScreen(
                     )
                 }
             }
-        }
+        }*/
+        bottomBar = { PremiumBottomBar(selectedTab, onTabSelected, onNavigate) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

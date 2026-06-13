@@ -23,6 +23,7 @@ sealed interface HomeTabIntent : UiIntent {
 @Stable
 data class HomeTabUiState(
     val greetingName: String = "",
+    val userRoles: List<String> = emptyList(),
     val isProfileLoading: Boolean = false,
     val isDashboardLoading: Boolean = false,
     val isRefreshing: Boolean = false,

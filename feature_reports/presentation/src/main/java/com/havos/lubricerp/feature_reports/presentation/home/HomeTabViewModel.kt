@@ -50,7 +50,7 @@ class HomeTabViewModel(
                         userRoles = result.data.roles
                         val canFinancials = hasFinancialsAccess(userRoles)
                         _state.update {
-                            HomeTabReducer.reduceForUser(it, result.data.fullName)
+                            HomeTabReducer.reduceForUser(it, result.data.fullName, userRoles)
                                 .copy(canViewFinancials = canFinancials)
                         }
                     }
@@ -121,7 +121,12 @@ class HomeTabViewModel(
                 when (val profileResult = ensureProfileLoadedUseCase()) {
                     is ResultState.Success -> {
                         userRoles = profileResult.data.roles
-                        _state.update { it.copy(canViewFinancials = hasFinancialsAccess(userRoles)) }
+                        _state.update {
+                            it.copy(
+                                canViewFinancials = hasFinancialsAccess(userRoles),
+                                userRoles = userRoles
+                            )
+                        }
                     }
                     else -> Unit
                 }
