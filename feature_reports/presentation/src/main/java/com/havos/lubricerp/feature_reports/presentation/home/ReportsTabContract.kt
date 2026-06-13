@@ -25,6 +25,7 @@ sealed interface ReportsTabEffect {
     data object OpenCustomerData : ReportsTabEffect
     data class OpenReportModule(val reportItem: ReportItem) : ReportsTabEffect
     data object OpenPaymentReport : ReportsTabEffect
+    data object OpenOrders : ReportsTabEffect
 }
 
 sealed interface ReportsTabAction {

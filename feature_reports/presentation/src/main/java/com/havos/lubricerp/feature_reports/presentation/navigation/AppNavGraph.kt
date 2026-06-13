@@ -22,11 +22,20 @@ import com.havos.lubricerp.core.ui.components.NetworkStatusBar
 import com.havos.lubricerp.feature_reports.presentation.customer.CustomerDataRoute
 import com.havos.lubricerp.feature_reports.presentation.home.HomeRoute
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.NavigateLogin
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenCustomerData
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenNotifications
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenOrders
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenPaymentReport
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenReport
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenReportModule
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenSettings
 import com.havos.lubricerp.feature_reports.presentation.notification.NotificationRoute
 import com.havos.lubricerp.feature_reports.presentation.login.LoginRoute
 import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModuleRoute
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportDetailRoute
 import com.havos.lubricerp.feature_reports.presentation.settings.SettingsRoute
+import com.havos.lubricerp.feature_reports.presentation.orders.OrdersRoute
 import com.havos.lubricerp.feature_reports.presentation.payment.PaymentReportRoute
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -99,28 +108,32 @@ fun GoalErpNavGraph(
                 HomeRoute(
                     onNavigate = { navigation ->
                         when (navigation) {
-                            is HomeNavigation.OpenReport -> {
+                            is OpenReport -> {
                                 navController.navigate(AppRoutes.reportDetail(navigation.reportKey))
                             }
-                            HomeNavigation.OpenCustomerData -> {
+                            OpenCustomerData -> {
                                 navController.navigate(AppRoutes.CUSTOMER_DATA)
                             }
-                            is HomeNavigation.OpenReportModule -> {
+                            is OpenReportModule -> {
                                 navController.navigate(AppRoutes.reportModule(navigation.reportItemKey))
                             }
-                            HomeNavigation.OpenSettings -> {
+                            OpenSettings -> {
                                 navController.navigate(AppRoutes.SETTINGS)
                             }
-                            HomeNavigation.OpenNotifications -> {
+                            OpenNotifications -> {
                                 navController.navigate(AppRoutes.NOTIFICATIONS)
                             }
-                            HomeNavigation.OpenPaymentReport -> {
+                            OpenPaymentReport -> {
                                 navController.navigate(AppRoutes.PAYMENT_REPORT)
                             }
-                            HomeNavigation.NavigateLogin -> {
+                            NavigateLogin -> {
                                 navController.navigate(AppRoutes.LOGIN) {
                                     popUpTo(AppRoutes.HOME) { inclusive = true }
                                 }
+                            }
+
+                            OpenOrders -> {
+                                navController.navigate(AppRoutes.ORDERS)
                             }
                         }
                     }
@@ -157,6 +170,12 @@ fun GoalErpNavGraph(
 
             composable(AppRoutes.PAYMENT_REPORT) {
                 PaymentReportRoute(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(AppRoutes.ORDERS) {
+                OrdersRoute(
                     onBackClick = { navController.popBackStack() }
                 )
             }

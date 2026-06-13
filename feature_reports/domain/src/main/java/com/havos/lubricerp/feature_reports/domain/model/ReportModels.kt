@@ -117,37 +117,40 @@ data class CustomerLedgerEntry(
     val invoiceId: Long = 0
 )
 
-data class ReportSalesSummaryItem(
-    val customerId: Long,
-    val customerName: String,
-    val customerCode: String,
-    val invoiceCount: Int,
-    val subTotal: Double,
-    val taxAmount: Double,
-    val totalAmount: Double,
-    val paidAmount: Double,
-    val balanceAmount: Double
-)
-
 data class ProductSalesItem(
+    val productSKUId: Long,
+    val productSKUName: String,
+    val productSKUCode: String,
     val productGrade: String,
-    val deliveryType: String,
-    val totalQuantity: Double,
-    val totalAmount: Double
+    val productFamily: String,
+    val quantitySold: Double,
+    val totalRevenue: Double,
+    val totalTax: Double,
+    val netRevenue: Double
 )
 
 data class NetProfitReport(
-    val totalRevenue: Double,
-    val totalPurchaseCost: Double,
-    val netProfit: Double,
     val fromDate: String,
-    val toDate: String
+    val toDate: String,
+    val totalRevenue: Double,
+    val totalTaxCollected: Double,
+    val netRevenue: Double,
+    val costOfGoodsSold: Double,
+    val grossProfit: Double,
+    val grossMarginPercent: Double,
+    val operatingExpenses: Double,
+    val netProfit: Double,
+    val netMarginPercent: Double
 )
 
 data class ExpenseSummaryItem(
+    val vendorId: Long,
     val vendorName: String,
-    val paymentCount: Int,
-    val totalPaid: Double
+    val vendorCode: String,
+    val invoiceCount: Int,
+    val totalPurchase: Double,
+    val totalPaid: Double,
+    val balanceDue: Double
 )
 
 data class CustomerMobileSummary(
@@ -221,6 +224,128 @@ data class FastMovingItem(
     val productFamily: String,
     val quantitySold: Int,
     val totalRevenue: Double
+)
+
+data class SalesOrderItem(
+    val id: Long,
+    val soNumber: String,
+    val soDate: String,
+    val customerName: String,
+    val status: String,
+    val totalAmount: Double,
+    val expectedDeliveryDate: String,
+    val lineCount: Int,
+    val deliveredPercentage: Double,
+    val salesmanName: String
+)
+
+data class SalesOrderDetail(
+    val id: Long,
+    val soNumber: String,
+    val soDate: String,
+    val expectedDeliveryDate: String,
+    val customerId: Long,
+    val customerName: String,
+    val customerCode: String,
+    val customerGST: String?,
+    val customerAddress: String,
+    val status: String,
+    val totalAmount: Double,
+    val salesmanName: String,
+    val remarks: String?,
+    val lines: List<SalesOrderLine>,
+    val deliveryNotes: List<DeliveryNote>
+)
+
+data class SalesOrderLine(
+    val id: Long,
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val hsnCode: String,
+    val deliveryType: String,
+    val quantity: Int,
+    val unitPrice: Double,
+    val taxRate: Double,
+    val lineTotal: Double,
+    val deliveredQuantity: Int,
+    val pendingQuantity: Int
+)
+
+data class DeliveryNote(
+    val id: Long,
+    val dnNumber: String,
+    val dnDate: String,
+    val status: String
+)
+
+data class SalesInvoiceItem(
+    val id: Long,
+    val invoiceNumber: String,
+    val invoiceDate: String,
+    val customerName: String,
+    val customerCode: String,
+    val dnNumber: String?,
+    val totalAmount: Double,
+    val paymentStatus: String,
+    val paidAmount: Double,
+    val balanceAmount: Double,
+    val dueDate: String,
+    val isOverdue: Boolean,
+    val isInterState: Boolean
+)
+
+data class SalesInvoiceDetail(
+    val id: Long,
+    val invoiceNumber: String,
+    val invoiceDate: String,
+    val dueDate: String,
+    val customerId: Long,
+    val customerName: String,
+    val customerCode: String,
+    val customerGST: String?,
+    val customerAddress: String,
+    val customerState: String,
+    val customerStateCode: String,
+    val dnNumber: String?,
+    val eWayBillNumber: String?,
+    val isInterState: Boolean,
+    val subTotal: Double,
+    val cgstAmount: Double,
+    val sgstAmount: Double,
+    val igstAmount: Double,
+    val roundOffAmount: Double,
+    val totalAmount: Double,
+    val paidAmount: Double,
+    val balanceAmount: Double,
+    val paymentStatus: String,
+    val lines: List<InvoiceLine>,
+    val paymentReceipts: List<PaymentReceipt>
+)
+
+data class InvoiceLine(
+    val id: Long,
+    val productSKUName: String,
+    val productSKUCode: String,
+    val hsnCode: String,
+    val description: String?,
+    val quantity: Int,
+    val unitOfMeasurement: String,
+    val unitPrice: Double,
+    val discountPercent: Double,
+    val taxRate: Double,
+    val lineSubTotal: Double,
+    val taxAmount: Double,
+    val lineTotal: Double
+)
+
+data class PaymentReceipt(
+    val id: Long,
+    val receiptNumber: String,
+    val receiptDate: String,
+    val amount: Double,
+    val paymentMode: String,
+    val reference: String?
 )
 
 data class RecordPaymentRequest(

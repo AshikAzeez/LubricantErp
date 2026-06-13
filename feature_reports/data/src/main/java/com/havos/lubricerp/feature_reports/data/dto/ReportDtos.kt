@@ -176,32 +176,16 @@ data class StockOverviewTankApiResponseDto(
 )
 
 @Serializable
-data class ReportSalesSummaryItemDto(
-    val customerId: Long,
-    val customerName: String,
-    val customerCode: String,
-    val invoiceCount: Int,
-    val subTotal: Double = 0.0,
-    val taxAmount: Double = 0.0,
-    val totalAmount: Double = 0.0,
-    val paidAmount: Double = 0.0,
-    val balanceAmount: Double = 0.0
-)
-
-@Serializable
-data class ReportSalesSummaryApiResponseDto(
-    val success: Boolean,
-    val data: List<ReportSalesSummaryItemDto> = emptyList(),
-    val message: String? = null,
-    val errors: List<String>? = null
-)
-
-@Serializable
 data class ProductSalesItemDto(
+    val productSKUId: Long = 0,
+    val productSKUName: String = "",
+    val productSKUCode: String = "",
     val productGrade: String = "",
-    val deliveryType: String = "",
-    val totalQuantity: Double = 0.0,
-    val totalAmount: Double = 0.0
+    val productFamily: String = "",
+    val quantitySold: Double = 0.0,
+    val totalRevenue: Double = 0.0,
+    val totalTax: Double = 0.0,
+    val netRevenue: Double = 0.0
 )
 
 @Serializable
@@ -214,11 +198,17 @@ data class ProductSalesApiResponseDto(
 
 @Serializable
 data class NetProfitReportDto(
-    val totalRevenue: Double = 0.0,
-    val totalPurchaseCost: Double = 0.0,
-    val netProfit: Double = 0.0,
     val fromDate: String = "",
-    val toDate: String = ""
+    val toDate: String = "",
+    val totalRevenue: Double = 0.0,
+    val totalTaxCollected: Double = 0.0,
+    val netRevenue: Double = 0.0,
+    val costOfGoodsSold: Double = 0.0,
+    val grossProfit: Double = 0.0,
+    val grossMarginPercent: Double = 0.0,
+    val operatingExpenses: Double = 0.0,
+    val netProfit: Double = 0.0,
+    val netMarginPercent: Double = 0.0
 )
 
 @Serializable
@@ -231,9 +221,13 @@ data class NetProfitApiResponseDto(
 
 @Serializable
 data class ExpenseSummaryItemDto(
+    val vendorId: Long = 0,
     val vendorName: String = "",
-    val paymentCount: Int = 0,
-    val totalPaid: Double = 0.0
+    val vendorCode: String = "",
+    val invoiceCount: Int = 0,
+    val totalPurchase: Double = 0.0,
+    val totalPaid: Double = 0.0,
+    val balanceDue: Double = 0.0
 )
 
 @Serializable
@@ -425,6 +419,168 @@ data class AccountsSummaryDto(
 data class AccountsSummaryApiResponseDto(
     val success: Boolean,
     val data: AccountsSummaryDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class SalesOrderItemDto(
+    val id: Long,
+    val soNumber: String,
+    val soDate: String,
+    val customerName: String,
+    val status: String,
+    val totalAmount: Double,
+    val expectedDeliveryDate: String,
+    val lineCount: Int = 0,
+    val deliveredPercentage: Double = 0.0,
+    val salesmanName: String = ""
+)
+
+@Serializable
+data class SalesOrderListApiResponseDto(
+    val success: Boolean,
+    val data: List<SalesOrderItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class SalesOrderDetailDto(
+    val id: Long,
+    val soNumber: String,
+    val soDate: String,
+    val expectedDeliveryDate: String,
+    val customerId: Long,
+    val customerName: String,
+    val customerCode: String,
+    val customerGST: String? = null,
+    val customerAddress: String = "",
+    val status: String,
+    val totalAmount: Double = 0.0,
+    val salesmanName: String = "",
+    val remarks: String? = null,
+    val lines: List<SalesOrderLineDto> = emptyList(),
+    val deliveryNotes: List<DeliveryNoteDto> = emptyList()
+)
+
+@Serializable
+data class SalesOrderLineDto(
+    val id: Long,
+    val productSKUId: Int,
+    val productSKUName: String,
+    val productSKUCode: String = "",
+    val hsnCode: String = "",
+    val deliveryType: String = "",
+    val quantity: Int,
+    val unitPrice: Double = 0.0,
+    val taxRate: Double = 0.0,
+    val lineTotal: Double = 0.0,
+    val deliveredQuantity: Int = 0,
+    val pendingQuantity: Int = 0
+)
+
+@Serializable
+data class DeliveryNoteDto(
+    val id: Long,
+    val dnNumber: String = "",
+    val dnDate: String = "",
+    val status: String = ""
+)
+
+@Serializable
+data class SalesOrderDetailApiResponseDto(
+    val success: Boolean,
+    val data: SalesOrderDetailDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class SalesInvoiceItemDto(
+    val id: Long,
+    val invoiceNumber: String,
+    val invoiceDate: String,
+    val customerName: String,
+    val customerCode: String = "",
+    val dnNumber: String? = null,
+    val totalAmount: Double,
+    val paymentStatus: String,
+    val paidAmount: Double = 0.0,
+    val balanceAmount: Double = 0.0,
+    val dueDate: String = "",
+    val isOverdue: Boolean = false,
+    val isInterState: Boolean = false
+)
+
+@Serializable
+data class SalesInvoiceListApiResponseDto(
+    val success: Boolean,
+    val data: List<SalesInvoiceItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class SalesInvoiceDetailDto(
+    val id: Long,
+    val invoiceNumber: String,
+    val invoiceDate: String,
+    val dueDate: String,
+    val customerId: Long,
+    val customerName: String,
+    val customerCode: String = "",
+    val customerGST: String? = null,
+    val customerAddress: String = "",
+    val customerState: String = "",
+    val customerStateCode: String = "",
+    val dnNumber: String? = null,
+    val eWayBillNumber: String? = null,
+    val isInterState: Boolean = false,
+    val subTotal: Double = 0.0,
+    val cgstAmount: Double = 0.0,
+    val sgstAmount: Double = 0.0,
+    val igstAmount: Double = 0.0,
+    val roundOffAmount: Double = 0.0,
+    val totalAmount: Double = 0.0,
+    val paidAmount: Double = 0.0,
+    val balanceAmount: Double = 0.0,
+    val paymentStatus: String = "",
+    val lines: List<InvoiceLineDto> = emptyList(),
+    val paymentReceipts: List<PaymentReceiptDto> = emptyList()
+)
+
+@Serializable
+data class InvoiceLineDto(
+    val id: Long,
+    val productSKUName: String = "",
+    val productSKUCode: String = "",
+    val hsnCode: String = "",
+    val description: String? = null,
+    val quantity: Int,
+    val unitOfMeasurement: String = "",
+    val unitPrice: Double = 0.0,
+    val discountPercent: Double = 0.0,
+    val taxRate: Double = 0.0,
+    val lineSubTotal: Double = 0.0,
+    val taxAmount: Double = 0.0,
+    val lineTotal: Double = 0.0
+)
+
+@Serializable
+data class PaymentReceiptDto(
+    val id: Long,
+    val receiptNumber: String = "",
+    val receiptDate: String = "",
+    val amount: Double = 0.0,
+    val paymentMode: String = "",
+    val reference: String? = null
+)
+
+@Serializable
+data class SalesInvoiceDetailApiResponseDto(
+    val success: Boolean,
+    val data: SalesInvoiceDetailDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
 )

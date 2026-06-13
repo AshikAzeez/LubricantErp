@@ -5,7 +5,7 @@ import com.havos.lubricerp.core.common.UiState
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
-import com.havos.lubricerp.feature_reports.domain.model.ReportSalesSummaryItem
+import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 
 @Stable
 data class ReportModuleUiState(
@@ -17,7 +17,7 @@ data class ReportModuleUiState(
     val retryPending: Boolean = false,
     val error: String? = null,
     val dateError: String? = null,
-    val salesSummaryItems: List<ReportSalesSummaryItem> = emptyList(),
+    val salesSummaryItems: List<SalesSummaryItem> = emptyList(),
     val productSalesItems: List<ProductSalesItem> = emptyList(),
     val netProfit: NetProfitReport? = null,
     val canViewNetProfit: Boolean = true,

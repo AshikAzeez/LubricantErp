@@ -2,46 +2,52 @@ package com.havos.lubricerp.feature_reports.data.remote.reports
 
 import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.core.network.safeApiCall
+import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerListApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerMobileSummaryApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerMobileSummaryDto
-import com.havos.lubricerp.feature_reports.data.dto.ExpenseSummaryApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.ExpenseSummaryItemDto
-import com.havos.lubricerp.feature_reports.data.dto.NetProfitApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.NetProfitReportDto
-import com.havos.lubricerp.feature_reports.data.dto.ProductSalesApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.ProductSalesItemDto
-import com.havos.lubricerp.feature_reports.data.dto.ReportSalesSummaryApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.ReportSalesSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.DashboardApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.DashboardDto
-import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainReportDto
-import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
-import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedItemDto
-import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
-import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
-import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.ExpenseSummaryApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.ExpenseSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.FastMovingApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.FastMovingItemDto
 import com.havos.lubricerp.feature_reports.data.dto.LowStockApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.LowStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.NetProfitApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.NetProfitReportDto
+import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainReportDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedItemDto
+import com.havos.lubricerp.feature_reports.data.dto.ProductSalesApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.ProductSalesItemDto
+import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesInvoiceDetailApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesInvoiceDetailDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesInvoiceItemDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesInvoiceListApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesOrderDetailApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesOrderDetailDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesOrderItemDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesOrderListApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
+import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
-import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
-import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
-import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingApiResponseDto
-import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
-import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryApiResponseDto
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -247,27 +253,6 @@ class ReportsRemoteApi(
         }
     }
 
-    override suspend fun getReportSalesSummary(token: String, fromDate: String, toDate: String): ResultState<List<ReportSalesSummaryItemDto>> {
-        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
-        return when (
-            val result = safeApiCall<ReportSalesSummaryApiResponseDto> {
-                client.get("api/reports/sales-summary") {
-                    header(HttpHeaders.Authorization, "Bearer $token")
-                    parameter("fromDate", fromDate)
-                    parameter("toDate", toDate)
-                }
-            }
-        ) {
-            is ResultState.Success -> {
-                val payload = result.data
-                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch sales summary")
-                else ResultState.Success(payload.data)
-            }
-            is ResultState.Error -> ResultState.Error("Unable to fetch sales summary.")
-            ResultState.Loading -> ResultState.Loading
-        }
-    }
-
     override suspend fun getProductSales(token: String, fromDate: String, toDate: String): ResultState<List<ProductSalesItemDto>> {
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (
@@ -458,6 +443,94 @@ class ReportsRemoteApi(
                 else ResultState.Success(payload.data)
             }
             is ResultState.Error -> ResultState.Error("Unable to fetch accounts summary.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getSalesOrders(
+        token: String,
+        status: String
+    ): ResultState<List<SalesOrderItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<SalesOrderListApiResponseDto> {
+            client.get("api/sales-orders") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("status", status)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch sales orders")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch sales orders.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getSalesOrderDetail(
+        token: String,
+        orderId: Long
+    ): ResultState<SalesOrderDetailDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<SalesOrderDetailApiResponseDto> {
+            client.get("api/sales-orders/$orderId") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch order detail")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch order detail.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getSalesInvoices(
+        token: String,
+        fromDate: String?,
+        toDate: String?,
+        paymentStatus: String?
+    ): ResultState<List<SalesInvoiceItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<SalesInvoiceListApiResponseDto> {
+            client.get("api/sales-invoices") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                if (!fromDate.isNullOrBlank()) parameter("fromDate", fromDate)
+                if (!toDate.isNullOrBlank()) parameter("toDate", toDate)
+                if (!paymentStatus.isNullOrBlank()) parameter("paymentStatus", paymentStatus)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch invoices")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch invoices.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getSalesInvoiceDetail(
+        token: String,
+        invoiceId: Long
+    ): ResultState<SalesInvoiceDetailDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<SalesInvoiceDetailApiResponseDto> {
+            client.get("api/sales-invoices/$invoiceId") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch invoice detail")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch invoice detail.")
             ResultState.Loading -> ResultState.Loading
         }
     }

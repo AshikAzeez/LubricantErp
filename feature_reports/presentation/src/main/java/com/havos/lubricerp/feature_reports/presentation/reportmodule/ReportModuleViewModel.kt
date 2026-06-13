@@ -10,7 +10,7 @@ import com.havos.lubricerp.feature_reports.domain.usecase.EnsureProfileLoadedUse
 import com.havos.lubricerp.feature_reports.domain.usecase.GetExpenseSummaryUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetNetProfitUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetProductSalesUseCase
-import com.havos.lubricerp.feature_reports.domain.usecase.GetReportSalesSummaryUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.GetSalesSummaryUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +30,7 @@ import java.util.TimeZone
 class ReportModuleViewModel(
     private val observeSessionUseCase: ObserveSessionUseCase,
     private val ensureProfileLoadedUseCase: EnsureProfileLoadedUseCase,
-    private val getReportSalesSummaryUseCase: GetReportSalesSummaryUseCase,
+    private val getSalesSummaryUseCase: GetSalesSummaryUseCase,
     private val getProductSalesUseCase: GetProductSalesUseCase,
     private val getNetProfitUseCase: GetNetProfitUseCase,
     private val getExpenseSummaryUseCase: GetExpenseSummaryUseCase,
@@ -112,7 +112,7 @@ class ReportModuleViewModel(
                 return@launch
             }
             val filter = DateRangeFilter(fromDate = snapshot.fromDate, toDate = snapshot.toDate)
-            val salesDeferred   = async { getReportSalesSummaryUseCase(token, filter) }
+            val salesDeferred   = async { getSalesSummaryUseCase(token, filter) }
             val productDeferred = async { getProductSalesUseCase(token, filter) }
             val profitDeferred  = async { getNetProfitUseCase(token, filter, userRoles) }
             val expenseDeferred = async { getExpenseSummaryUseCase(token, filter) }
@@ -193,7 +193,7 @@ class ReportModuleViewModel(
             val filter = DateRangeFilter(fromDate = snapshot.fromDate, toDate = snapshot.toDate)
 
             // All 4 calls run in parallel.
-            val salesDeferred   = async { getReportSalesSummaryUseCase(token, filter) }
+            val salesDeferred   = async { getSalesSummaryUseCase(token, filter) }
             val productDeferred = async { getProductSalesUseCase(token, filter) }
             val profitDeferred  = async { getNetProfitUseCase(token, filter, userRoles) }
             val expenseDeferred = async { getExpenseSummaryUseCase(token, filter) }

@@ -22,7 +22,6 @@ val featureReportsDomainModule = module {
     factory { GetCustomersUseCase(get()) }
     factory { GetCustomerLedgerUseCase(get()) }
     factory { GetCustomerMobileSummaryUseCase(get()) }
-    factory { GetReportSalesSummaryUseCase(get()) }
     factory { GetProductSalesUseCase(get()) }
     factory { GetNetProfitUseCase(get()) }
     factory { GetExpenseSummaryUseCase(get()) }
@@ -33,6 +32,10 @@ val featureReportsDomainModule = module {
     factory { RecordPaymentUseCase(get()) }
     factory { GetPaymentsPendingUseCase(get()) }
     factory { GetAccountsSummaryUseCase(get()) }
+    factory { GetSalesOrdersUseCase(get()) }
+    factory { GetSalesOrderDetailUseCase(get()) }
+    factory { GetSalesInvoicesUseCase(get()) }
+    factory { GetSalesInvoiceDetailUseCase(get()) }
 
     factory { GetNotificationsPagedUseCase(get()) }
     factory { GetUnreadNotificationCountUseCase(get()) }

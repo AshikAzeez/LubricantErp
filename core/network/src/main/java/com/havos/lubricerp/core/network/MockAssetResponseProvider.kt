@@ -102,6 +102,25 @@ class MockAssetResponseProvider(
             !normalizedPath(request).contains("received") ->
             respondAsset(this, "mock/payments/record_payment.json")
 
+        // ── Sales Orders ──────────────────────────────────────────────────────
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/sales-orders/") ->
+            respondAsset(this, "mock/sales-orders/sales_order_detail.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request) == "api/sales-orders" &&
+            request.url.parameters["status"] == "Confirmed" ->
+            respondAsset(this, "mock/sales-orders/sales_orders_pending.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request) == "api/sales-orders" &&
+            request.url.parameters["status"] == "Dispatched" ->
+            respondAsset(this, "mock/sales-orders/sales_orders_dispatched.json")
+
+        // ── Sales Invoices ────────────────────────────────────────────────────
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/sales-invoices/") ->
+            respondAsset(this, "mock/sales-invoices/sales_invoice_detail.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/sales-invoices") ->
+            respondAsset(this, "mock/sales-invoices/sales_invoices.json")
+
         // ── Notifications ─────────────────────────────────────────────────────
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/notifications/unread-count") ->
             respondAsset(this, "mock/notifications/unread_count.json")

@@ -2,28 +2,48 @@
   "success": true,
   "data": [
     {
-      "productGrade": "20W-40 Engine Oil",
-      "deliveryType": "Bulk",
-      "totalQuantity": 18500.0,
-      "totalAmount": 1480000.0
+      "productSKUId": 101,
+      "productSKUName": "20W-40 Engine Oil",
+      "productSKUCode": "E-20W40-001",
+      "productGrade": "20W-40",
+      "productFamily": "Engine Oil",
+      "quantitySold": 18500.0,
+      "totalRevenue": 1480000.0,
+      "totalTax": 236800.0,
+      "netRevenue": 1243200.0
     },
     {
-      "productGrade": "Gear Oil 90",
-      "deliveryType": "Drum",
-      "totalQuantity": 4200.0,
-      "totalAmount": 336000.0
+      "productSKUId": 102,
+      "productSKUName": "Gear Oil 90",
+      "productSKUCode": "G-90-002",
+      "productGrade": "SAE 90",
+      "productFamily": "Gear Oil",
+      "quantitySold": 4200.0,
+      "totalRevenue": 336000.0,
+      "totalTax": 53760.0,
+      "netRevenue": 282240.0
     },
     {
-      "productGrade": "Hydraulic Oil 68",
-      "deliveryType": "Bulk",
-      "totalQuantity": 9800.0,
-      "totalAmount": 784000.0
+      "productSKUId": 103,
+      "productSKUName": "Hydraulic Oil 68",
+      "productSKUCode": "H-68-003",
+      "productGrade": "ISO 68",
+      "productFamily": "Hydraulic Oil",
+      "quantitySold": 9800.0,
+      "totalRevenue": 784000.0,
+      "totalTax": 125440.0,
+      "netRevenue": 658560.0
     },
     {
-      "productGrade": "Coolant 50/50",
-      "deliveryType": "Can",
-      "totalQuantity": 1250.0,
-      "totalAmount": 100000.0
+      "productSKUId": 104,
+      "productSKUName": "Coolant 50/50",
+      "productSKUCode": "C-5050-004",
+      "productGrade": "50/50",
+      "productFamily": "Coolant",
+      "quantitySold": 1250.0,
+      "totalRevenue": 100000.0,
+      "totalTax": 16000.0,
+      "netRevenue": 84000.0
     }
   ],
   "message": null,

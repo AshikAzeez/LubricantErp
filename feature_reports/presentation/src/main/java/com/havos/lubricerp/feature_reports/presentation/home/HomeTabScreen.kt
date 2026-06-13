@@ -251,7 +251,7 @@ fun HomeTabScreen(
 
                     if (state.recentInvoices.isNotEmpty()) {
                         item {
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "Recent Transactions",
                                 style = MaterialTheme.typography.titleMedium,
@@ -1074,7 +1074,7 @@ private fun RecentInvoiceRow(invoice: RecentInvoice) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            ,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow
         ),

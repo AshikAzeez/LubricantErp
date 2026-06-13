@@ -1,29 +1,32 @@
 package com.havos.lubricerp.feature_reports.domain.repository
 
 import com.havos.lubricerp.core.common.ResultState
-import com.havos.lubricerp.feature_reports.domain.model.DashboardSummary
-import com.havos.lubricerp.feature_reports.domain.model.DateRangeFilter
-import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
-import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
+import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
+import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
 import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
+import com.havos.lubricerp.feature_reports.domain.model.DashboardSummary
+import com.havos.lubricerp.feature_reports.domain.model.DateRangeFilter
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
-import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
-import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
-import com.havos.lubricerp.feature_reports.domain.model.ReportSalesSummaryItem
-import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
-import com.havos.lubricerp.feature_reports.domain.model.RawMaterialStockItem
-import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
-import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
 import com.havos.lubricerp.feature_reports.domain.model.FastMovingItem
 import com.havos.lubricerp.feature_reports.domain.model.LowStockItem
-import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
-import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
+import com.havos.lubricerp.feature_reports.domain.model.NetProfitReport
+import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
+import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
+import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
+import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
+import com.havos.lubricerp.feature_reports.domain.model.RawMaterialStockItem
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentRequest
 import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
-import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
-import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
+import com.havos.lubricerp.feature_reports.domain.model.SalesInvoiceDetail
+import com.havos.lubricerp.feature_reports.domain.model.SalesInvoiceItem
+import com.havos.lubricerp.feature_reports.domain.model.SalesOrderDetail
+import com.havos.lubricerp.feature_reports.domain.model.SalesOrderItem
+import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
+import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
+import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 
 interface ReportsRepository {
     suspend fun getTankStockSummary(): ResultState<TankStockSummary>
@@ -39,7 +42,6 @@ interface ReportsRepository {
     suspend fun getCustomers(token: String): ResultState<List<Customer>>
     suspend fun getCustomerLedger(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntry>>
     suspend fun getCustomerMobileSummary(token: String, customerId: Long): ResultState<CustomerMobileSummary>
-    suspend fun getReportSalesSummary(token: String, filter: DateRangeFilter): ResultState<List<ReportSalesSummaryItem>>
     suspend fun getProductSales(token: String, filter: DateRangeFilter): ResultState<List<ProductSalesItem>>
     suspend fun getNetProfit(token: String, filter: DateRangeFilter): ResultState<NetProfitReport>
     suspend fun getExpenseSummary(token: String, filter: DateRangeFilter): ResultState<List<ExpenseSummaryItem>>
@@ -54,4 +56,17 @@ interface ReportsRepository {
     suspend fun recordPayment(token: String, request: RecordPaymentRequest): ResultState<RecordPaymentResponse>
     suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomer>>
     suspend fun getAccountsSummary(token: String, filter: DateRangeFilter): ResultState<AccountsSummary>
+
+    suspend fun getSalesOrders(token: String, status: String): ResultState<List<SalesOrderItem>>
+
+    suspend fun getSalesOrderDetail(token: String, orderId: Long): ResultState<SalesOrderDetail>
+
+    suspend fun getSalesInvoices(
+        token: String,
+        fromDate: String?,
+        toDate: String?,
+        paymentStatus: String?
+    ): ResultState<List<SalesInvoiceItem>>
+
+    suspend fun getSalesInvoiceDetail(token: String, invoiceId: Long): ResultState<SalesInvoiceDetail>
 }

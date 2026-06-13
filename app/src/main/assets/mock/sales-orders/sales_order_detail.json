@@ -1,0 +1,65 @@
+{
+  "success": true,
+  "message": null,
+  "errors": null,
+  "data": {
+    "id": 101,
+    "soNumber": "SO-2526-0101",
+    "soDate": "2026-05-20",
+    "expectedDeliveryDate": "2026-06-15",
+    "customerId": 501,
+    "customerName": "Ravi Motor Works",
+    "customerCode": "CUST-501",
+    "customerGST": "27AABCU1234F1Z5",
+    "customerAddress": "123 Industrial Area, Phase II, Pune, Maharashtra",
+    "status": "Confirmed",
+    "totalAmount": 142500.00,
+    "salesmanName": "Amit Sharma",
+    "remarks": null,
+    "lines": [
+      {
+        "id": 1001,
+        "productSKUId": 201,
+        "productSKUName": "Engine Oil 20W50 - 4L",
+        "productSKUCode": "EO-20W50-4L",
+        "hsnCode": "271019",
+        "deliveryType": "Direct",
+        "quantity": 50,
+        "unitPrice": 1850.00,
+        "taxRate": 18.0,
+        "lineTotal": 109150.00,
+        "deliveredQuantity": 0,
+        "pendingQuantity": 50
+      },
+      {
+        "id": 1002,
+        "productSKUId": 202,
+        "productSKUName": "Gear Oil 90 - 1L",
+        "productSKUCode": "GO-90-1L",
+        "hsnCode": "271019",
+        "deliveryType": "Direct",
+        "quantity": 30,
+        "unitPrice": 750.00,
+        "taxRate": 18.0,
+        "lineTotal": 26550.00,
+        "deliveredQuantity": 0,
+        "pendingQuantity": 30
+      },
+      {
+        "id": 1003,
+        "productSKUId": 203,
+        "productSKUName": "Coolant Premium - 5L",
+        "productSKUCode": "CL-PREM-5L",
+        "hsnCode": "382000",
+        "deliveryType": "Direct",
+        "quantity": 10,
+        "unitPrice": 680.00,
+        "taxRate": 18.0,
+        "lineTotal": 6800.00,
+        "deliveredQuantity": 0,
+        "pendingQuantity": 10
+      }
+    ],
+    "deliveryNotes": []
+  }
+}

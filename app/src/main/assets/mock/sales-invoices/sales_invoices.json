@@ -1,0 +1,67 @@
+{
+  "success": true,
+  "message": null,
+  "errors": null,
+  "data": [
+    {
+      "id": 301,
+      "invoiceNumber": "INV-2526-1036",
+      "invoiceDate": "2026-05-25",
+      "customerName": "Ravi Motor Works",
+      "customerCode": "CUST-501",
+      "dnNumber": "DN-2526-0081",
+      "totalAmount": 124500.00,
+      "paymentStatus": "Paid",
+      "paidAmount": 124500.00,
+      "balanceAmount": 0.00,
+      "dueDate": "2026-06-24",
+      "isOverdue": false,
+      "isInterState": false
+    },
+    {
+      "id": 302,
+      "invoiceNumber": "INV-2526-1037",
+      "invoiceDate": "2026-05-24",
+      "customerName": "Ahmed Trading Co.",
+      "customerCode": "CUST-502",
+      "dnNumber": "DN-2526-0080",
+      "totalAmount": 87500.00,
+      "paymentStatus": "Unpaid",
+      "paidAmount": 0.00,
+      "balanceAmount": 87500.00,
+      "dueDate": "2026-06-23",
+      "isOverdue": false,
+      "isInterState": false
+    },
+    {
+      "id": 303,
+      "invoiceNumber": "INV-2526-1038",
+      "invoiceDate": "2026-05-23",
+      "customerName": "Kiran Auto Parts",
+      "customerCode": "CUST-503",
+      "dnNumber": "DN-2526-0079",
+      "totalAmount": 221000.00,
+      "paymentStatus": "Partial",
+      "paidAmount": 100000.00,
+      "balanceAmount": 121000.00,
+      "dueDate": "2026-06-22",
+      "isOverdue": false,
+      "isInterState": true
+    },
+    {
+      "id": 304,
+      "invoiceNumber": "INV-2526-1039",
+      "invoiceDate": "2026-04-20",
+      "customerName": "Greenfield Motors",
+      "customerCode": "CUST-504",
+      "dnNumber": "DN-2526-0075",
+      "totalAmount": 96500.00,
+      "paymentStatus": "Unpaid",
+      "paidAmount": 0.00,
+      "balanceAmount": 96500.00,
+      "dueDate": "2026-05-20",
+      "isOverdue": true,
+      "isInterState": false
+    }
+  ]
+}

@@ -230,6 +230,7 @@ private fun ReportsTabContent(
                 ReportsTabEffect.OpenCustomerData -> onOpenCustomerData()
                 is ReportsTabEffect.OpenReportModule -> onOpenReportModule(effect.reportItem.key)
                 ReportsTabEffect.OpenPaymentReport -> onNavigate(HomeNavigation.OpenPaymentReport)
+                ReportsTabEffect.OpenOrders -> onNavigate(HomeNavigation.OpenOrders)
             }
         }
     }

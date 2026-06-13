@@ -2,24 +2,40 @@
   "success": true,
   "data": [
     {
+      "vendorId": 201,
       "vendorName": "BaseOil Suppliers LLC",
-      "paymentCount": 6,
-      "totalPaid": 1240000.0
+      "vendorCode": "V-BO-001",
+      "invoiceCount": 6,
+      "totalPurchase": 1400000.0,
+      "totalPaid": 1240000.0,
+      "balanceDue": 160000.0
     },
     {
+      "vendorId": 202,
       "vendorName": "Additive Chem Co.",
-      "paymentCount": 3,
-      "totalPaid": 480000.0
+      "vendorCode": "V-AC-002",
+      "invoiceCount": 3,
+      "totalPurchase": 500000.0,
+      "totalPaid": 480000.0,
+      "balanceDue": 20000.0
     },
     {
+      "vendorId": 203,
       "vendorName": "Packaging Solutions",
-      "paymentCount": 4,
-      "totalPaid": 185000.0
+      "vendorCode": "V-PS-003",
+      "invoiceCount": 4,
+      "totalPurchase": 200000.0,
+      "totalPaid": 185000.0,
+      "balanceDue": 15000.0
     },
     {
+      "vendorId": 204,
       "vendorName": "Freight & Logistics",
-      "paymentCount": 8,
-      "totalPaid": 96000.0
+      "vendorCode": "V-FL-004",
+      "invoiceCount": 8,
+      "totalPurchase": 120000.0,
+      "totalPaid": 96000.0,
+      "balanceDue": 24000.0
     }
   ],
   "message": null,

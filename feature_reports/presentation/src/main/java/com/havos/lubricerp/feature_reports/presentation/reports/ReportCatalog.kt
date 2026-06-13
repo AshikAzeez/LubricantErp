@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.OilBarrel
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.PieChart
 import androidx.compose.material.icons.filled.ReceiptLong
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warehouse
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -110,6 +111,12 @@ enum class ReportMenu(
         title = "Payments",
         icon = Icons.Default.ReceiptLong,
         subMenus = listOf(ReportItem.PAYMENT_REPORT)
+    ),
+    ORDERS(
+        key = "orders",
+        title = "Orders",
+        icon = Icons.Default.ShoppingCart,
+        subMenus = emptyList()
     )
 }
 

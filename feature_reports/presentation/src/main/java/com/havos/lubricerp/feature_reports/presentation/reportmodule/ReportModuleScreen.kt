@@ -59,7 +59,7 @@ import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
 import com.havos.lubricerp.core.ui.components.OfflinePlaceholder
 import com.havos.lubricerp.feature_reports.domain.model.ExpenseSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.ProductSalesItem
-import com.havos.lubricerp.feature_reports.domain.model.ReportSalesSummaryItem
+import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.presentation.reports.DatePickerButton
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportItem
 import kotlinx.coroutines.launch
@@ -414,7 +414,7 @@ private fun RmSortableColumnLabel(
 }
 
 @Composable
-private fun SalesSummaryRow(item: ReportSalesSummaryItem, fmt: java.text.NumberFormat) {
+private fun SalesSummaryRow(item: SalesSummaryItem, fmt: java.text.NumberFormat) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
@@ -498,11 +498,13 @@ private fun ProductSalesTab(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    val totalQty = state.productSalesItems.sumOf { it.totalQuantity }
-                    val totalAmt = state.productSalesItems.sumOf { it.totalAmount }
+                    val totalQty    = state.productSalesItems.sumOf { it.quantitySold }
+                    val totalRev    = state.productSalesItems.sumOf { it.totalRevenue }
+                    val totalTax    = state.productSalesItems.sumOf { it.totalTax }
                     RmStatCard(label = "Products", value = state.productSalesItems.size.toString(), modifier = Modifier.weight(1f))
-                    RmStatCard(label = "Total Qty", value = fmt.format(totalQty), modifier = Modifier.weight(1f))
-                    RmStatCard(label = "Total Amount", value = "₹${fmt.format(totalAmt)}", modifier = Modifier.weight(1f))
+                    RmStatCard(label = "Qty Sold", value = fmt.format(totalQty), modifier = Modifier.weight(1f))
+                    RmStatCard(label = "Total Revenue", value = "₹${fmt.format(totalRev)}", modifier = Modifier.weight(1f))
+                    RmStatCard(label = "Total Tax", value = "₹${fmt.format(totalTax)}", modifier = Modifier.weight(1f))
                 }
             }
             item { Spacer(Modifier.height(8.dp)) }
@@ -513,12 +515,13 @@ private fun ProductSalesTab(
                         .background(MaterialTheme.colorScheme.surfaceContainerHighest)
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
-                    Text("Product / Type", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Text("Qty", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(70.dp))
+                    Text("Product", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                    Text("Qty", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(60.dp))
                     Text("Amount", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(80.dp))
+                    Text("Net", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(80.dp))
                 }
             }
-            items(state.productSalesItems, key = { "${it.productGrade}_${it.deliveryType}" }) { item ->
+            items(state.productSalesItems, key = { it.productSKUId }) { item ->
                 ProductSalesRow(item = item, fmt = fmt)
             }
         }
@@ -537,32 +540,43 @@ private fun ProductSalesRow(item: ProductSalesItem, fmt: java.text.NumberFormat)
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = item.productGrade.ifBlank { "—" },
+                    text = item.productSKUName.ifBlank { "—" },
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (item.deliveryType.isNotBlank()) {
-                    Text(
-                        text = item.deliveryType,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = buildString {
+                        append(item.productGrade.ifBlank { "—" })
+                        if (item.productFamily.isNotBlank()) append(" · ${item.productFamily}")
+                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
             Text(
-                text = fmt.format(item.totalQuantity),
+                text = fmt.format(item.quantitySold),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.End,
-                modifier = Modifier.width(70.dp)
+                modifier = Modifier.width(60.dp)
             )
             Text(
-                text = "₹${fmt.format(item.totalAmount)}",
+                text = "₹${fmt.format(item.totalRevenue)}",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.End,
+                modifier = Modifier.width(80.dp)
+            )
+            Text(
+                text = "₹${fmt.format(item.netRevenue)}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.End,
+                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.width(80.dp)
             )
         }
@@ -680,9 +694,62 @@ private fun NetProfitTab(
                         modifier = Modifier.weight(1f)
                     )
                     RmStatCard(
-                        label = "Purchase Cost",
-                        value = "₹${fmt.format(profit.totalPurchaseCost)}",
+                        label = "Net Revenue",
+                        value = "₹${fmt.format(profit.netRevenue)}",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    RmStatCard(
+                        label = "Tax Collected",
+                        value = "₹${fmt.format(profit.totalTaxCollected)}",
+                        modifier = Modifier.weight(1f)
+                    )
+                    RmStatCard(
+                        label = "COGS",
+                        value = "₹${fmt.format(profit.costOfGoodsSold)}",
                         valueColor = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    RmStatCard(
+                        label = "Gross Profit",
+                        value = "₹${fmt.format(profit.grossProfit)}",
+                        valueColor = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.weight(1f)
+                    )
+                    RmStatCard(
+                        label = "Margin",
+                        value = "${fmt.format(profit.grossMarginPercent)}%",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    RmStatCard(
+                        label = "Op. Expenses",
+                        value = "₹${fmt.format(profit.operatingExpenses)}",
+                        valueColor = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.weight(1f)
+                    )
+                    RmStatCard(
+                        label = "Net Margin",
+                        value = "${fmt.format(profit.netMarginPercent)}%",
                         modifier = Modifier.weight(1f)
                     )
                 }
@@ -743,9 +810,13 @@ private fun ExpenseSummaryTab(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    val totalPaid = state.expenseSummaryItems.sumOf { it.totalPaid }
+                    val totalPurchase = state.expenseSummaryItems.sumOf { it.totalPurchase }
+                    val totalPaid     = state.expenseSummaryItems.sumOf { it.totalPaid }
+                    val totalBalance  = state.expenseSummaryItems.sumOf { it.balanceDue }
                     RmStatCard(label = "Vendors", value = state.expenseSummaryItems.size.toString(), modifier = Modifier.weight(1f))
+                    RmStatCard(label = "Total Purchase", value = "₹${fmt.format(totalPurchase)}", modifier = Modifier.weight(1f))
                     RmStatCard(label = "Total Paid", value = "₹${fmt.format(totalPaid)}", valueColor = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
+                    RmStatCard(label = "Balance Due", value = "₹${fmt.format(totalBalance)}", valueColor = MaterialTheme.colorScheme.error, modifier = Modifier.weight(1f))
                 }
             }
             item { Spacer(Modifier.height(8.dp)) }
@@ -757,11 +828,12 @@ private fun ExpenseSummaryTab(
                         .padding(horizontal = 12.dp, vertical = 8.dp)
                 ) {
                     Text("Vendor", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Text("Payments", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(72.dp))
-                    Text("Total Paid", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(82.dp))
+                    Text("Invoices", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(64.dp))
+                    Text("Paid", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(80.dp))
+                    Text("Balance", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, textAlign = TextAlign.End, modifier = Modifier.width(80.dp))
                 }
             }
-            items(state.expenseSummaryItems, key = { it.vendorName }) { item ->
+            items(state.expenseSummaryItems, key = { it.vendorId }) { item ->
                 ExpenseSummaryRow(item = item, fmt = fmt)
             }
         }
@@ -778,20 +850,28 @@ private fun ExpenseSummaryRow(item: ExpenseSummaryItem, fmt: java.text.NumberFor
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = item.vendorName.ifBlank { "—" },
+                    style = MaterialTheme.typography.bodyMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (item.vendorCode.isNotBlank()) {
+                    Text(
+                        text = item.vendorCode,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             Text(
-                text = item.vendorName.ifBlank { "—" },
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = item.paymentCount.toString(),
+                text = item.invoiceCount.toString(),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.End,
-                modifier = Modifier.width(72.dp)
+                modifier = Modifier.width(64.dp)
             )
             Text(
                 text = "₹${fmt.format(item.totalPaid)}",
@@ -799,7 +879,15 @@ private fun ExpenseSummaryRow(item: ExpenseSummaryItem, fmt: java.text.NumberFor
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.End,
-                modifier = Modifier.width(82.dp)
+                modifier = Modifier.width(80.dp)
+            )
+            Text(
+                text = "₹${fmt.format(item.balanceDue)}",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = if (item.balanceDue > 0) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.End,
+                modifier = Modifier.width(80.dp)
             )
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)

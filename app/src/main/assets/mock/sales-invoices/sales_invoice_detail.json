@@ -1,0 +1,72 @@
+{
+  "success": true,
+  "message": null,
+  "errors": null,
+  "data": {
+    "id": 301,
+    "invoiceNumber": "INV-2526-1036",
+    "invoiceDate": "2026-05-25",
+    "dueDate": "2026-06-24",
+    "customerId": 501,
+    "customerName": "Ravi Motor Works",
+    "customerCode": "CUST-501",
+    "customerGST": "27AABCU1234F1Z5",
+    "customerAddress": "123 Industrial Area, Phase II, Pune, Maharashtra",
+    "customerState": "Maharashtra",
+    "customerStateCode": "27",
+    "dnNumber": "DN-2526-0081",
+    "eWayBillNumber": "EWB-2526-0081",
+    "isInterState": false,
+    "subTotal": 105508.47,
+    "cgstAmount": 9495.76,
+    "sgstAmount": 9495.76,
+    "igstAmount": 0.0,
+    "roundOffAmount": 0.01,
+    "totalAmount": 124500.00,
+    "paidAmount": 124500.00,
+    "balanceAmount": 0.00,
+    "paymentStatus": "Paid",
+    "lines": [
+      {
+        "id": 2001,
+        "productSKUName": "Engine Oil 20W50 - 4L",
+        "productSKUCode": "EO-20W50-4L",
+        "hsnCode": "271019",
+        "description": null,
+        "quantity": 40,
+        "unitOfMeasurement": "Pcs",
+        "unitPrice": 1850.00,
+        "discountPercent": 5.0,
+        "taxRate": 18.0,
+        "lineSubTotal": 70300.00,
+        "taxAmount": 12654.00,
+        "lineTotal": 82954.00
+      },
+      {
+        "id": 2002,
+        "productSKUName": "Gear Oil 90 - 1L",
+        "productSKUCode": "GO-90-1L",
+        "hsnCode": "271019",
+        "description": null,
+        "quantity": 25,
+        "unitOfMeasurement": "Pcs",
+        "unitPrice": 750.00,
+        "discountPercent": 0.0,
+        "taxRate": 18.0,
+        "lineSubTotal": 18750.00,
+        "taxAmount": 3375.00,
+        "lineTotal": 22125.00
+      }
+    ],
+    "paymentReceipts": [
+      {
+        "id": 901,
+        "receiptNumber": "RCP-2526-0201",
+        "receiptDate": "2026-05-26",
+        "amount": 124500.00,
+        "paymentMode": "NEFT",
+        "reference": "NEFT2605241234"
+      }
+    ]
+  }
+}
