@@ -3,8 +3,7 @@ package com.havos.lubricerp.feature_reports.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.havos.lubricerp.core.common.ResultState
-import com.havos.lubricerp.core.network.AppEnvironment
-import com.havos.lubricerp.core.network.ResolvedNetworkConfig
+
 import com.havos.lubricerp.feature_reports.domain.usecase.LoginUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveRememberMeEnabledUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveRememberedUsernameUseCase
@@ -23,7 +22,6 @@ class LoginViewModel(
     private val loginUseCase: LoginUseCase,
     observeRememberedUsernameUseCase: ObserveRememberedUsernameUseCase,
     observeRememberMeEnabledUseCase: ObserveRememberMeEnabledUseCase,
-    private val networkConfig: ResolvedNetworkConfig,
     private val refreshSessionUseCase: RefreshSessionUseCase
 ) : ViewModel() {
 
@@ -34,27 +32,15 @@ class LoginViewModel(
     val effect: SharedFlow<LoginEffect> = _effect.asSharedFlow()
 
     init {
-        if (networkConfig.environment == AppEnvironment.TEST || networkConfig.environment == AppEnvironment.STAGE) {
-            _state.update {
-                it.copy(
-                    username = DEFAULT_TEST_EMAIL,
-                    password = DEFAULT_TEST_PASSWORD,
-                    usernameError = null,
-                    passwordError = null,
-                    errorMessage = null
-                )
-            }
-        } else {
-            viewModelScope.launch {
-                combine(
-                    observeRememberedUsernameUseCase(),
-                    observeRememberMeEnabledUseCase()
-                ) { username, rememberMe ->
-                    username to rememberMe
-                }.collect { (username, rememberMe) ->
-                    _state.update {
-                        LoginReducer.reduceForRememberedUsername(it, username, rememberMe)
-                    }
+        viewModelScope.launch {
+            combine(
+                observeRememberedUsernameUseCase(),
+                observeRememberMeEnabledUseCase()
+            ) { username, rememberMe ->
+                username to rememberMe
+            }.collect { (username, rememberMe) ->
+                _state.update {
+                    LoginReducer.reduceForRememberedUsername(it, username, rememberMe)
                 }
             }
         }
@@ -141,8 +127,4 @@ class LoginViewModel(
         return if (trimmed.contains("@")) trimmed.lowercase() else trimmed
     }
 
-    private companion object {
-        const val DEFAULT_TEST_EMAIL = "admin@baseoils.com"
-        const val DEFAULT_TEST_PASSWORD = "Admin@123"
-    }
 }

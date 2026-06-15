@@ -322,7 +322,13 @@ private fun DatePillButton(
     onClick: () -> Unit
 ) {
     Surface(
-        modifier = modifier.clip(RoundedCornerShape(16.dp)),
+        modifier = modifier
+            .border(
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                shape = RoundedCornerShape(16.dp)
+            )
+            .clip(RoundedCornerShape(16.dp)),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
         onClick = onClick
     ) {

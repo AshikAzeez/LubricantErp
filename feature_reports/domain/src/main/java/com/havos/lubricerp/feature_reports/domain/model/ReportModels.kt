@@ -1,9 +1,9 @@
 package com.havos.lubricerp.feature_reports.domain.model
 
 data class TankStockSummary(
-    val totalCapacityLiters: Int,
-    val currentStockLiters: Int,
-    val availableCapacityLiters: Int,
+    val totalCapacityLiters: Double,
+    val currentStockLiters: Double,
+    val availableCapacityLiters: Double,
     val tanks: List<TankInfo>
 )
 
@@ -12,10 +12,10 @@ data class TankInfo(
     val code: String,
     val location: String,
     val productGrade: String,
-    val capacityLiters: Int,
-    val currentStockLiters: Int,
-    val availableLiters: Int,
-    val fillPercent: Int
+    val capacityLiters: Double,
+    val currentStockLiters: Double,
+    val availableLiters: Double,
+    val fillPercent: Double
 )
 
 data class RawMaterialStockItem(
@@ -190,8 +190,8 @@ data class WarehouseStockItem(
     val productSKUCode: String,
     val productGrade: String,
     val productFamily: String,
-    val currentStock: Int,
-    val reorderLevel: Int
+    val currentStock: Double,
+    val reorderLevel: Double
 )
 
 data class ConsolidatedStockItem(
@@ -210,9 +210,9 @@ data class LowStockItem(
     val productGrade: String,
     val productFamily: String,
     val warehouseName: String,
-    val currentStock: Int,
-    val reorderLevel: Int,
-    val shortageQuantity: Int
+    val currentStock: Double,
+    val reorderLevel: Double,
+    val shortageQuantity: Double
 )
 
 data class FastMovingItem(
@@ -222,7 +222,7 @@ data class FastMovingItem(
     val productSKUCode: String,
     val productGrade: String,
     val productFamily: String,
-    val quantitySold: Int,
+    val quantitySold: Double,
     val totalRevenue: Double
 )
 
@@ -264,12 +264,12 @@ data class SalesOrderLine(
     val productSKUCode: String,
     val hsnCode: String,
     val deliveryType: String,
-    val quantity: Int,
+    val quantity: Double,
     val unitPrice: Double,
     val taxRate: Double,
     val lineTotal: Double,
-    val deliveredQuantity: Int,
-    val pendingQuantity: Int
+    val deliveredQuantity: Double,
+    val pendingQuantity: Double
 )
 
 data class DeliveryNote(
@@ -329,7 +329,7 @@ data class InvoiceLine(
     val productSKUCode: String,
     val hsnCode: String,
     val description: String?,
-    val quantity: Int,
+    val quantity: Double,
     val unitOfMeasurement: String,
     val unitPrice: Double,
     val discountPercent: Double,

@@ -4,26 +4,26 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class NotificationItemDto(
-    val id: Long,
-    val title: String,
-    val message: String,
-    val type: String,
-    val linkUrl: String,
-    val isRead: Boolean,
+    val id: Long = 0L,
+    val title: String = "",
+    val message: String = "",
+    val type: String = "",
+    val linkUrl: String = "",
+    val isRead: Boolean = false,
     val readAt: String? = null,
-    val createdAt: String,
-    val timeAgo: String
+    val createdAt: String = "",
+    val timeAgo: String = ""
 )
 
 @Serializable
 data class NotificationPageDataDto(
-    val unreadCount: Int,
-    val items: List<NotificationItemDto>
+    val unreadCount: Int = 0,
+    val items: List<NotificationItemDto> = emptyList()
 )
 
 @Serializable
 data class NotificationPageApiResponseDto(
-    val success: Boolean,
+    val success: Boolean = false,
     val data: NotificationPageDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
@@ -31,12 +31,12 @@ data class NotificationPageApiResponseDto(
 
 @Serializable
 data class UnreadCountDataDto(
-    val unreadCount: Int
+    val unreadCount: Int = 0
 )
 
 @Serializable
 data class UnreadCountApiResponseDto(
-    val success: Boolean,
+    val success: Boolean = false,
     val data: UnreadCountDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
@@ -44,7 +44,7 @@ data class UnreadCountApiResponseDto(
 
 @Serializable
 data class NotificationActionResponseDto(
-    val success: Boolean,
+    val success: Boolean = false,
     val message: String? = null,
     val errors: List<String>? = null
 )

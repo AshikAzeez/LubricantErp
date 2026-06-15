@@ -109,13 +109,6 @@ internal fun ReportDetailScreen(
         }
 
         state.errorMessage?.let { message ->
-            if (state.selectedReport == ReportItem.TANK_STOCK_SUMMARY) {
-                TankStockSummaryScreen(
-                    state = state.copy(tankStockSummary = state.tankStockSummary ?: mockTankStockSummary()),
-                    modifier = contentModifier
-                )
-                return@Scaffold
-            }
             ErrorPlaceholder(
                 message = message,
                 onRetry = { onAction(ReportDetailAction.Retry) },

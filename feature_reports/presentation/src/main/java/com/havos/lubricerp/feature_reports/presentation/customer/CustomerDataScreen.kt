@@ -419,18 +419,20 @@ private fun CustomerListRow(
                 }
             }
             if (customer.phone.isNotBlank()) {
-                IconButton(
-                    onClick = { if (phoneValid) onCall() },
+                Box(
                     modifier = Modifier
                         .size(36.dp)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.08f), CircleShape)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                         .alpha(if (phoneValid) 1f else 0.35f)
+                        .clickable(onClick = onCall),
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Filled.Call,
                         contentDescription = "Call",
                         tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(20.dp)
                     )
                 }
                 Spacer(modifier = Modifier.width(6.dp))

@@ -111,7 +111,7 @@ class ReportModuleViewModel(
                 isFetchInFlight = false
                 return@launch
             }
-            val filter = DateRangeFilter(fromDate = snapshot.fromDate, toDate = snapshot.toDate)
+            val filter = DateRangeFilter(fromDate = toApiDate(snapshot.fromDate), toDate = toApiDate(snapshot.toDate))
             val salesDeferred   = async { getSalesSummaryUseCase(token, filter) }
             val productDeferred = async { getProductSalesUseCase(token, filter) }
             val profitDeferred  = async { getNetProfitUseCase(token, filter, userRoles) }
@@ -190,7 +190,7 @@ class ReportModuleViewModel(
                 isFetchInFlight = false
                 return@launch
             }
-            val filter = DateRangeFilter(fromDate = snapshot.fromDate, toDate = snapshot.toDate)
+            val filter = DateRangeFilter(fromDate = toApiDate(snapshot.fromDate), toDate = toApiDate(snapshot.toDate))
 
             // All 4 calls run in parallel.
             val salesDeferred   = async { getSalesSummaryUseCase(token, filter) }
@@ -241,10 +241,17 @@ class ReportModuleViewModel(
         }
     }
 
+    private fun toApiDate(displayDate: String): String {
+        return runCatching { apiFmt.format(displayFmt.parse(displayDate)!!) }.getOrElse { displayDate }
+    }
+
     companion object {
         private val UTC = TimeZone.getTimeZone("UTC")
         // SimpleDateFormat is not thread-safe; each ViewModel instance gets its own copy.
         private val displayFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
+            timeZone = UTC
+        }
+        private val apiFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
             timeZone = UTC
         }
 

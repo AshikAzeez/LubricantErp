@@ -26,14 +26,10 @@ internal fun SkuStockReportScreen(
         state = state,
         onAction = onAction,
         primaryMetric = "Total SKU",
-        primaryValue = "128",
+        primaryValue = "0",
         secondaryMetric = "Out of Stock",
-        secondaryValue = "3",
-        rows = listOf(
-            listOf("SKU-1001", "Engine Oil 20W40", "1240"),
-            listOf("SKU-1108", "Hydraulic Oil", "0"),
-            listOf("SKU-2104", "Gear Oil", "455")
-        ),
+        secondaryValue = "0",
+        rows = emptyList(),
         headers = listOf("SKU", "Product", "Stock")
     )
 }

@@ -110,10 +110,10 @@ class ReportDetailViewModel(
             is ReportDetailIntent.TabSelected -> {
                 _state.update { ReportDetailReducer.reduceForTabSelected(it, intent.index) }
                 when (intent.index) {
-                    1 -> if (_state.value.warehouseStockItems.isEmpty()) fetchWarehouseStock()
-                    2 -> if (_state.value.consolidatedStockItems.isEmpty()) fetchConsolidatedStock()
-                    3 -> if (_state.value.lowStockItems.isEmpty()) fetchLowStock()
-                    4 -> if (_state.value.fastMovingItems.isEmpty()) fetchFastMoving()
+                    1 -> if (_state.value.warehouseStockItems.isEmpty()) fetchWarehouseStock(isRefresh = true)
+                    2 -> if (_state.value.consolidatedStockItems.isEmpty()) fetchConsolidatedStock(isRefresh = true)
+                    3 -> if (_state.value.lowStockItems.isEmpty()) fetchLowStock(isRefresh = true)
+                    4 -> if (_state.value.fastMovingItems.isEmpty()) fetchFastMoving(isRefresh = true)
                 }
             }
             is ReportDetailIntent.LowStockThresholdChanged -> {

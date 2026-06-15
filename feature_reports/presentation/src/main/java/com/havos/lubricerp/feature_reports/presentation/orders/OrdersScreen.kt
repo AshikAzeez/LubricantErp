@@ -203,10 +203,12 @@ internal fun OrdersScreen(
                 }
             }
 
-            when (state.selectedTab) {
-                0 -> PendingOrdersTab(state, onAction, currencyFmt)
-                1 -> DispatchedOrdersTab(state, onAction, currencyFmt)
-                2 -> AllInvoicesTab(state, onAction, currencyFmt)
+            Box(modifier = Modifier.weight(1f).fillMaxSize()) {
+                when (state.selectedTab) {
+                    0 -> PendingOrdersTab(state, onAction, currencyFmt)
+                    1 -> DispatchedOrdersTab(state, onAction, currencyFmt)
+                    2 -> AllInvoicesTab(state, onAction, currencyFmt)
+                }
             }
         }
     }

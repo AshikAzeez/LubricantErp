@@ -51,8 +51,8 @@ internal fun TankStockSummaryScreen(
     state: ReportDetailUiState,
     modifier: Modifier = Modifier
 ) {
-    val summary = state.tankStockSummary ?: mockTankStockSummary()
-    val formatter = remember { NumberFormat.getIntegerInstance() }
+    val summary = state.tankStockSummary ?: return
+    val formatter = remember { NumberFormat.getNumberInstance().apply { maximumFractionDigits = 0 } }
     val cardShape = MaterialTheme.shapes.large
     val dottedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
 
@@ -214,12 +214,12 @@ internal fun TankStockSummaryScreen(
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = "${tank.fillPercent}%",
+                                text = "${tank.fillPercent.toInt()}%",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = if (tank.fillPercent == 0) "EMPTY" else "ACTIVE",
+                                text = if (tank.fillPercent <= 0.0) "EMPTY" else "ACTIVE",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -227,7 +227,7 @@ internal fun TankStockSummaryScreen(
                     }
 
                     LinearProgressIndicator(
-                        progress = { (tank.fillPercent.coerceIn(0, 100)) / 100f },
+                        progress = { (tank.fillPercent.toFloat().coerceIn(0f, 100f)) / 100f },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(4.dp),
@@ -244,55 +244,7 @@ internal fun TankStockSummaryScreen(
     }
 }
 
-fun mockTankStockSummary(): TankStockSummary {
-    return TankStockSummary(
-        totalCapacityLiters = 126000,
-        currentStockLiters = 0,
-        availableCapacityLiters = 126000,
-        tanks = listOf(
-            TankInfo(
-                name = "Tank1",
-                code = "TK-01",
-                location = "Main Plant",
-                productGrade = "Unassigned Grade",
-                capacityLiters = 20000,
-                currentStockLiters = 0,
-                availableLiters = 20000,
-                fillPercent = 0
-            ),
-            TankInfo(
-                name = "Tank2",
-                code = "TK-02",
-                location = "Main Plant",
-                productGrade = "Unassigned Grade",
-                capacityLiters = 20000,
-                currentStockLiters = 0,
-                availableLiters = 20000,
-                fillPercent = 0
-            ),
-            TankInfo(
-                name = "Tank3",
-                code = "TK-03",
-                location = "Main Plant",
-                productGrade = "Unassigned Grade",
-                capacityLiters = 68000,
-                currentStockLiters = 0,
-                availableLiters = 68000,
-                fillPercent = 0
-            ),
-            TankInfo(
-                name = "Tank4",
-                code = "TK-04",
-                location = "Main Plant",
-                productGrade = "Unassigned Grade",
-                capacityLiters = 18000,
-                currentStockLiters = 0,
-                availableLiters = 18000,
-                fillPercent = 0
-            )
-        )
-    )
-}
+
 
 @Composable
 private fun TankMetricBlock(
@@ -363,7 +315,7 @@ private fun TankLevelCapsule(tank: TankInfo) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight((tank.fillPercent.coerceIn(0, 100)) / 100f)
+                    .fillMaxHeight((tank.fillPercent.toFloat().coerceIn(0f, 100f)) / 100f)
                     .clip(MaterialTheme.shapes.small)
                     .background(
                         brush = Brush.verticalGradient(

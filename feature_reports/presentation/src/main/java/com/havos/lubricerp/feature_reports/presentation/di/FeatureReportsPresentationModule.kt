@@ -17,7 +17,7 @@ import org.koin.dsl.module
 
 val featureReportsPresentationModule = module {
     viewModel { RootViewModel(get(), get()) }
-    viewModel { LoginViewModel(get(), get(), get(), get(), get()) }
+    viewModel { LoginViewModel(get(), get(), get(), get()) }
     viewModel { HomeViewModel(get(), get(), get(), get()) }
     viewModel { HomeTabViewModel(get(), get(), get(), get(), get()) }
     viewModel { ReportsTabViewModel(get(), get()) }

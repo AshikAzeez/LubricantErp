@@ -8,6 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,6 +54,21 @@ fun GoalErpNavGraph(
     koinInject<ResolvedNetworkConfig>()
     val networkMonitor = koinInject<NetworkMonitor>()
     val isOnline by networkMonitor.isOnline.collectAsStateWithLifecycle(initialValue = true)
+
+    var wasAuthenticated by remember { mutableStateOf<Boolean?>(null) }
+    LaunchedEffect(rootState.isAuthenticated, rootState.isLoading) {
+        if (!rootState.isLoading && wasAuthenticated == true && !rootState.isAuthenticated) {
+            if (navController.currentDestination?.route != AppRoutes.LOGIN) {
+                navController.navigate(AppRoutes.LOGIN) {
+                    popUpTo(0) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+        if (!rootState.isLoading) {
+            wasAuthenticated = rootState.isAuthenticated
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize()) {
         NavHost(

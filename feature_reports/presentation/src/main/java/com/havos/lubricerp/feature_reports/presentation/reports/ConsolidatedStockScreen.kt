@@ -74,14 +74,25 @@ internal fun ConsolidatedStockScreen(
 
     val pagerState = rememberPagerState(pageCount = { pageCount })
 
-    LaunchedEffect(pagerState.currentPage) {
-        if (pagerState.currentPage != state.selectedConsolidatedTab) {
-            onAction(ReportDetailAction.TabSelected(pagerState.currentPage))
+    // Pager -> state: only report a tab change once the pager has settled on a
+    // page (settledPage), not on every intermediate frame of a swipe/animation
+    // (currentPage). Using currentPage here caused a feedback loop with the
+    // effect below, which could leave the tab indicator and pager content out
+    // of sync or flicker back to the previous tab.
+    LaunchedEffect(pagerState.settledPage) {
+        if (pagerState.settledPage != state.selectedConsolidatedTab) {
+            onAction(ReportDetailAction.TabSelected(pagerState.settledPage))
         }
     }
 
+    // State -> pager: when a tab is selected (e.g. via the TabRow), scroll the
+    // pager to match. Skip while the pager is already mid-scroll/animation so
+    // we don't fight an in-flight gesture or animation, and skip if it's
+    // already on the target page.
     LaunchedEffect(state.selectedConsolidatedTab) {
-        if (pagerState.currentPage != state.selectedConsolidatedTab) {
+        if (pagerState.currentPage != state.selectedConsolidatedTab &&
+            !pagerState.isScrollInProgress
+        ) {
             pagerState.animateScrollToPage(state.selectedConsolidatedTab)
         }
     }
@@ -595,7 +606,7 @@ private fun WarehouseStockRow(
     numFmt: java.text.NumberFormat
 ) {
     val isLowStock = item.currentStock <= item.reorderLevel
-    val reorderRatio = (item.currentStock.toFloat() / item.reorderLevel.coerceAtLeast(1).toFloat()).coerceIn(0f, 1f)
+    val reorderRatio = (item.currentStock.toFloat() / item.reorderLevel.coerceAtLeast(1.0).toFloat()).coerceIn(0f, 1f)
     val barColor = if (isLowStock) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
 
     Column(
@@ -750,8 +761,8 @@ private fun ConsolidatedStockRow(
 
 @Composable
 private fun LowStockRow(item: LowStockItem) {
-    val isOutOfStock = item.currentStock == 0
-    val reorderRatio = (item.currentStock.toFloat() / item.reorderLevel.coerceAtLeast(1).toFloat()).coerceIn(0f, 1f)
+    val isOutOfStock = item.currentStock <= 0.0
+    val reorderRatio = (item.currentStock.toFloat() / item.reorderLevel.coerceAtLeast(1.0).toFloat()).coerceIn(0f, 1f)
     val shortagePercent = if (item.reorderLevel > 0) {
         (item.shortageQuantity.toFloat() / item.reorderLevel * 100).toInt()
     } else 0

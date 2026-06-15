@@ -1,7 +1,10 @@
 package com.havos.lubricerp.core.network
 
 import android.content.pm.ApplicationInfo
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.okhttp.OkHttp
@@ -67,7 +70,18 @@ val coreNetworkModule = module {
                         }
                         // Current token matches what was already sent → truly expired,
                         // attempt a server-side refresh.
-                        val newAccess = tp.refreshAndSave() ?: return@refreshTokens null
+                        val newAccess = tp.refreshAndSave()
+                        if (newAccess == null) {
+                            tp.clearSession()
+                            Handler(Looper.getMainLooper()).post {
+                                Toast.makeText(
+                                    androidContext(),
+                                    "Session expired. Please log in again.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+                            return@refreshTokens null
+                        }
                         val newRefresh = tp.getRefreshToken().orEmpty()
                         BearerTokens(newAccess, newRefresh)
                     }

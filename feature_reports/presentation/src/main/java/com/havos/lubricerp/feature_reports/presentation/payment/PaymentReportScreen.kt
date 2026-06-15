@@ -75,6 +75,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.core.ui.components.CollectEffect
 import com.havos.lubricerp.core.ui.components.shimmerBrush
@@ -547,22 +548,47 @@ private fun AccountsSummaryTab(
                 )
             }
             item {
-                val items = kpiItems(summary = summary, currencyFmt = currencyFmt, primary = MaterialTheme.colorScheme.primary, secondary = MaterialTheme.colorScheme.secondary, tertiary = MaterialTheme.colorScheme.tertiary, error = MaterialTheme.colorScheme.error, onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant)
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items.forEach { kpi ->
-                        KpiCard(
-                            label = kpi.label,
-                            value = kpi.value,
-                            icon = kpi.icon,
-                            valueColor = kpi.color,
-                            gradientColors = kpi.gradientColors,
-                            modifier = Modifier.weight(1f)
-                        )
+                val items = kpiItems(
+                    summary = summary,
+                    currencyFmt = currencyFmt,
+                    primary = MaterialTheme.colorScheme.primary,
+                    secondary = MaterialTheme.colorScheme.secondary,
+                    tertiary = MaterialTheme.colorScheme.tertiary,
+                    error = MaterialTheme.colorScheme.error,
+                    onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                // KPI cards in a fixed 2-column grid. FlowRow does not support
+                // Modifier.weight on its children (weight only applies inside
+                // Row/Column), so each card was sizing itself to its own
+                // content and producing inconsistent widths/heights. Chunking
+                // into rows of 2 and giving each card a fixed height fixes
+                // both dimensions consistently across all cards.
+                val kpiCardHeight = 92.dp
+                items.chunked(2).forEach { rowItems ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        rowItems.forEach { kpi ->
+                            KpiCard(
+                                label = kpi.label,
+                                value = kpi.value,
+                                icon = kpi.icon,
+                                valueColor = kpi.color,
+                                gradientColors = kpi.gradientColors ?: emptyList(),
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(kpiCardHeight)
+                            )
+                        }
+                        // If the last row has an odd number of items, add a
+                        // spacer to keep that card at the same width as the
+                        // others (half the row) instead of stretching full width.
+                        if (rowItems.size < 2) {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
                     }
+                    Spacer(modifier = Modifier.height(10.dp))
                 }
             }
         } else {
@@ -990,59 +1016,77 @@ private fun KpiCard(
     label: String,
     value: String,
     icon: ImageVector,
-    valueColor: Color = MaterialTheme.colorScheme.onSurface,
-    gradientColors: List<Color>? = null,
+    valueColor: Color,
+    gradientColors: List<Color>,
     modifier: Modifier = Modifier
 ) {
-    val hasGradient = gradientColors != null
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = if (hasGradient) Color.Transparent else MaterialTheme.colorScheme.surfaceContainer
-        ),
-        shape = RoundedCornerShape(16.dp),
-        border = if (hasGradient) androidx.compose.foundation.BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)) else null
+    Box(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .background(
+                Brush.linearGradient(
+                    // Soften the gradient into a tint instead of a solid fill,
+                    // so it sits subtly behind the theme surface color and
+                    // never overpowers text contrast.
+                    colors = gradientColors.map { it.copy(alpha = 0.16f) }
+                )
+            )
+            .border(
+                width = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(14.dp)
+            )
+            .padding(12.dp)
     ) {
         Column(
-            modifier = Modifier
-                .then(
-                    if (hasGradient) Modifier.background(
-                        Brush.linearGradient(gradientColors!!),
-                        shape = RoundedCornerShape(16.dp)
-                    ) else Modifier
-                )
-                .fillMaxWidth()
-                .padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(if (hasGradient) Color.White.copy(alpha = 0.25f) else valueColor.copy(alpha = 0.15f)),
-                contentAlignment = Alignment.Center
+            // ── Title row: icon badge + label, identifies what this card represents ──
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = if (hasGradient) Color.White else valueColor,
-                    modifier = Modifier.size(18.dp)
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            Brush.linearGradient(colors = gradientColors)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        // White icon reads reliably on top of the saturated
+                        // gradient chip, regardless of theme.
+                        tint = Color.White,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Medium,
+                    // Always read against the surfaceContainer base, not the
+                    // gradient, so contrast is consistent in light/dark theme.
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 14.sp
                 )
             }
+
+            // ── Value: the actual number/amount for this KPI ──
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                color = if (hasGradient) Color.White else valueColor,
+                color = valueColor,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
-            )
-            Text(
-                text = label,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (hasGradient) Color.White.copy(alpha = 0.85f) else MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
             )
         }
     }

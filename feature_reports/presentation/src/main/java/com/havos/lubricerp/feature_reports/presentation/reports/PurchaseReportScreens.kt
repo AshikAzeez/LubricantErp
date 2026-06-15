@@ -18,10 +18,7 @@ internal fun PurchaseSummaryScreen(
         primaryValue = "0.00",
         secondaryMetric = "Suppliers",
         secondaryValue = "0",
-        rows = listOf(
-            listOf("Base Oils Corp", "0.00", "0"),
-            listOf("Packchem Ltd", "0.00", "0")
-        ),
+        rows = emptyList(),
         headers = listOf("Supplier", "Amount", "GRN")
     )
 }
@@ -41,10 +38,7 @@ internal fun GrnSummaryScreen(
         primaryValue = "0",
         secondaryMetric = "Pending QC",
         secondaryValue = "0",
-        rows = listOf(
-            listOf("GRN-1001", "Base Oils Corp", "Closed"),
-            listOf("GRN-1002", "Packchem Ltd", "Pending")
-        ),
+        rows = emptyList(),
         headers = listOf("GRN No", "Supplier", "Status")
     )
 }
@@ -64,10 +58,7 @@ internal fun StateWisePurchaseScreen(
         primaryValue = "0",
         secondaryMetric = "Total Value",
         secondaryValue = "0.00",
-        rows = listOf(
-            listOf("Tamil Nadu", "0.00", "0%"),
-            listOf("Kerala", "0.00", "0%")
-        ),
+        rows = emptyList(),
         headers = listOf("State", "Amount", "Share")
     )
 }
@@ -87,10 +78,7 @@ internal fun DistrictWisePurchaseScreen(
         primaryValue = "0",
         secondaryMetric = "Total Value",
         secondaryValue = "0.00",
-        rows = listOf(
-            listOf("Chennai", "0.00", "0%"),
-            listOf("Madurai", "0.00", "0%")
-        ),
+        rows = emptyList(),
         headers = listOf("District", "Amount", "Share")
     )
 }

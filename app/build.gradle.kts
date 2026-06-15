@@ -47,7 +47,7 @@ android {
             dimension = "environment"
             buildConfigField("boolean", "USE_MOCK_ENGINE", "false")
             buildConfigField("String", "ENVIRONMENT", "\"PRODUCTION\"")
-            buildConfigField("String", "BASE_URL", "\"https://api.goal-erp.com/\"")
+            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
         }
     }
 

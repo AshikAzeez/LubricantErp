@@ -4,21 +4,21 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginRequestDto(
-    val email: String,
-    val password: String
+    val email: String = "",
+    val password: String = ""
 )
 
 @Serializable
 data class LoginResponseDto(
-    val username: String,
-    val token: String,
+    val username: String = "",
+    val token: String = "",
     val refreshToken: String = "",
     val expiry: String? = null
 )
 
 @Serializable
 data class LoginApiResponseDto(
-    val success: Boolean,
+    val success: Boolean = false,
     val data: LoginApiDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
@@ -26,7 +26,7 @@ data class LoginApiResponseDto(
 
 @Serializable
 data class LoginApiDataDto(
-    val token: String,
+    val token: String = "",
     val refreshToken: String = "",
     val expiry: String? = null,
     val user: LoginApiUserDto? = null
@@ -43,12 +43,12 @@ data class LoginApiUserDto(
 
 @Serializable
 data class RefreshTokenRequestDto(
-    val refreshToken: String
+    val refreshToken: String = ""
 )
 
 @Serializable
 data class RefreshTokenApiResponseDto(
-    val success: Boolean,
+    val success: Boolean = false,
     val data: RefreshTokenDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
@@ -56,20 +56,20 @@ data class RefreshTokenApiResponseDto(
 
 @Serializable
 data class RefreshTokenDataDto(
-    val token: String,
+    val token: String = "",
     val refreshToken: String = "",
     val expiry: String? = null
 )
 
 @Serializable
 data class LogoutResponseDto(
-    val success: Boolean,
-    val message: String
+    val success: Boolean = false,
+    val message: String = ""
 )
 
 @Serializable
 data class ProfileApiResponseDto(
-    val success: Boolean,
+    val success: Boolean = false,
     val data: ProfileDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null

@@ -1111,7 +1111,7 @@ private fun PaymentReceivedRow(
     }
 }
 
-// ── Placeholder Report Screens ────────────────────────────────────────────────
+// ── Report Screens ────────────────────────────────────────────────────────────
 
 @Composable
 internal fun ProductWiseSalesScreen(
@@ -1128,10 +1128,7 @@ internal fun ProductWiseSalesScreen(
         primaryValue = "N/A",
         secondaryMetric = "Total Qty",
         secondaryValue = "0",
-        rows = listOf(
-            listOf("Engine Oil", "0", "0.00"),
-            listOf("Gear Oil", "0", "0.00")
-        ),
+        rows = emptyList(),
         headers = listOf("Product", "Qty", "Amount")
     )
 }
@@ -1151,10 +1148,7 @@ internal fun CustomerOutstandingScreen(
         primaryValue = "0.00",
         secondaryMetric = "Customers",
         secondaryValue = "0",
-        rows = listOf(
-            listOf("Apex Lubes", "0.00", "0 Days"),
-            listOf("Metro Traders", "0.00", "0 Days")
-        ),
+        rows = emptyList(),
         headers = listOf("Customer", "Amount", "Age")
     )
 }
@@ -1174,10 +1168,7 @@ internal fun SalesReturnSummaryScreen(
         primaryValue = "0.00",
         secondaryMetric = "Return Cases",
         secondaryValue = "0",
-        rows = listOf(
-            listOf("INV-1001", "Damaged", "0.00"),
-            listOf("INV-1012", "Expiry", "0.00")
-        ),
+        rows = emptyList(),
         headers = listOf("Invoice", "Reason", "Amount")
     )
 }
@@ -1197,10 +1188,7 @@ internal fun SalesmanPerformanceScreen(
         primaryValue = "0%",
         secondaryMetric = "Active Team",
         secondaryValue = "0",
-        rows = listOf(
-            listOf("Anil", "0%", "0.00"),
-            listOf("Rahul", "0%", "0.00")
-        ),
+        rows = emptyList(),
         headers = listOf("Salesman", "Achv%", "Sales")
     )
 }
@@ -1220,10 +1208,7 @@ internal fun StateWiseSalesScreen(
         primaryValue = "0",
         secondaryMetric = "Total Sales",
         secondaryValue = "0.00",
-        rows = listOf(
-            listOf("Tamil Nadu", "0.00", "0%"),
-            listOf("Karnataka", "0.00", "0%")
-        ),
+        rows = emptyList(),
         headers = listOf("State", "Amount", "Share")
     )
 }
@@ -1243,10 +1228,7 @@ internal fun DistrictWiseSalesScreen(
         primaryValue = "0",
         secondaryMetric = "Total Sales",
         secondaryValue = "0.00",
-        rows = listOf(
-            listOf("Chennai", "0.00", "0%"),
-            listOf("Coimbatore", "0.00", "0%")
-        ),
+        rows = emptyList(),
         headers = listOf("District", "Amount", "Share")
     )
 }
