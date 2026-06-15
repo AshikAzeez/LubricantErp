@@ -2,19 +2,16 @@ package com.havos.lubricerp.feature_reports.presentation.settings
 
 import android.content.Intent
 import android.net.Uri
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import android.provider.Settings
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +21,6 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -47,13 +43,10 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Shield
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -62,9 +55,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -72,20 +63,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.core.common.ThemeMode
 import com.havos.lubricerp.core.ui.components.CollectEffect
-import com.havos.lubricerp.core.ui.components.ThemeRevealTransitionBus
-import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -187,7 +173,6 @@ private fun SettingsScreen(
             ThemeMode.DARK to Triple("Dark", "Easy on the eyes at night", Icons.Filled.DarkMode)
         )
     }
-    val optionCenters = remember { mutableStateMapOf<ThemeMode, Offset>() }
 
     Scaffold(
         topBar = {
@@ -213,120 +198,68 @@ private fun SettingsScreen(
             )
         },
         containerColor = MaterialTheme.colorScheme.surface
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .navigationBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            item {
-                StaggeredItem(delayMillis = 0) {
-                    ProfileOverviewCard(profile = state.profile)
-                }
-            }
+        ) { innerPadding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .navigationBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                item { ProfileOverviewCard(profile = state.profile) }
 
-            item {
-                StaggeredItem(delayMillis = 40) {
+                item {
                     SectionHeader(
                         title = "Data & Cache",
                         icon = Icons.Outlined.Storage,
                         modifier = Modifier.padding(top = 24.dp, bottom = 10.dp)
                     )
                 }
-            }
 
-            item {
-                StaggeredItem(delayMillis = 60) {
-                    CacheCard(onClick = { onAction(SettingsAction.ClearCacheClicked) })
-                }
-            }
+                item { CacheCard(onClick = { onAction(SettingsAction.ClearCacheClicked) }) }
 
-            item {
-                StaggeredItem(delayMillis = 80) {
+                item {
                     SectionHeader(
                         title = "Appearance",
                         icon = Icons.Outlined.Palette,
                         modifier = Modifier.padding(top = 24.dp, bottom = 10.dp)
                     )
                 }
-            }
 
-            item {
-                StaggeredItem(delayMillis = 120) {
+                item {
                     ThemeSelectorCard(
                         options = options,
                         selectedMode = state.selectedThemeMode,
-                        optionCenters = optionCenters,
-                        onOptionPositioned = { mode, offset -> optionCenters[mode] = offset },
                         onOptionClick = { mode ->
-                            ThemeRevealTransitionBus.emitOrigin(optionCenters[mode])
                             onAction(SettingsAction.ThemeSelected(mode))
                         }
                     )
                 }
-            }
 
-            item {
-                StaggeredItem(delayMillis = 160) {
+                item {
                     SectionHeader(
                         title = "Account",
                         icon = Icons.Outlined.Shield,
                         modifier = Modifier.padding(top = 24.dp, bottom = 10.dp)
                     )
                 }
-            }
 
-            item {
-                StaggeredItem(delayMillis = 200) {
-                    LogoutCard(onClick = { onAction(SettingsAction.LogoutClicked) })
-                }
-            }
+                item { LogoutCard(onClick = { onAction(SettingsAction.LogoutClicked) }) }
 
-            item {
-                StaggeredItem(delayMillis = 240) {
+                item {
                     SectionHeader(
                         title = "App Info",
                         icon = Icons.Filled.Info,
                         modifier = Modifier.padding(top = 24.dp, bottom = 10.dp)
                     )
                 }
-            }
 
-            item {
-                StaggeredItem(delayMillis = 260) {
-                    AppInfoCard(flavorSuffix = state.flavorDisplaySuffix)
-                }
-            }
+                item { AppInfoCard(flavorSuffix = state.flavorDisplaySuffix) }
 
-            item { Box(modifier = Modifier.height(24.dp)) }
+                item { Box(modifier = Modifier.height(24.dp)) }
+            }
         }
-    }
-}
-
-/**
- * Wraps a settings block with a subtle fade + slide-up entrance, giving the
- * whole screen a smooth, premium "reveal" feel without affecting logic.
- */
-@Composable
-private fun StaggeredItem(
-    delayMillis: Int,
-    content: @Composable () -> Unit
-) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(delayMillis.toLong())
-        visible = true
-    }
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(animationSpec = tween(durationMillis = 350)) +
-                slideInVertically(animationSpec = tween(durationMillis = 350)) { it / 5 }
-    ) {
-        content()
-    }
 }
 
 @Composable
@@ -346,7 +279,14 @@ private fun SectionHeader(
             modifier = Modifier
                 .size(28.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)),
+                .background(
+                    Brush.linearGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                        )
+                    )
+                ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
@@ -427,10 +367,10 @@ private fun ProfileOverviewCard(profile: SettingsProfileUi?) {
     }
 
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(28.dp)),
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shadowElevation = 3.dp,
         border = BorderStroke(
             0.5.dp,
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
@@ -622,14 +562,13 @@ private fun RolePill(text: String) {
 private fun ThemeSelectorCard(
     options: List<Pair<ThemeMode, Triple<String, String, ImageVector>>>,
     selectedMode: ThemeMode,
-    optionCenters: Map<ThemeMode, Offset>,
-    onOptionPositioned: (ThemeMode, Offset) -> Unit,
     onOptionClick: (ThemeMode) -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shadowElevation = 2.dp,
         border = BorderStroke(
             0.5.dp,
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
@@ -639,39 +578,22 @@ private fun ThemeSelectorCard(
             options.forEachIndexed { index, (mode, info) ->
                 val (title, subtitle, icon) = info
                 val selected = selectedMode == mode
-
-                val rowBackground by androidx.compose.animation.animateColorAsState(
-                    targetValue = if (selected) {
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-                    } else {
-                        Color.Transparent
-                    },
-                    animationSpec = tween(250),
-                    label = "themeRowBg"
-                )
-                val iconTint by androidx.compose.animation.animateColorAsState(
-                    targetValue = if (selected) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    },
-                    animationSpec = tween(250),
-                    label = "themeIconTint"
-                )
+                val rowBackground = if (selected) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+                } else {
+                    Color.Transparent
+                }
+                val iconTint = if (selected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                }
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(16.dp))
                         .background(rowBackground)
-                        .onGloballyPositioned { coordinates ->
-                            val topLeft = coordinates.positionInRoot()
-                            val center = Offset(
-                                x = topLeft.x + (coordinates.size.width / 2f),
-                                y = topLeft.y + (coordinates.size.height / 2f)
-                            )
-                            onOptionPositioned(mode, center)
-                        }
                         .clickable { onOptionClick(mode) }
                         .padding(horizontal = 12.dp, vertical = 14.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -683,9 +605,19 @@ private fun ThemeSelectorCard(
                             .clip(RoundedCornerShape(12.dp))
                             .background(
                                 if (selected) {
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                                    Brush.linearGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.22f),
+                                            MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+                                        )
+                                    )
                                 } else {
-                                    MaterialTheme.colorScheme.surfaceContainerHighest
+                                    Brush.linearGradient(
+                                        colors = listOf(
+                                            MaterialTheme.colorScheme.surfaceContainerHighest,
+                                            MaterialTheme.colorScheme.surfaceContainerHighest
+                                        )
+                                    )
                                 }
                             ),
                         contentAlignment = Alignment.Center
@@ -711,11 +643,16 @@ private fun ThemeSelectorCard(
                         )
                     }
 
-                    AnimatedSelectionIndicator(selected = selected)
+                    Icon(
+                        imageVector = if (selected) Icons.Filled.CheckCircle else Icons.Outlined.Circle,
+                        contentDescription = if (selected) "Selected" else null,
+                        tint = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant,
+                        modifier = Modifier.size(24.dp)
+                    )
                 }
 
                 if (index != options.lastIndex) {
-                    androidx.compose.material3.HorizontalDivider(
+                    HorizontalDivider(
                         modifier = Modifier.padding(start = 68.dp, end = 16.dp),
                         thickness = 0.5.dp,
                         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
@@ -727,38 +664,15 @@ private fun ThemeSelectorCard(
 }
 
 @Composable
-private fun AnimatedSelectionIndicator(selected: Boolean) {
-    androidx.compose.animation.Crossfade(
-        targetState = selected,
-        animationSpec = tween(durationMillis = 200),
-        label = "themeCheck"
-    ) { isSelected ->
-        if (isSelected) {
-            Icon(
-                imageVector = Icons.Filled.CheckCircle,
-                contentDescription = "Selected",
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
-            )
-        } else {
-            Icon(
-                imageVector = Icons.Outlined.Circle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.outlineVariant,
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
-}
-
-@Composable
 private fun LogoutCard(onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.35f),
+        shadowElevation = 1.dp,
         border = BorderStroke(
             0.5.dp,
             MaterialTheme.colorScheme.error.copy(alpha = 0.25f)
@@ -814,7 +728,9 @@ private fun CacheCard(onClick: () -> Unit) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .clickable(onClick = onClick),
+        shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shadowElevation = 1.dp,
         border = BorderStroke(
             0.5.dp,
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
@@ -873,18 +789,22 @@ private fun AppInfoCard(flavorSuffix: String = "") {
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
         color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shadowElevation = 1.dp,
         border = BorderStroke(
             0.5.dp,
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
         )
     ) {
         Column {
-            AppDetailRow(
-                icon = Icons.Filled.Info,
-                title = "Version",
-                subtitle = "${packageInfo.versionName}${flavorSuffix} (Build ${packageInfo.longVersionCode})"
-            )
+            if (VERSION.SDK_INT >= VERSION_CODES.P) {
+                AppDetailRow(
+                    icon = Icons.Filled.Info,
+                    title = "Version",
+                    subtitle = "${packageInfo.versionName}${flavorSuffix} (Build ${packageInfo.longVersionCode?: 0})"
+                )
+            }
             HorizontalDivider(
                 modifier = Modifier.padding(start = 72.dp, end = 16.dp),
                 thickness = 0.5.dp,
