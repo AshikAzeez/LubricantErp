@@ -15,3 +15,6 @@
 -dontwarn com.google.api.client.http.**
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn org.joda.time.**
+
+# ─── Core Database Classes (DI managed by Koin) ──────────────────────────────
+-keep class com.havos.lubricerp.core.database.** { *; }

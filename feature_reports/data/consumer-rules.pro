@@ -17,3 +17,10 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 -keep class com.havos.lubricerp.feature_reports.domain.model.** { *; }
+
+# ─── Data Layer (DI managed by Koin) ────────────────────────────────────────
+# Remote APIs, data sources, repositories, mappers, paging sources, DI module
+-keep class com.havos.lubricerp.feature_reports.data.remote.** { *; }
+-keep class com.havos.lubricerp.feature_reports.data.repository.** { *; }
+-keep class com.havos.lubricerp.feature_reports.data.mapper.** { *; }
+-keep class com.havos.lubricerp.feature_reports.data.paging.** { *; }

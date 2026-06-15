@@ -92,6 +92,15 @@
     @androidx.compose.runtime.Immutable *;
 }
 
+# ─── Enums ────────────────────────────────────────────────────────────────────
+# Prevent enum constant renaming. AppEnvironment.from(String) and
+# ThemeMode.from(String) use entries.find { it.name == value } with
+# strings loaded from config JSON and DataStore respectively.
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
 # ─── Kotlin Coroutines ───────────────────────────────────────────────────────
 -keepclassmembernames class kotlinx.** {
     volatile <fields>;
@@ -103,6 +112,13 @@
 # are kept via their respective library module consumer-rules.pro configurations.
 
 
-# Keep all activity/fragment classes
+# Keep all activity/fragment/application classes
 -keep class * extends androidx.activity.ComponentActivity { *; }
 -keep class * extends androidx.fragment.app.Fragment { *; }
+-keep class * extends android.app.Application { *; }
+
+# ─── App DI Module ────────────────────────────────────────────────────────────
+-keep class com.havos.lubricerp.di.** { *; }
+
+# ─── AndroidX Navigation ──────────────────────────────────────────────────────
+-keep class androidx.navigation.** { *; }
