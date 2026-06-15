@@ -2,7 +2,10 @@ package com.havos.lubricerp.feature_reports.domain.repository
 
 import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
+import com.havos.lubricerp.feature_reports.domain.model.CashPosition
 import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
+import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
 import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
@@ -25,11 +28,11 @@ import com.havos.lubricerp.feature_reports.domain.model.SalesOrderDetail
 import com.havos.lubricerp.feature_reports.domain.model.SalesOrderItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
-import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 
 interface ReportsRepository {
-    suspend fun getTankStockSummary(): ResultState<TankStockSummary>
+    suspend fun getTankStockSummary(): ResultState<List<TankStockItem>>
 
     suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItem>>
 
@@ -69,4 +72,9 @@ interface ReportsRepository {
     ): ResultState<List<SalesInvoiceItem>>
 
     suspend fun getSalesInvoiceDetail(token: String, invoiceId: Long): ResultState<SalesInvoiceDetail>
+
+    // ── Dashboard APIs ───────────────────────────────────────────────────────
+    suspend fun getReceivablesAging(token: String): ResultState<ReceivablesAging>
+    suspend fun getPurchaseSummary(token: String): ResultState<PurchaseSummary>
+    suspend fun getCashPosition(token: String): ResultState<CashPosition>
 }

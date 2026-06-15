@@ -42,8 +42,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.havos.lubricerp.feature_reports.domain.model.TankInfo
-import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import java.text.NumberFormat
 
 @Composable
@@ -51,10 +50,14 @@ internal fun TankStockSummaryScreen(
     state: ReportDetailUiState,
     modifier: Modifier = Modifier
 ) {
-    val summary = state.tankStockSummary ?: return
+    val items = state.tankStockItems
+    if (items.isEmpty()) return
     val formatter = remember { NumberFormat.getNumberInstance().apply { maximumFractionDigits = 0 } }
     val cardShape = MaterialTheme.shapes.large
     val dottedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f)
+    val totalCapacity = remember(items) { items.sumOf { it.capacity } }
+    val totalStock = remember(items) { items.sumOf { it.currentStock } }
+    val totalAvailable = remember(items) { items.sumOf { it.availableCapacity } }
 
     LazyColumn(
         modifier = modifier
@@ -95,7 +98,7 @@ internal fun TankStockSummaryScreen(
                     )
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            text = formatter.format(summary.totalCapacityLiters),
+                            text = formatter.format(totalCapacity),
                             style = MaterialTheme.typography.displaySmall,
                             fontWeight = FontWeight.ExtraBold
                         )
@@ -112,11 +115,11 @@ internal fun TankStockSummaryScreen(
                     ) {
                         TankMetricBlock(
                             label = "CURRENT STOCK",
-                            value = "${formatter.format(summary.currentStockLiters)} L"
+                            value = "${formatter.format(totalStock)} L"
                         )
                         TankMetricBlock(
                             label = "AVAILABLE",
-                            value = "${formatter.format(summary.availableCapacityLiters)} L"
+                            value = "${formatter.format(totalAvailable)} L"
                         )
                     }
                 }
@@ -144,7 +147,7 @@ internal fun TankStockSummaryScreen(
                         .padding(horizontal = 10.dp, vertical = 14.dp),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    summary.tanks.forEach { tank ->
+                    items.forEach { tank ->
                         TankLevelCapsule(tank = tank)
                     }
                 }
@@ -158,7 +161,7 @@ internal fun TankStockSummaryScreen(
             )
         }
 
-        items(summary.tanks, key = { it.code }) { tank ->
+        items(items, key = { it.tankCode }) { tank ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
@@ -183,7 +186,7 @@ internal fun TankStockSummaryScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = tank.code,
+                                    text = tank.tankCode,
                                     style = MaterialTheme.typography.labelSmall,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -202,24 +205,24 @@ internal fun TankStockSummaryScreen(
                                 .padding(start = 10.dp)
                         ) {
                             Text(
-                                text = "${tank.location} / Zone A",
+                                text = tank.tankName,
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold
                             )
                             Text(
-                                text = tank.productGrade.ifBlank { "UNASSIGNED GRADE" }.uppercase(),
+                                text = tank.lastGrade.ifBlank { "UNASSIGNED GRADE" }.uppercase(),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = "${tank.fillPercent.toInt()}%",
+                                text = "${tank.utilizationPercent.toInt()}%",
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold
                             )
                             Text(
-                                text = if (tank.fillPercent <= 0.0) "EMPTY" else "ACTIVE",
+                                text = if (tank.utilizationPercent <= 0.0) "EMPTY" else tank.tankType.uppercase(),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -227,7 +230,7 @@ internal fun TankStockSummaryScreen(
                     }
 
                     LinearProgressIndicator(
-                        progress = { (tank.fillPercent.toFloat().coerceIn(0f, 100f)) / 100f },
+                        progress = { (tank.utilizationPercent.toFloat().coerceIn(0f, 100f)) / 100f },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(4.dp),
@@ -296,7 +299,7 @@ private fun SectionTitleWithBadge(
 }
 
 @Composable
-private fun TankLevelCapsule(tank: TankInfo) {
+private fun TankLevelCapsule(tank: TankStockItem) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
             modifier = Modifier
@@ -315,7 +318,7 @@ private fun TankLevelCapsule(tank: TankInfo) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight((tank.fillPercent.toFloat().coerceIn(0f, 100f)) / 100f)
+                    .fillMaxHeight((tank.utilizationPercent.toFloat().coerceIn(0f, 100f)) / 100f)
                     .clip(MaterialTheme.shapes.small)
                     .background(
                         brush = Brush.verticalGradient(
@@ -345,12 +348,12 @@ private fun TankLevelCapsule(tank: TankInfo) {
 
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = tank.code,
+            text = tank.tankCode,
             style = MaterialTheme.typography.labelSmall,
             textAlign = TextAlign.Center
         )
         Text(
-            text = "${tank.fillPercent}%",
+            text = "${tank.utilizationPercent}%",
             style = MaterialTheme.typography.labelSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

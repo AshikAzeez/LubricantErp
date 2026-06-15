@@ -1,21 +1,15 @@
 package com.havos.lubricerp.feature_reports.domain.model
 
-data class TankStockSummary(
-    val totalCapacityLiters: Double,
-    val currentStockLiters: Double,
-    val availableCapacityLiters: Double,
-    val tanks: List<TankInfo>
-)
-
-data class TankInfo(
-    val name: String,
-    val code: String,
-    val location: String,
-    val productGrade: String,
-    val capacityLiters: Double,
-    val currentStockLiters: Double,
-    val availableLiters: Double,
-    val fillPercent: Double
+data class TankStockItem(
+    val tankId: Long,
+    val tankName: String,
+    val tankCode: String,
+    val capacity: Double,
+    val currentStock: Double,
+    val availableCapacity: Double,
+    val utilizationPercent: Double,
+    val lastGrade: String,
+    val tankType: String
 )
 
 data class RawMaterialStockItem(
@@ -388,4 +382,57 @@ data class AccountsSummary(
     val totalOutstandingReceivables: Double,
     val totalOutstandingPayables: Double,
     val netCashFlow: Double
+)
+
+// ── Dashboard: Receivables Aging ─────────────────────────────────────────
+
+data class ReceivablesAging(
+    val agingBuckets: List<AgingBucket>,
+    val dsoDays: Double,
+    val totalOutstanding: Double,
+    val overduePercentage: Double
+)
+
+data class AgingBucket(
+    val label: String,
+    val amount: Double,
+    val invoiceCount: Int,
+    val isOverdue: Boolean
+)
+
+// ── Dashboard: Purchase Summary ──────────────────────────────────────────
+
+data class PurchaseSummary(
+    val openPOCount: Int,
+    val openPOValue: Double,
+    val poDueThisWeek: Int,
+    val poDueThisWeekValue: Double,
+    val pendingApprovals: Int,
+    val recentPurchaseOrders: List<RecentPurchaseOrder>
+)
+
+data class RecentPurchaseOrder(
+    val id: Long,
+    val poNumber: String,
+    val vendorName: String,
+    val amount: Double,
+    val status: String,
+    val expectedDate: String
+)
+
+// ── Dashboard: Cash Position ─────────────────────────────────────────────
+
+data class CashPosition(
+    val currentBalance: Double,
+    val todayInflow: Double,
+    val todayOutflow: Double,
+    val todayNetCash: Double,
+    val projected7DayBalance: Double,
+    val bankAccounts: List<BankAccountBalance>
+)
+
+data class BankAccountBalance(
+    val accountName: String,
+    val accountNumber: String,
+    val balance: Double
 )

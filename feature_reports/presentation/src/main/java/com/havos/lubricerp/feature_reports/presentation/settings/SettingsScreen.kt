@@ -1,5 +1,9 @@
 package com.havos.lubricerp.feature_reports.presentation.settings
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -31,7 +35,9 @@ import androidx.compose.material.icons.filled.Badge
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhoneAndroid
@@ -39,10 +45,12 @@ import androidx.compose.material.icons.outlined.Circle
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Shield
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItemDefaults
@@ -70,6 +78,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -85,12 +94,16 @@ fun SettingsRoute(
     onNavigateLogin: () -> Unit = {},
     viewModel: SettingsViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
     val state = viewModel.state.collectAsStateWithLifecycle().value
     var showLogoutConfirmation by rememberSaveable { mutableStateOf(false) }
 
     CollectEffect(effects = viewModel.effect) { effect ->
         when (effect) {
             SettingsEffect.NavigateToLogin -> onNavigateLogin()
+            SettingsEffect.CacheCleared -> {
+                Toast.makeText(context, "Cached data cleared successfully", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -103,6 +116,15 @@ fun SettingsRoute(
                 }
                 is SettingsAction.LogoutClicked -> {
                     showLogoutConfirmation = true
+                }
+                SettingsAction.ClearCacheClicked -> {
+                    viewModel.onIntent(SettingsIntent.ClearCacheClicked)
+                }
+                SettingsAction.DismissCacheDialog -> {
+                    viewModel.onIntent(SettingsIntent.DismissCacheDialog)
+                }
+                SettingsAction.ConfirmClearCache -> {
+                    viewModel.onIntent(SettingsIntent.ConfirmClearCache)
                 }
             }
         },
@@ -126,6 +148,24 @@ fun SettingsRoute(
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutConfirmation = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (state.showClearCacheDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onIntent(SettingsIntent.DismissCacheDialog) },
+            title = { Text("Clear Cache") },
+            text = { Text("Remove locally stored profile and temporary data? Your session will not be affected.") },
+            confirmButton = {
+                TextButton(onClick = { viewModel.onIntent(SettingsIntent.ConfirmClearCache) }) {
+                    Text("Clear")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onIntent(SettingsIntent.DismissCacheDialog) }) {
                     Text("Cancel")
                 }
             }
@@ -189,6 +229,22 @@ private fun SettingsScreen(
             }
 
             item {
+                StaggeredItem(delayMillis = 40) {
+                    SectionHeader(
+                        title = "Data & Cache",
+                        icon = Icons.Outlined.Storage,
+                        modifier = Modifier.padding(top = 24.dp, bottom = 10.dp)
+                    )
+                }
+            }
+
+            item {
+                StaggeredItem(delayMillis = 60) {
+                    CacheCard(onClick = { onAction(SettingsAction.ClearCacheClicked) })
+                }
+            }
+
+            item {
                 StaggeredItem(delayMillis = 80) {
                     SectionHeader(
                         title = "Appearance",
@@ -226,6 +282,22 @@ private fun SettingsScreen(
             item {
                 StaggeredItem(delayMillis = 200) {
                     LogoutCard(onClick = { onAction(SettingsAction.LogoutClicked) })
+                }
+            }
+
+            item {
+                StaggeredItem(delayMillis = 240) {
+                    SectionHeader(
+                        title = "App Info",
+                        icon = Icons.Filled.Info,
+                        modifier = Modifier.padding(top = 24.dp, bottom = 10.dp)
+                    )
+                }
+            }
+
+            item {
+                StaggeredItem(delayMillis = 260) {
+                    AppInfoCard(flavorSuffix = state.flavorDisplaySuffix)
                 }
             }
 
@@ -730,6 +802,163 @@ private fun LogoutCard(onClick: () -> Unit) {
                 imageVector = Icons.Outlined.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CacheCard(onClick: () -> Unit) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Delete,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Clear Cached Data",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = "Remove locally stored profile and temporary data",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppInfoCard(flavorSuffix: String = "") {
+    val context = LocalContext.current
+    val packageInfo = remember {
+        context.packageManager.getPackageInfo(context.packageName, 0)
+    }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp)),
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        border = BorderStroke(
+            0.5.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+        )
+    ) {
+        Column {
+            AppDetailRow(
+                icon = Icons.Filled.Info,
+                title = "Version",
+                subtitle = "${packageInfo.versionName}${flavorSuffix} (Build ${packageInfo.longVersionCode})"
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(start = 72.dp, end = 16.dp),
+                thickness = 0.5.dp,
+                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+            )
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(20.dp))
+                    .clickable {
+                        context.startActivity(
+                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                data = Uri.fromParts("package", context.packageName, null)
+                            }
+                        )
+                    },
+                color = Color.Transparent
+            ) {
+                AppDetailRow(
+                    icon = Icons.Filled.Badge,
+                    title = "Open Source Licenses",
+                    subtitle = "View third-party library licenses",
+                    showChevron = true
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppDetailRow(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    showChevron: Boolean = false
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (showChevron) {
+            Icon(
+                imageVector = Icons.Outlined.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
             )
         }
     }

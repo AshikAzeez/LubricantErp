@@ -261,6 +261,7 @@ private fun PendingOrdersTab(
                 SalesOrderCard(
                     order = order,
                     currencyFmt = currencyFmt,
+                    isLoading = state.loadingOrderId == order.id,
                     onClick = { onAction(OrdersAction.OrderClicked(order.id)) }
                 )
             }
@@ -304,6 +305,7 @@ private fun DispatchedOrdersTab(
                 SalesOrderCard(
                     order = order,
                     currencyFmt = currencyFmt,
+                    isLoading = state.loadingOrderId == order.id,
                     onClick = { onAction(OrdersAction.OrderClicked(order.id)) }
                 )
             }
@@ -379,6 +381,7 @@ private fun AllInvoicesTab(
                 SalesInvoiceCard(
                     invoice = invoice,
                     currencyFmt = currencyFmt,
+                    isLoading = state.loadingInvoiceId == invoice.id,
                     onClick = { onAction(OrdersAction.InvoiceClicked(invoice.id)) }
                 )
             }
@@ -392,6 +395,7 @@ private fun AllInvoicesTab(
 private fun SalesOrderCard(
     order: SalesOrderItem,
     currencyFmt: NumberFormat,
+    isLoading: Boolean = false,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -410,6 +414,7 @@ private fun SalesOrderCard(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
+                enabled = !isLoading,
                 onClick = onClick
             ),
         shape = RoundedCornerShape(16.dp),
@@ -421,125 +426,142 @@ private fun SalesOrderCard(
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
         )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(
-                    text = order.soNumber,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                StatusChip(status = order.status)
-            }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = order.soNumber,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    StatusChip(status = order.status)
+                }
 
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = order.customerName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.CurrencyRupee,
+                        imageVector = Icons.Default.Person,
                         contentDescription = null,
                         modifier = Modifier.size(14.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.width(4.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "\u20B9${currencyFmt.format(order.totalAmount)}",
+                        text = order.customerName,
                         style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
-                if (order.deliveredPercentage > 0) {
-                    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = "${order.deliveredPercentage.toInt()}% Delivered",
-                            style = MaterialTheme.typography.labelSmall,
-                            fontWeight = FontWeight.Bold,
-                            color = if (order.deliveredPercentage >= 100) Color(0xFF4CAF50)
-                                    else MaterialTheme.colorScheme.secondary
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CurrencyRupee,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Box(
-                            modifier = Modifier
-                                .width(70.dp)
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                        ) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "\u20B9${currencyFmt.format(order.totalAmount)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                    if (order.deliveredPercentage > 0) {
+                        Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text(
+                                text = "${order.deliveredPercentage.toInt()}% Delivered",
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                color = if (order.deliveredPercentage >= 100) Color(0xFF4CAF50)
+                                        else MaterialTheme.colorScheme.secondary
+                            )
                             Box(
                                 modifier = Modifier
-                                    .fillMaxWidth(order.deliveredPercentage.toFloat() / 100f)
-                                    .fillMaxHeight()
+                                    .width(70.dp)
+                                    .height(4.dp)
                                     .clip(RoundedCornerShape(2.dp))
-                                    .background(
-                                        if (order.deliveredPercentage >= 100) Color(0xFF4CAF50)
-                                        else MaterialTheme.colorScheme.primary
-                                    )
-                            )
+                                    .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth(order.deliveredPercentage.toFloat() / 100f)
+                                        .fillMaxHeight()
+                                        .clip(RoundedCornerShape(2.dp))
+                                        .background(
+                                            if (order.deliveredPercentage >= 100) Color(0xFF4CAF50)
+                                            else MaterialTheme.colorScheme.primary
+                                        )
+                                )
+                            }
                         }
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = Icons.Default.CalendarToday,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "Expected: ${order.expectedDeliveryDate}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "${order.lineCount} line(s)",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.CalendarToday,
-                        contentDescription = null,
-                        modifier = Modifier.size(12.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "Expected: ${order.expectedDeliveryDate}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+            if (isLoading) {
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "${order.lineCount} line(s)",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
                     )
                 }
             }
@@ -604,6 +626,7 @@ private fun StatusChip(status: String) {
 private fun SalesInvoiceCard(
     invoice: SalesInvoiceItem,
     currencyFmt: NumberFormat,
+    isLoading: Boolean = false,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -622,6 +645,7 @@ private fun SalesInvoiceCard(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
+                enabled = !isLoading,
                 onClick = onClick
             ),
         shape = RoundedCornerShape(16.dp),
@@ -633,96 +657,113 @@ private fun SalesInvoiceCard(
             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
         )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                Text(
-                    text = invoice.invoiceNumber,
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                PaymentStatusChip(status = invoice.paymentStatus, isOverdue = invoice.isOverdue)
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = invoice.customerName,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-
-            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = "Total: \u20B9${currencyFmt.format(invoice.totalAmount)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
-                    )
-                    if (invoice.paidAmount > 0) {
-                        Text(
-                            text = "Paid: \u20B9${currencyFmt.format(invoice.paidAmount)}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color(0xFF4CAF50),
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                }
-                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = "Balance: \u20B9${currencyFmt.format(invoice.balanceAmount)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (invoice.balanceAmount > 0) MaterialTheme.colorScheme.error
-                                else Color(0xFF4CAF50)
-                    )
-                    if (invoice.dueDate.isNotBlank()) {
-                        Text(
-                            text = "Due: ${invoice.dueDate}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            if (invoice.dnNumber != null) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(4.dp))
-                        .background(MaterialTheme.colorScheme.surfaceContainerHighest)
-                        .padding(horizontal = 6.dp, vertical = 2.dp)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "DN: ${invoice.dnNumber}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Bold
+                        text = invoice.invoiceNumber,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    PaymentStatusChip(status = invoice.paymentStatus, isOverdue = invoice.isOverdue)
+                }
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = null,
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = invoice.customerName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            text = "Total: \u20B9${currencyFmt.format(invoice.totalAmount)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                        if (invoice.paidAmount > 0) {
+                            Text(
+                                text = "Paid: \u20B9${currencyFmt.format(invoice.paidAmount)}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF4CAF50),
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Text(
+                            text = "Balance: \u20B9${currencyFmt.format(invoice.balanceAmount)}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = if (invoice.balanceAmount > 0) MaterialTheme.colorScheme.error
+                                    else Color(0xFF4CAF50)
+                        )
+                        if (invoice.dueDate.isNotBlank()) {
+                            Text(
+                                text = "Due: ${invoice.dueDate}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                if (invoice.dnNumber != null) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "DN: ${invoice.dnNumber}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+            }
+
+            if (isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        strokeWidth = 2.dp
                     )
                 }
             }

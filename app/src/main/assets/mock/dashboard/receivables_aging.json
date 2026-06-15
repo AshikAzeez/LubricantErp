@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "agingBuckets": [
+      { "label": "0-30 Days", "amount": 420000.0, "invoiceCount": 28, "isOverdue": false },
+      { "label": "31-60 Days", "amount": 285000.0, "invoiceCount": 15, "isOverdue": false },
+      { "label": "61-90 Days", "amount": 162000.0, "invoiceCount": 8, "isOverdue": true },
+      { "label": "90+ Days", "amount": 120500.0, "invoiceCount": 5, "isOverdue": true }
+    ],
+    "dsoDays": 38.5,
+    "totalOutstanding": 987500.0,
+    "overduePercentage": 28.6
+  },
+  "message": null,
+  "errors": null
+}

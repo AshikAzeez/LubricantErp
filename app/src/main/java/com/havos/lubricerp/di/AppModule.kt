@@ -1,6 +1,7 @@
 package com.havos.lubricerp.di
 
 import com.havos.lubricerp.BuildConfig
+import com.havos.lubricerp.core.common.AppFlavor
 import com.havos.lubricerp.core.database.coreDatabaseModule
 import com.havos.lubricerp.core.network.AppEnvironment
 import com.havos.lubricerp.core.network.ResolvedNetworkConfig
@@ -19,6 +20,13 @@ val appModule: List<Module> = listOf(
                 useMockEngine = BuildConfig.USE_MOCK_ENGINE,
                 baseUrl = BuildConfig.BASE_URL
             )
+        }
+        single<AppFlavor> {
+            when (BuildConfig.FLAVOR.lowercase()) {
+                "demo" -> AppFlavor.DEMO
+                "stage" -> AppFlavor.STAGE
+                else -> AppFlavor.PRODUCTION
+            }
         }
     },
     coreNetworkModule,

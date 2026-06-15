@@ -3,7 +3,12 @@ package com.havos.lubricerp.feature_reports.presentation.home
 import com.havos.lubricerp.core.common.UiIntent
 import androidx.compose.runtime.Stable
 import com.havos.lubricerp.core.common.UiState
+import com.havos.lubricerp.feature_reports.domain.model.AgingBucket
+import com.havos.lubricerp.feature_reports.domain.model.BankAccountBalance
+import com.havos.lubricerp.feature_reports.domain.model.CashPosition
+import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
 import com.havos.lubricerp.feature_reports.domain.model.RecentInvoice
+import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
 
 enum class NetProfitPeriod(val label: String) {
     THIS_MONTH("This Month"),
@@ -44,7 +49,14 @@ data class HomeTabUiState(
     val netProfitCustomTo: String = "",
     val lowStockAlertCount: Int = 0,
     val topSellingProducts: List<String> = emptyList(),
-    val recentInvoices: List<RecentInvoice> = emptyList()
+    val recentInvoices: List<RecentInvoice> = emptyList(),
+    // ── New dashboard data ───────────────────────────────────────────────────
+    val receivablesAging: ReceivablesAging? = null,
+    val isReceivablesAgingLoading: Boolean = false,
+    val purchaseSummary: PurchaseSummary? = null,
+    val isPurchaseSummaryLoading: Boolean = false,
+    val cashPosition: CashPosition? = null,
+    val isCashPositionLoading: Boolean = false
 ) : UiState
 
 sealed interface HomeTabEffect

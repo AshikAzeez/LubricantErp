@@ -5,7 +5,10 @@ import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
 import com.havos.lubricerp.feature_reports.data.mapper.toDomain
 import com.havos.lubricerp.feature_reports.data.remote.reports.ReportsRemoteDataSource
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
+import com.havos.lubricerp.feature_reports.domain.model.CashPosition
 import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
+import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
 import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
@@ -28,7 +31,7 @@ import com.havos.lubricerp.feature_reports.domain.model.SalesOrderDetail
 import com.havos.lubricerp.feature_reports.domain.model.SalesOrderItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
-import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
 
@@ -36,9 +39,9 @@ class ReportsRepositoryImpl(
     private val reportsRemoteDataSource: ReportsRemoteDataSource
 ) : ReportsRepository {
 
-    override suspend fun getTankStockSummary(): ResultState<TankStockSummary> {
+    override suspend fun getTankStockSummary(): ResultState<List<TankStockItem>> {
         return when (val result = reportsRemoteDataSource.getTankStockSummary()) {
-            is ResultState.Success -> ResultState.Success(result.data.toDomain())
+            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }
@@ -219,6 +222,33 @@ class ReportsRepositoryImpl(
 
     override suspend fun getSalesInvoiceDetail(token: String, invoiceId: Long): ResultState<SalesInvoiceDetail> {
         return when (val result = reportsRemoteDataSource.getSalesInvoiceDetail(token, invoiceId)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    // ── Dashboard: Receivables Aging ─────────────────────────────────────────
+    override suspend fun getReceivablesAging(token: String): ResultState<ReceivablesAging> {
+        return when (val result = reportsRemoteDataSource.getReceivablesAging(token)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    // ── Dashboard: Purchase Summary ──────────────────────────────────────────
+    override suspend fun getPurchaseSummary(token: String): ResultState<PurchaseSummary> {
+        return when (val result = reportsRemoteDataSource.getPurchaseSummary(token)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    // ── Dashboard: Cash Position ─────────────────────────────────────────────
+    override suspend fun getCashPosition(token: String): ResultState<CashPosition> {
+        return when (val result = reportsRemoteDataSource.getCashPosition(token)) {
             is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading

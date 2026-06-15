@@ -3,23 +3,24 @@ package com.havos.lubricerp.feature_reports.data.dto
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TankStockSummaryDto(
-    val totalCapacityLiters: Double = 0.0,
-    val currentStockLiters: Double = 0.0,
-    val availableCapacityLiters: Double = 0.0,
-    val tanks: List<TankInfoDto> = emptyList()
+data class TankStockItemDto(
+    val tankId: Long = 0L,
+    val tankName: String = "",
+    val tankCode: String = "",
+    val capacity: Double = 0.0,
+    val currentStock: Double = 0.0,
+    val availableCapacity: Double = 0.0,
+    val utilizationPercent: Double = 0.0,
+    val lastGrade: String = "",
+    val tankType: String = ""
 )
 
 @Serializable
-data class TankInfoDto(
-    val name: String = "",
-    val code: String = "",
-    val location: String = "",
-    val productGrade: String = "",
-    val capacityLiters: Double = 0.0,
-    val currentStockLiters: Double = 0.0,
-    val availableLiters: Double = 0.0,
-    val fillPercent: Double = 0.0
+data class TankStockListApiResponseDto(
+    val success: Boolean = false,
+    val data: List<TankStockItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
 )
 
 @Serializable
@@ -583,4 +584,87 @@ data class SalesInvoiceDetailApiResponseDto(
     val data: SalesInvoiceDetailDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
+)
+
+// ── Dashboard: Receivables Aging ─────────────────────────────────────────
+
+@Serializable
+data class ReceivablesAgingApiResponseDto(
+    val success: Boolean = false,
+    val data: ReceivablesAgingDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class ReceivablesAgingDto(
+    val agingBuckets: List<AgingBucketDto> = emptyList(),
+    val dsoDays: Double = 0.0,
+    val totalOutstanding: Double = 0.0,
+    val overduePercentage: Double = 0.0
+)
+
+@Serializable
+data class AgingBucketDto(
+    val label: String = "",
+    val amount: Double = 0.0,
+    val invoiceCount: Int = 0,
+    val isOverdue: Boolean = false
+)
+
+// ── Dashboard: Purchase Summary ──────────────────────────────────────────
+
+@Serializable
+data class PurchaseSummaryApiResponseDto(
+    val success: Boolean = false,
+    val data: PurchaseSummaryDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class PurchaseSummaryDto(
+    val openPOCount: Int = 0,
+    val openPOValue: Double = 0.0,
+    val poDueThisWeek: Int = 0,
+    val poDueThisWeekValue: Double = 0.0,
+    val pendingApprovals: Int = 0,
+    val recentPurchaseOrders: List<RecentPurchaseOrderDto> = emptyList()
+)
+
+@Serializable
+data class RecentPurchaseOrderDto(
+    val id: Long = 0L,
+    val poNumber: String = "",
+    val vendorName: String = "",
+    val amount: Double = 0.0,
+    val status: String = "",
+    val expectedDate: String = ""
+)
+
+// ── Dashboard: Cash Position ─────────────────────────────────────────────
+
+@Serializable
+data class CashPositionApiResponseDto(
+    val success: Boolean = false,
+    val data: CashPositionDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class CashPositionDto(
+    val currentBalance: Double = 0.0,
+    val todayInflow: Double = 0.0,
+    val todayOutflow: Double = 0.0,
+    val todayNetCash: Double = 0.0,
+    val projected7DayBalance: Double = 0.0,
+    val bankAccounts: List<BankAccountBalanceDto> = emptyList()
+)
+
+@Serializable
+data class BankAccountBalanceDto(
+    val accountName: String = "",
+    val accountNumber: String = "",
+    val balance: Double = 0.0
 )

@@ -34,6 +34,8 @@ data class OrdersUiState(
     val selectedInvoiceDetail: SalesInvoiceDetail? = null,
     val showOrderDetail: Boolean = false,
     val showInvoiceDetail: Boolean = false,
+    val loadingOrderId: Long? = null,
+    val loadingInvoiceId: Long? = null,
     val invoiceFromDate: String = "",
     val invoiceToDate: String = "",
     val invoiceFilterStatus: String? = null

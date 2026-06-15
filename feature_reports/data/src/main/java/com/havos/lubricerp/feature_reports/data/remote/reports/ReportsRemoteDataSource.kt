@@ -2,7 +2,10 @@ package com.havos.lubricerp.feature_reports.data.remote.reports
 
 import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.CashPositionDto
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.PurchaseSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerMobileSummaryDto
@@ -24,11 +27,11 @@ import com.havos.lubricerp.feature_reports.data.dto.SalesOrderDetailDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderItemDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
-import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.TankStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 
 interface ReportsRemoteDataSource {
-    suspend fun getTankStockSummary(): ResultState<TankStockSummaryDto>
+    suspend fun getTankStockSummary(): ResultState<List<TankStockItemDto>>
     suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItemDto>>
     suspend fun getPackagingLossGain(fromDate: String, toDate: String): ResultState<PackagingLossGainReportDto>
     suspend fun getDashboard(token: String): ResultState<DashboardDto>
@@ -65,4 +68,9 @@ interface ReportsRemoteDataSource {
     ): ResultState<List<SalesInvoiceItemDto>>
 
     suspend fun getSalesInvoiceDetail(token: String, invoiceId: Long): ResultState<SalesInvoiceDetailDto>
+
+    // ── Dashboard APIs ───────────────────────────────────────────────────────
+    suspend fun getReceivablesAging(token: String): ResultState<ReceivablesAgingDto>
+    suspend fun getPurchaseSummary(token: String): ResultState<PurchaseSummaryDto>
+    suspend fun getCashPosition(token: String): ResultState<CashPositionDto>
 }

@@ -1,6 +1,9 @@
 package com.havos.lubricerp.feature_reports.presentation.home
 
+import com.havos.lubricerp.feature_reports.domain.model.CashPosition
 import com.havos.lubricerp.feature_reports.domain.model.DashboardSummary
+import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
+import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
 
 object HomeTabReducer {
     fun reduceForProfileLoading(state: HomeTabUiState, isLoading: Boolean): HomeTabUiState {
@@ -56,5 +59,43 @@ object HomeTabReducer {
             isOffline = isOffline,
             retryPending = isOffline
         )
+    }
+
+    // ── New dashboard reducers ───────────────────────────────────────────────
+
+    fun reduceForReceivablesAgingLoading(state: HomeTabUiState): HomeTabUiState {
+        return state.copy(isReceivablesAgingLoading = true)
+    }
+
+    fun reduceForReceivablesAgingSuccess(state: HomeTabUiState, data: ReceivablesAging): HomeTabUiState {
+        return state.copy(receivablesAging = data, isReceivablesAgingLoading = false)
+    }
+
+    fun reduceForReceivablesAgingError(state: HomeTabUiState): HomeTabUiState {
+        return state.copy(isReceivablesAgingLoading = false)
+    }
+
+    fun reduceForPurchaseSummaryLoading(state: HomeTabUiState): HomeTabUiState {
+        return state.copy(isPurchaseSummaryLoading = true)
+    }
+
+    fun reduceForPurchaseSummarySuccess(state: HomeTabUiState, data: PurchaseSummary): HomeTabUiState {
+        return state.copy(purchaseSummary = data, isPurchaseSummaryLoading = false)
+    }
+
+    fun reduceForPurchaseSummaryError(state: HomeTabUiState): HomeTabUiState {
+        return state.copy(isPurchaseSummaryLoading = false)
+    }
+
+    fun reduceForCashPositionLoading(state: HomeTabUiState): HomeTabUiState {
+        return state.copy(isCashPositionLoading = true)
+    }
+
+    fun reduceForCashPositionSuccess(state: HomeTabUiState, data: CashPosition): HomeTabUiState {
+        return state.copy(cashPosition = data, isCashPositionLoading = false)
+    }
+
+    fun reduceForCashPositionError(state: HomeTabUiState): HomeTabUiState {
+        return state.copy(isCashPositionLoading = false)
     }
 }

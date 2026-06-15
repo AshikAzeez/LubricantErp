@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "data": {
+    "currentBalance": 1842000.0,
+    "todayInflow": 125400.0,
+    "todayOutflow": 87300.0,
+    "todayNetCash": 38100.0,
+    "projected7DayBalance": 1650000.0,
+    "bankAccounts": [
+      {
+        "accountName": "Main Current Account",
+        "accountNumber": "XXXX-1234",
+        "balance": 1240000.0
+      },
+      {
+        "accountName": "Collection Account",
+        "accountNumber": "XXXX-5678",
+        "balance": 482000.0
+      },
+      {
+        "accountName": "Payroll Account",
+        "accountNumber": "XXXX-9012",
+        "balance": 120000.0
+      }
+    ]
+  },
+  "message": null,
+  "errors": null
+}

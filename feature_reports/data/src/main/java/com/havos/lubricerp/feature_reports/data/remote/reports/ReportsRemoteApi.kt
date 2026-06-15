@@ -4,6 +4,12 @@ import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.core.network.safeApiCall
 import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.CashPositionApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.CashPositionDto
+import com.havos.lubricerp.feature_reports.data.dto.PurchaseSummaryApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.PurchaseSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingDto
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
@@ -45,7 +51,8 @@ import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
-import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.TankStockListApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.TankStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import io.ktor.client.HttpClient
@@ -61,14 +68,18 @@ class ReportsRemoteApi(
     private val client: HttpClient
 ) : ReportsRemoteDataSource {
 
-    override suspend fun getTankStockSummary(): ResultState<TankStockSummaryDto> {
+    override suspend fun getTankStockSummary(): ResultState<List<TankStockItemDto>> {
         return when (
-            val result = safeApiCall<TankStockSummaryDto> {
-                client.get("reports/tank-stock-summary")
+            val result = safeApiCall<TankStockListApiResponseDto> {
+                client.get("api/reports/tank-stock")
             }
         ) {
-            is ResultState.Success -> ResultState.Success(result.data)
-            is ResultState.Error -> ResultState.Error("Unable to fetch tank summary")
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch tank stock")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch tank stock")
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -76,7 +87,7 @@ class ReportsRemoteApi(
     override suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItemDto>> {
         return when (
             val result = safeApiCall<List<RawMaterialStockItemDto>> {
-                client.get("reports/raw-material-stock")
+                client.get("api/reports/raw-material-stock")
             }
         ) {
             is ResultState.Success -> ResultState.Success(result.data)
@@ -91,7 +102,7 @@ class ReportsRemoteApi(
     ): ResultState<PackagingLossGainReportDto> {
         return when (
             val result = safeApiCall<PackagingLossGainReportDto> {
-                client.get("reports/packaging-loss-gain") {
+                client.get("api/reports/packaging-loss-gain") {
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
                 }
@@ -531,6 +542,63 @@ class ReportsRemoteApi(
                 else ResultState.Success(payload.data)
             }
             is ResultState.Error -> ResultState.Error("Unable to fetch invoice detail.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    // ── Dashboard: Receivables Aging ─────────────────────────────────────────
+    override suspend fun getReceivablesAging(token: String): ResultState<ReceivablesAgingDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<ReceivablesAgingApiResponseDto> {
+            client.get("api/dashboard/receivables-aging") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch receivables aging")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch receivables aging.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    // ── Dashboard: Purchase Summary ──────────────────────────────────────────
+    override suspend fun getPurchaseSummary(token: String): ResultState<PurchaseSummaryDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<PurchaseSummaryApiResponseDto> {
+            client.get("api/dashboard/purchase-summary") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch purchase summary")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch purchase summary.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    // ── Dashboard: Cash Position ─────────────────────────────────────────────
+    override suspend fun getCashPosition(token: String): ResultState<CashPositionDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<CashPositionApiResponseDto> {
+            client.get("api/dashboard/cash-position") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch cash position")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch cash position.")
             ResultState.Loading -> ResultState.Loading
         }
     }

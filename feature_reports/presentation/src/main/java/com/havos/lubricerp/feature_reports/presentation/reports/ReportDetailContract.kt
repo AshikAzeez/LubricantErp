@@ -11,7 +11,7 @@ import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
 import com.havos.lubricerp.feature_reports.domain.model.FastMovingItem
 import com.havos.lubricerp.feature_reports.domain.model.LowStockItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
-import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 
 sealed interface ReportDetailIntent : UiIntent {
@@ -44,7 +44,7 @@ data class ReportDetailUiState(
     val searchQuery: String = "",
     val daysThreshold: String = "30 days",
     val groupBy: String = "Daily",
-    val tankStockSummary: TankStockSummary? = null,
+    val tankStockItems: List<TankStockItem> = emptyList(),
     val rawMaterialItems: List<RawMaterialStockItem> = emptyList(),
     val packagingLossGainReport: PackagingLossGainReport? = null,
     val salesSummaryItems: List<SalesSummaryItem> = emptyList(),

@@ -35,22 +35,27 @@ class MockAssetResponseProvider(
             respondAsset(this, "mock/auth/profile_success.json")
 
         // ── Dashboard ────────────────────────────────────────────────────────
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/dashboard/receivables-aging") ->
+            respondAsset(this, "mock/dashboard/receivables_aging.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/dashboard/purchase-summary") ->
+            respondAsset(this, "mock/dashboard/purchase_summary.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/dashboard/cash-position") ->
+            respondAsset(this, "mock/dashboard/cash_position.json")
+
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/dashboard") ->
             respondAsset(this, "mock/dashboard/dashboard.json")
 
-        // ── Legacy reports (no api/ prefix) ──────────────────────────────────
-        request.method == HttpMethod.Get && normalizedPath(request).contains("reports/tank-stock-summary") ->
-            respondAsset(this, "mock/reports/tank_stock_summary.json")
-
-        request.method == HttpMethod.Get && normalizedPath(request).contains("reports/raw-material-stock") ->
-            respondAsset(this, "mock/reports/raw_material_stock.json")
-
-        request.method == HttpMethod.Get && normalizedPath(request).contains("reports/packaging-loss-gain") ->
-            respondAsset(this, "mock/reports/packaging_loss_gain.json")
-
         // ── Reports (api/ prefix) ─────────────────────────────────────────────
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/tank-stock") ->
-            respondAsset(this, "mock/reports/stock_overview_tanks.json")
+            respondAsset(this, "mock/reports/tank_stock_summary.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/raw-material-stock") ->
+            respondAsset(this, "mock/reports/raw_material_stock.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/packaging-loss-gain") ->
+            respondAsset(this, "mock/reports/packaging_loss_gain.json")
 
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/warehouse-stock") ->
             respondAsset(this, "mock/reports/warehouse_stock.json")

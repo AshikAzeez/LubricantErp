@@ -96,7 +96,7 @@ class OrdersViewModel(
             is OrdersIntent.OrderClicked -> loadOrderDetail(intent.orderId)
             is OrdersIntent.InvoiceClicked -> loadInvoiceDetail(intent.invoiceId)
             OrdersIntent.DismissDetail -> _state.update {
-                it.copy(showOrderDetail = false, showInvoiceDetail = false, selectedOrderDetail = null, selectedInvoiceDetail = null)
+                it.copy(showOrderDetail = false, showInvoiceDetail = false, selectedOrderDetail = null, selectedInvoiceDetail = null, loadingOrderId = null, loadingInvoiceId = null)
             }
             is OrdersIntent.FromDateChanged -> _state.update { it.copy(invoiceFromDate = intent.value) }
             is OrdersIntent.ToDateChanged -> _state.update { it.copy(invoiceToDate = intent.value) }
@@ -107,10 +107,12 @@ class OrdersViewModel(
     private fun loadOrderDetail(orderId: Long) {
         val token = getToken()
         viewModelScope.launch {
-            _state.update { it.copy(showOrderDetail = true) }
+            _state.update { it.copy(loadingOrderId = orderId) }
             when (val result = getSalesOrderDetailUseCase(token, orderId)) {
-                is ResultState.Success -> _state.update { it.copy(selectedOrderDetail = result.data) }
-                is ResultState.Error -> _state.update { it.copy(showOrderDetail = false) }
+                is ResultState.Success -> _state.update {
+                    it.copy(loadingOrderId = null, showOrderDetail = true, selectedOrderDetail = result.data)
+                }
+                is ResultState.Error -> _state.update { it.copy(loadingOrderId = null) }
                 ResultState.Loading -> {}
             }
         }
@@ -119,10 +121,12 @@ class OrdersViewModel(
     private fun loadInvoiceDetail(invoiceId: Long) {
         val token = getToken()
         viewModelScope.launch {
-            _state.update { it.copy(showInvoiceDetail = true) }
+            _state.update { it.copy(loadingInvoiceId = invoiceId) }
             when (val result = getSalesInvoiceDetailUseCase(token, invoiceId)) {
-                is ResultState.Success -> _state.update { it.copy(selectedInvoiceDetail = result.data) }
-                is ResultState.Error -> _state.update { it.copy(showInvoiceDetail = false) }
+                is ResultState.Success -> _state.update {
+                    it.copy(loadingInvoiceId = null, showInvoiceDetail = true, selectedInvoiceDetail = result.data)
+                }
+                is ResultState.Error -> _state.update { it.copy(loadingInvoiceId = null) }
                 ResultState.Loading -> {}
             }
         }

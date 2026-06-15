@@ -7,7 +7,7 @@ import com.havos.lubricerp.feature_reports.domain.model.PackagingLossGainReport
 import com.havos.lubricerp.feature_reports.domain.model.PaymentReceivedItem
 import com.havos.lubricerp.feature_reports.domain.model.RawMaterialStockItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
-import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 
 object ReportDetailReducer {
@@ -15,8 +15,8 @@ object ReportDetailReducer {
         return state.copy(selectedReport = report, isLoading = true, errorMessage = null)
     }
 
-    fun reduceForTankSuccess(state: ReportDetailUiState, data: TankStockSummary): ReportDetailUiState {
-        return state.copy(isLoading = false, tankStockSummary = data, errorMessage = null)
+    fun reduceForTankSuccess(state: ReportDetailUiState, data: List<TankStockItem>): ReportDetailUiState {
+        return state.copy(isLoading = false, tankStockItems = data, errorMessage = null)
     }
 
     fun reduceForRawMaterialSuccess(

@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "data": {
+    "openPOCount": 12,
+    "openPOValue": 584000.0,
+    "poDueThisWeek": 3,
+    "poDueThisWeekValue": 142000.0,
+    "pendingApprovals": 2,
+    "recentPurchaseOrders": [
+      {
+        "id": 201,
+        "poNumber": "PO202605001",
+        "vendorName": "Gulf Base Oils LLC",
+        "amount": 185000.0,
+        "status": "Confirmed",
+        "expectedDate": "2026-05-20"
+      },
+      {
+        "id": 202,
+        "poNumber": "PO202605002",
+        "vendorName": "Dubai Additives Co.",
+        "amount": 96000.0,
+        "status": "Pending",
+        "expectedDate": "2026-05-25"
+      },
+      {
+        "id": 203,
+        "poNumber": "PO202604015",
+        "vendorName": "Abu Dhabi Packaging",
+        "amount": 42500.0,
+        "status": "Confirmed",
+        "expectedDate": "2026-05-18"
+      }
+    ]
+  },
+  "message": null,
+  "errors": null
+}

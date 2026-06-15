@@ -7,8 +7,11 @@ import com.havos.lubricerp.core.common.isOffline
 import com.havos.lubricerp.core.network.NetworkMonitor
 import com.havos.lubricerp.feature_reports.domain.model.DateRangeFilter
 import com.havos.lubricerp.feature_reports.domain.usecase.EnsureProfileLoadedUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.GetCashPositionUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetDashboardUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetNetProfitUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.GetPurchaseSummaryUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.GetReceivablesAgingUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
 import kotlinx.coroutines.async
 import java.time.LocalDate
@@ -28,6 +31,9 @@ class HomeTabViewModel(
     private val ensureProfileLoadedUseCase: EnsureProfileLoadedUseCase,
     private val getDashboardUseCase: GetDashboardUseCase,
     private val getNetProfitUseCase: GetNetProfitUseCase,
+    private val getReceivablesAgingUseCase: GetReceivablesAgingUseCase,
+    private val getPurchaseSummaryUseCase: GetPurchaseSummaryUseCase,
+    private val getCashPositionUseCase: GetCashPositionUseCase,
     private val networkMonitor: NetworkMonitor
 ) : ViewModel() {
 
@@ -134,6 +140,9 @@ class HomeTabViewModel(
             val filter = periodFilter(_state.value)
             val dashboardDeferred = async { getDashboardUseCase(token) }
             val netProfitDeferred = async { getNetProfitUseCase(token, filter, userRoles) }
+            val receivablesAgingDeferred = async { getReceivablesAgingUseCase(token) }
+            val purchaseSummaryDeferred = async { getPurchaseSummaryUseCase(token) }
+            val cashPositionDeferred = async { getCashPositionUseCase(token) }
             when (val result = dashboardDeferred.await()) {
                 is ResultState.Success -> _state.update {
                     HomeTabReducer.reduceForDashboardSuccess(it, result.data).copy(isRefreshing = false)
@@ -149,6 +158,24 @@ class HomeTabViewModel(
                 }
                 else -> Unit
             }
+            when (val result = receivablesAgingDeferred.await()) {
+                is ResultState.Success -> _state.update {
+                    HomeTabReducer.reduceForReceivablesAgingSuccess(it, result.data)
+                }
+                else -> Unit
+            }
+            when (val result = purchaseSummaryDeferred.await()) {
+                is ResultState.Success -> _state.update {
+                    HomeTabReducer.reduceForPurchaseSummarySuccess(it, result.data)
+                }
+                else -> Unit
+            }
+            when (val result = cashPositionDeferred.await()) {
+                is ResultState.Success -> _state.update {
+                    HomeTabReducer.reduceForCashPositionSuccess(it, result.data)
+                }
+                else -> Unit
+            }
             isDashboardInFlight = false
         }
     }
@@ -161,6 +188,9 @@ class HomeTabViewModel(
             val filter = periodFilter(_state.value)
             val dashboardDeferred = async { getDashboardUseCase(token) }
             val netProfitDeferred = async { getNetProfitUseCase(token, filter, userRoles) }
+            val receivablesAgingDeferred = async { getReceivablesAgingUseCase(token) }
+            val purchaseSummaryDeferred = async { getPurchaseSummaryUseCase(token) }
+            val cashPositionDeferred = async { getCashPositionUseCase(token) }
             when (val result = dashboardDeferred.await()) {
                 is ResultState.Success -> _state.update {
                     HomeTabReducer.reduceForDashboardSuccess(it, result.data)
@@ -173,6 +203,24 @@ class HomeTabViewModel(
             when (val result = netProfitDeferred.await()) {
                 is ResultState.Success -> _state.update {
                     HomeTabReducer.reduceForNetProfit(it, result.data.netProfit)
+                }
+                else -> Unit
+            }
+            when (val result = receivablesAgingDeferred.await()) {
+                is ResultState.Success -> _state.update {
+                    HomeTabReducer.reduceForReceivablesAgingSuccess(it, result.data)
+                }
+                else -> Unit
+            }
+            when (val result = purchaseSummaryDeferred.await()) {
+                is ResultState.Success -> _state.update {
+                    HomeTabReducer.reduceForPurchaseSummarySuccess(it, result.data)
+                }
+                else -> Unit
+            }
+            when (val result = cashPositionDeferred.await()) {
+                is ResultState.Success -> _state.update {
+                    HomeTabReducer.reduceForCashPositionSuccess(it, result.data)
                 }
                 else -> Unit
             }

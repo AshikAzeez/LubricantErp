@@ -28,8 +28,7 @@ import com.havos.lubricerp.feature_reports.data.dto.SalesOrderItemDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderLineDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
-import com.havos.lubricerp.feature_reports.data.dto.TankInfoDto
-import com.havos.lubricerp.feature_reports.data.dto.TankStockSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.TankStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import com.havos.lubricerp.feature_reports.domain.model.AuthSession
 import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
@@ -58,16 +57,27 @@ import com.havos.lubricerp.feature_reports.domain.model.SalesOrderItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesOrderLine
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
-import com.havos.lubricerp.feature_reports.domain.model.TankInfo
-import com.havos.lubricerp.feature_reports.domain.model.TankStockSummary
+import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.UserProfile
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
-import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
-import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
-import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
-import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
+import com.havos.lubricerp.feature_reports.data.dto.AgingBucketDto
+import com.havos.lubricerp.feature_reports.data.dto.BankAccountBalanceDto
+import com.havos.lubricerp.feature_reports.data.dto.CashPositionDto
+import com.havos.lubricerp.feature_reports.data.dto.PurchaseSummaryDto
+import com.havos.lubricerp.feature_reports.data.dto.RecentPurchaseOrderDto
+import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
+import com.havos.lubricerp.feature_reports.domain.model.AgingBucket
+import com.havos.lubricerp.feature_reports.domain.model.BankAccountBalance
+import com.havos.lubricerp.feature_reports.domain.model.CashPosition
+import com.havos.lubricerp.feature_reports.domain.model.PaymentPendingCustomer
+import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
+import com.havos.lubricerp.feature_reports.domain.model.RecentPurchaseOrder
+import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
+import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
 
 fun LoginResponseDto.toDomain(): AuthSession = AuthSession(
     username = username,
@@ -83,22 +93,16 @@ fun ProfileDataDto.toDomain(): UserProfile = UserProfile(
     roles = roles
 )
 
-fun TankStockSummaryDto.toDomain(): TankStockSummary = TankStockSummary(
-    totalCapacityLiters = totalCapacityLiters,
-    currentStockLiters = currentStockLiters,
-    availableCapacityLiters = availableCapacityLiters,
-    tanks = tanks.map(TankInfoDto::toDomain)
-)
-
-fun TankInfoDto.toDomain(): TankInfo = TankInfo(
-    name = name,
-    code = code,
-    location = location,
-    productGrade = productGrade,
-    capacityLiters = capacityLiters,
-    currentStockLiters = currentStockLiters,
-    availableLiters = availableLiters,
-    fillPercent = fillPercent
+fun TankStockItemDto.toDomain(): TankStockItem = TankStockItem(
+    tankId = tankId,
+    tankName = tankName,
+    tankCode = tankCode,
+    capacity = capacity,
+    currentStock = currentStock,
+    availableCapacity = availableCapacity,
+    utilizationPercent = utilizationPercent,
+    lastGrade = lastGrade,
+    tankType = tankType
 )
 
 fun RawMaterialStockItemDto.toDomain(): RawMaterialStockItem = RawMaterialStockItem(
@@ -467,4 +471,53 @@ fun PaymentReceiptDto.toDomain(): PaymentReceipt = PaymentReceipt(
     amount = amount,
     paymentMode = paymentMode,
     reference = reference
+)
+
+// ── Dashboard Mappers ────────────────────────────────────────────────────
+
+fun ReceivablesAgingDto.toDomain(): ReceivablesAging = ReceivablesAging(
+    agingBuckets = agingBuckets.map { it.toDomain() },
+    dsoDays = dsoDays,
+    totalOutstanding = totalOutstanding,
+    overduePercentage = overduePercentage
+)
+
+fun AgingBucketDto.toDomain(): AgingBucket = AgingBucket(
+    label = label,
+    amount = amount,
+    invoiceCount = invoiceCount,
+    isOverdue = isOverdue
+)
+
+fun PurchaseSummaryDto.toDomain(): PurchaseSummary = PurchaseSummary(
+    openPOCount = openPOCount,
+    openPOValue = openPOValue,
+    poDueThisWeek = poDueThisWeek,
+    poDueThisWeekValue = poDueThisWeekValue,
+    pendingApprovals = pendingApprovals,
+    recentPurchaseOrders = recentPurchaseOrders.map { it.toDomain() }
+)
+
+fun RecentPurchaseOrderDto.toDomain(): RecentPurchaseOrder = RecentPurchaseOrder(
+    id = id,
+    poNumber = poNumber,
+    vendorName = vendorName,
+    amount = amount,
+    status = status,
+    expectedDate = expectedDate
+)
+
+fun CashPositionDto.toDomain(): CashPosition = CashPosition(
+    currentBalance = currentBalance,
+    todayInflow = todayInflow,
+    todayOutflow = todayOutflow,
+    todayNetCash = todayNetCash,
+    projected7DayBalance = projected7DayBalance,
+    bankAccounts = bankAccounts.map { it.toDomain() }
+)
+
+fun BankAccountBalanceDto.toDomain(): BankAccountBalance = BankAccountBalance(
+    accountName = accountName,
+    accountNumber = accountNumber,
+    balance = balance
 )
