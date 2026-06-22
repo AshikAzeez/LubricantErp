@@ -1,8 +1,6 @@
 package com.havos.lubricerp.feature_reports.data.remote.auth
 
 import com.havos.lubricerp.core.common.ResultState
-import com.havos.lubricerp.core.network.AppEnvironment
-import com.havos.lubricerp.core.network.ResolvedNetworkConfig
 import com.havos.lubricerp.core.network.safeApiCall
 import com.havos.lubricerp.feature_reports.data.dto.LoginApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.LoginRequestDto
@@ -21,13 +19,11 @@ import io.ktor.http.HttpHeaders
 import io.ktor.utils.io.errors.IOException
 
 class AuthRemoteApi(
-    private val client: HttpClient,
-    private val networkConfig: ResolvedNetworkConfig
+    private val client: HttpClient
 ) : AuthRemoteDataSource {
 
     override suspend fun login(request: LoginRequestDto): ResultState<LoginResponseDto> {
-        val effectiveRequest = resolveLoginRequest(request)
-        if (effectiveRequest.email.isBlank() || effectiveRequest.password.isBlank()) {
+        if (request.email.isBlank() || request.password.isBlank()) {
             return ResultState.Error("Email and password are required")
         }
 
@@ -36,7 +32,7 @@ class AuthRemoteApi(
                 client.post("api/auth/login") {
                     headers.append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
                     headers.append(HttpHeaders.Accept, ContentType.Application.Json.toString())
-                    setBody(effectiveRequest)
+                    setBody(request)
                 }
             }
         ) {
@@ -52,7 +48,7 @@ class AuthRemoteApi(
                 } else {
                     val displayName = data?.user?.fullName?.takeIf { it.isNotBlank() }
                         ?: data?.user?.email?.takeIf { it.isNotBlank() }
-                        ?: effectiveRequest.email
+                        ?: request.email
                     ResultState.Success(
                         LoginResponseDto(
                             username = displayName,
@@ -66,17 +62,6 @@ class AuthRemoteApi(
 
             is ResultState.Error -> ResultState.Error(resolveLoginError(result))
             ResultState.Loading -> ResultState.Loading
-        }
-    }
-
-    private fun resolveLoginRequest(request: LoginRequestDto): LoginRequestDto {
-        return when (networkConfig.environment) {
-            AppEnvironment.TEST,
-            AppEnvironment.STAGE -> LoginRequestDto(
-                email = "admin@baseoils.com",
-                password = "Admin@123"
-            )
-            AppEnvironment.PRODUCTION -> request
         }
     }
 
