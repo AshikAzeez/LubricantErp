@@ -44,6 +44,8 @@ fun CustomerDataRoute(
                     viewModel.onIntent(CustomerDataIntent.LoadLedger)
                 CustomerDataAction.LoadMobileSummary ->
                     viewModel.onIntent(CustomerDataIntent.LoadMobileSummary)
+                CustomerDataAction.LoadMoreLedger ->
+                    viewModel.onIntent(CustomerDataIntent.LoadMoreLedger)
                 is CustomerDataAction.LedgerDatePreset ->
                     viewModel.onIntent(CustomerDataIntent.LedgerDatePreset(action.label, action.fromDate, action.toDate))
                 CustomerDataAction.Retry ->

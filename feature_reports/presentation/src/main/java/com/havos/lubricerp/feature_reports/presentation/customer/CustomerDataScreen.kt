@@ -802,6 +802,24 @@ private fun CustomerDetailSheet(
             ) { entry ->
                 LedgerEntryRow(entry = entry, currencyFmt = currencyFmt)
             }
+
+            if (state.ledgerHasMore) {
+                item(key = "load_more_ledger") {
+                    LaunchedEffect(state.ledgerEntries.size) {
+                        onAction(CustomerDataAction.LoadMoreLedger)
+                    }
+                    if (state.isLedgerLoadingMore) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp))
+                        }
+                    }
+                }
+            }
         }
 
         item { Spacer(modifier = Modifier.height(40.dp)) }

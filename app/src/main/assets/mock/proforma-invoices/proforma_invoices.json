@@ -1,0 +1,111 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "proformaNumber": "PI2026060001",
+        "date": "2026-06-10T10:30:00",
+        "validUntilDate": "2026-07-10T00:00:00",
+        "customerName": "AMH AGENCIES",
+        "customerCode": "CUST0002",
+        "status": "Sent",
+        "totalAmount": 295.0,
+        "lineCount": 2,
+        "soNumber": null,
+        "salesOrderId": null,
+        "isInterState": false
+      },
+      {
+        "id": 2,
+        "proformaNumber": "PI2026060002",
+        "date": "2026-06-15T14:20:00",
+        "validUntilDate": "2026-07-15T00:00:00",
+        "customerName": "BAHRAIN LUBRICANTS",
+        "customerCode": "CUST0015",
+        "status": "Draft",
+        "totalAmount": 1540.50,
+        "lineCount": 4,
+        "soNumber": null,
+        "salesOrderId": null,
+        "isInterState": true
+      },
+      {
+        "id": 3,
+        "proformaNumber": "PI2026060003",
+        "date": "2026-06-18T09:00:00",
+        "validUntilDate": "2026-07-18T00:00:00",
+        "customerName": "AL MAJID TRADING",
+        "customerCode": "CUST0022",
+        "status": "Converted",
+        "totalAmount": 845.0,
+        "lineCount": 1,
+        "soNumber": "SO2026060088",
+        "salesOrderId": 421,
+        "isInterState": false
+      },
+      {
+        "id": 4,
+        "proformaNumber": "PI2026060004",
+        "date": "2026-05-19T11:45:00",
+        "validUntilDate": "2026-06-19T00:00:00",
+        "customerName": "CHEVRON ENERGY",
+        "customerCode": "CUST0009",
+        "status": "Expired",
+        "totalAmount": 3200.0,
+        "lineCount": 6,
+        "soNumber": null,
+        "salesOrderId": null,
+        "isInterState": true
+      },
+      {
+        "id": 5,
+        "proformaNumber": "PI2026060005",
+        "date": "2026-06-20T16:00:00",
+        "validUntilDate": "2026-07-20T00:00:00",
+        "customerName": "DOHA PETROLEUM CO",
+        "customerCode": "CUST0034",
+        "status": "Sent",
+        "totalAmount": 120.0,
+        "lineCount": 1,
+        "soNumber": null,
+        "salesOrderId": null,
+        "isInterState": false
+      },
+      {
+        "id": 6,
+        "proformaNumber": "PI2026060006",
+        "date": "2026-06-22T08:15:00",
+        "validUntilDate": "2026-07-22T00:00:00",
+        "customerName": "AMH AGENCIES",
+        "customerCode": "CUST0002",
+        "status": "Converted",
+        "totalAmount": 750.0,
+        "lineCount": 3,
+        "soNumber": "SO2026060102",
+        "salesOrderId": 425,
+        "isInterState": false
+      },
+      {
+        "id": 7,
+        "proformaNumber": "PI2026060007",
+        "date": "2026-06-21T10:00:00",
+        "validUntilDate": "2026-07-21T00:00:00",
+        "customerName": "BAHRAIN LUBRICANTS",
+        "customerCode": "CUST0015",
+        "status": "Cancelled",
+        "totalAmount": 450.0,
+        "lineCount": 2,
+        "soNumber": null,
+        "salesOrderId": null,
+        "isInterState": false
+      }
+    ],
+    "totalCount": 7,
+    "skip": 0,
+    "take": 200,
+    "hasMore": false
+  },
+  "message": null,
+  "errors": null
+}

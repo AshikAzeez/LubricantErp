@@ -8,48 +8,48 @@ import org.junit.Test
 class HomeReducerTest {
 
     @Test
-    fun reduceForUser_updatesUsername() {
+    fun reduceForUser_updatesGreetingName() {
         // Given
-        val initialState = HomeUiState(username = "")
-        val newUsername = "John Doe"
+        val initialState = HomeUiState(greetingName = "")
+        val newGreetingName = "John Doe"
 
         // When
-        val result = HomeReducer.reduceForUser(initialState, newUsername)
+        val result = HomeReducer.reduceForUser(initialState, newGreetingName)
 
         // Then
-        assertEquals(newUsername, result.username)
+        assertEquals(newGreetingName, result.greetingName)
     }
 
     @Test
     fun reduceForUser_preservesOtherState() {
         // Given
         val initialState = HomeUiState(
-            username = "Old Name",
+            greetingName = "Old Name",
             cards = emptyList(),
             selectedMenu = ReportMenu.TANK_REPORTS
         )
-        val newUsername = "John Doe"
+        val newGreetingName = "John Doe"
 
         // When
-        val result = HomeReducer.reduceForUser(initialState, newUsername)
+        val result = HomeReducer.reduceForUser(initialState, newGreetingName)
 
         // Then
-        assertEquals(newUsername, result.username)
+        assertEquals(newGreetingName, result.greetingName)
         assertEquals(initialState.cards, result.cards)
         assertEquals(initialState.selectedMenu, result.selectedMenu)
     }
 
     @Test
-    fun reduceForUser_withEmptyUsername_updatesUsername() {
+    fun reduceForUser_withEmptyGreetingName_updatesGreetingName() {
         // Given
-        val initialState = HomeUiState(username = "Old Name")
-        val newUsername = ""
+        val initialState = HomeUiState(greetingName = "Old Name")
+        val newGreetingName = ""
 
         // When
-        val result = HomeReducer.reduceForUser(initialState, newUsername)
+        val result = HomeReducer.reduceForUser(initialState, newGreetingName)
 
         // Then
-        assertEquals("", result.username)
+        assertEquals("", result.greetingName)
     }
 
     @Test
@@ -81,7 +81,7 @@ class HomeReducerTest {
     fun reduceForMenuSelection_preservesOtherState() {
         // Given
         val initialState = HomeUiState(
-            username = "John Doe",
+            greetingName = "John Doe",
             cards = emptyList(),
             selectedMenu = null
         )
@@ -91,7 +91,7 @@ class HomeReducerTest {
         val result = HomeReducer.reduceForMenuSelection(initialState, menu)
 
         // Then
-        assertEquals(initialState.username, result.username)
+        assertEquals(initialState.greetingName, result.greetingName)
         assertEquals(initialState.cards, result.cards)
         assertEquals(menu, result.selectedMenu)
     }

@@ -28,6 +28,7 @@ import com.havos.lubricerp.feature_reports.domain.model.SalesOrderDetail
 import com.havos.lubricerp.feature_reports.domain.model.SalesOrderItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
+import com.havos.lubricerp.core.common.PagedResult
 import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
@@ -35,7 +36,7 @@ import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
 class GetTankStockSummaryUseCase(
     private val repository: ReportsRepository
 ) {
-    suspend operator fun invoke(): ResultState<List<TankStockItem>> = repository.getTankStockSummary()
+    suspend operator fun invoke(token: String): ResultState<List<TankStockItem>> = repository.getTankStockSummary(token)
 }
 
 class GetRawMaterialStockUseCase(
@@ -71,8 +72,13 @@ class GetSalesSummaryUseCase(
 class GetPaymentsReceivedUseCase(
     private val repository: ReportsRepository
 ) {
-    suspend operator fun invoke(token: String, filter: DateRangeFilter): ResultState<List<PaymentReceivedItem>> {
-        return repository.getPaymentsReceived(token, filter)
+    suspend operator fun invoke(
+        token: String,
+        filter: DateRangeFilter,
+        skip: Int = 0,
+        take: Int = 20
+    ): ResultState<PagedResult<PaymentReceivedItem>> {
+        return repository.getPaymentsReceived(token, filter, skip, take)
     }
 }
 
@@ -95,8 +101,15 @@ class GetCustomersUseCase(
 class GetCustomerLedgerUseCase(
     private val repository: ReportsRepository
 ) {
-    suspend operator fun invoke(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntry>> {
-        return repository.getCustomerLedger(token, customerId, fromDate, toDate)
+    suspend operator fun invoke(
+        token: String,
+        customerId: Long,
+        fromDate: String?,
+        toDate: String?,
+        skip: Int = 0,
+        take: Int = 200
+    ): ResultState<PagedResult<CustomerLedgerEntry>> {
+        return repository.getCustomerLedger(token, customerId, fromDate, toDate, skip, take)
     }
 }
 
@@ -185,8 +198,12 @@ class RecordPaymentUseCase(
 class GetPaymentsPendingUseCase(
     private val repository: ReportsRepository
 ) {
-    suspend operator fun invoke(token: String): ResultState<List<PaymentPendingCustomer>> {
-        return repository.getPaymentsPending(token)
+    suspend operator fun invoke(
+        token: String,
+        skip: Int = 0,
+        take: Int = 20
+    ): ResultState<PagedResult<PaymentPendingCustomer>> {
+        return repository.getPaymentsPending(token, skip, take)
     }
 }
 
@@ -258,5 +275,83 @@ class GetCashPositionUseCase(
 ) {
     suspend operator fun invoke(token: String): ResultState<CashPosition> {
         return repository.getCashPosition(token)
+    }
+}
+
+class GetProformaInvoicesUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        status: String? = null
+    ): ResultState<List<com.havos.lubricerp.feature_reports.domain.model.ProformaInvoice>> {
+        return repository.getProformaInvoices(token, status)
+    }
+}
+
+class GetProformaInvoiceDetailUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        id: Long
+    ): ResultState<com.havos.lubricerp.feature_reports.domain.model.ProformaInvoiceDetail> {
+        return repository.getProformaInvoiceDetail(token, id)
+    }
+}
+
+class CreateProformaInvoiceUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest
+    ): ResultState<com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceResponse> {
+        return repository.createProformaInvoice(token, request)
+    }
+}
+
+class GetProductSkusUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        gradeId: Int? = null
+    ): ResultState<List<com.havos.lubricerp.feature_reports.domain.model.ProductSku>> {
+        return repository.getProductSkus(token, gradeId)
+    }
+}
+
+class UpdateProformaInvoiceUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest
+    ): ResultState<Unit> {
+        return repository.updateProformaInvoice(token, id, request)
+    }
+}
+
+class SendProformaInvoiceUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        id: Long
+    ): ResultState<Unit> {
+        return repository.sendProformaInvoice(token, id)
+    }
+}
+
+class CancelProformaInvoiceUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        id: Long
+    ): ResultState<Unit> {
+        return repository.cancelProformaInvoice(token, id)
     }
 }

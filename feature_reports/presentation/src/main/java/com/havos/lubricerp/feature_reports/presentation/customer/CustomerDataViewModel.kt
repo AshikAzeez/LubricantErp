@@ -36,22 +36,10 @@ class CustomerDataViewModel(
     private val _state = MutableStateFlow(CustomerDataUiState())
     val state: StateFlow<CustomerDataUiState> = _state.asStateFlow()
 
-    // ---------------------------------------------------------------------------------
-    // Cache — scoped to this ViewModel instance (= CustomerDataScreen on the back stack).
-    // Destroyed automatically when the user navigates away from the screen.
-    //
-    // Set CACHE_ENABLED = false to bypass all cache reads and writes for debugging.
-    // MOBILE_SUMMARY_CACHE_MAX / LEDGER_CACHE_MAX cap total entries via LRU eviction.
-    // ---------------------------------------------------------------------------------
-    private val mobileSummaryCache = lruCache<Long, CustomerMobileSummary>(MOBILE_SUMMARY_CACHE_MAX)
-
-    // Ledger responses are date-range specific: key must include (customerId + fromDate + toDate)
-    // to avoid serving data for date-range A when the user later requests date-range B.
-    private data class LedgerCacheKey(val customerId: Long, val fromDate: String, val toDate: String)
-    private val ledgerCache = lruCache<LedgerCacheKey, List<CustomerLedgerEntry>>(LEDGER_CACHE_MAX)
-
     // Duplicate-call guard: set while loadCustomers() is in-flight.
     private var isLoadingCustomers = false
+    private var ledgerSkip: Int = 0
+    private var ledgerHasMore: Boolean = true
 
     init {
         onIntent(CustomerDataIntent.Load)
@@ -90,6 +78,9 @@ class CustomerDataViewModel(
             }
             CustomerDataIntent.LoadMobileSummary -> {
                 _state.value.selectedCustomer?.let { loadMobileSummary(it.id) }
+            }
+            CustomerDataIntent.LoadMoreLedger -> {
+                _state.value.selectedCustomer?.let { loadMoreLedger(it) }
             }
             is CustomerDataIntent.LedgerDatePreset -> {
                 _state.update { it.copy(ledgerFromDate = intent.fromDate, ledgerToDate = intent.toDate) }
@@ -220,26 +211,19 @@ class CustomerDataViewModel(
     }
 
     private fun selectCustomer(customer: Customer) {
-        // On initial open the date fields are blank — that is the key for the auto-load entry.
-        val snapshot = _state.value
-        val ledgerKey = LedgerCacheKey(
-            customerId = customer.id,
-            fromDate   = snapshot.ledgerFromDate,
-            toDate     = snapshot.ledgerToDate
-        )
-        val cachedSummary = if (CACHE_ENABLED) mobileSummaryCache[customer.id] else null
-        val cachedLedger  = if (CACHE_ENABLED) ledgerCache[ledgerKey]           else null
+        ledgerSkip = 0
+        ledgerHasMore = true
         _state.update {
             it.copy(
                 selectedCustomer       = customer,
-                mobileSummary          = cachedSummary,
-                ledgerEntries          = cachedLedger ?: emptyList(),
-                isMobileSummaryLoading = cachedSummary == null,
-                isLedgerLoading        = cachedLedger  == null
+                ledgerEntries          = emptyList(),
+                ledgerHasMore          = true,
+                isMobileSummaryLoading = true,
+                isLedgerLoading        = true
             )
         }
-        if (cachedSummary == null) loadMobileSummary(customer.id)
-        if (cachedLedger  == null) loadLedger(customer)
+        loadMobileSummary(customer.id)
+        loadLedger(customer)
     }
 
     private fun loadMobileSummary(customerId: Long) {
@@ -247,7 +231,6 @@ class CustomerDataViewModel(
             val token = observeSessionUseCase().first()?.token.orEmpty()
             when (val result = getCustomerMobileSummaryUseCase(token, customerId)) {
                 is ResultState.Success -> {
-                    if (CACHE_ENABLED) mobileSummaryCache[customerId] = result.data
                     _state.update {
                         it.copy(
                             isMobileSummaryLoading = false,
@@ -262,43 +245,70 @@ class CustomerDataViewModel(
         }
     }
 
-    // Every call (auto-open or explicit Load button) uses the current date fields as part of the
-    // cache key, so different date ranges are always stored and retrieved independently.
     private fun loadLedger(customer: Customer) {
+        ledgerSkip = 0
+        ledgerHasMore = true
         viewModelScope.launch {
-            _state.update { it.copy(isLedgerLoading = true) }
+            _state.update { it.copy(isLedgerLoading = true, ledgerEntries = emptyList()) }
             val token = observeSessionUseCase().first()?.token.orEmpty()
-            // Snapshot dates at the moment of the actual network call (not before the coroutine starts)
-            // to guarantee key consistency between what we send to the API and what we cache.
             val snapshot = _state.value
-            val fromDate = snapshot.ledgerFromDate
-            val toDate   = snapshot.ledgerToDate
-            val ledgerKey = LedgerCacheKey(
-                customerId = customer.id,
-                fromDate   = fromDate,
-                toDate     = toDate
-            )
-            // Check cache again inside the coroutine — a previous parallel call may have filled it.
-            if (CACHE_ENABLED) {
-                val alreadyCached = ledgerCache[ledgerKey]
-                if (alreadyCached != null) {
-                    _state.update { it.copy(isLedgerLoading = false, ledgerEntries = alreadyCached) }
-                    return@launch
-                }
-            }
             when (val result = getCustomerLedgerUseCase(
                 token      = token,
                 customerId = customer.id,
-                fromDate   = fromDate.ifBlank { null },
-                toDate     = toDate.ifBlank   { null }
+                fromDate   = snapshot.ledgerFromDate.ifBlank { null },
+                toDate     = snapshot.ledgerToDate.ifBlank { null },
+                skip       = 0,
+                take       = 200
             )) {
                 is ResultState.Success -> {
-                    if (CACHE_ENABLED) ledgerCache[ledgerKey] = result.data
-                    _state.update { it.copy(isLedgerLoading = false, ledgerEntries = result.data) }
+                    val paged = result.data
+                    ledgerSkip = paged.items.size
+                    ledgerHasMore = paged.hasMore
+                    _state.update {
+                        it.copy(
+                            isLedgerLoading = false,
+                            ledgerEntries = paged.items,
+                            ledgerHasMore = paged.hasMore,
+                            ledgerTotalCount = paged.totalCount
+                        )
+                    }
                 }
                 is ResultState.Error -> _state.update {
                     it.copy(isLedgerLoading = false, ledgerEntries = emptyList())
                 }
+                ResultState.Loading -> Unit
+            }
+        }
+    }
+
+    private fun loadMoreLedger(customer: Customer) {
+        if (!ledgerHasMore || _state.value.isLedgerLoadingMore) return
+        viewModelScope.launch {
+            _state.update { it.copy(isLedgerLoadingMore = true) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            val snapshot = _state.value
+            when (val result = getCustomerLedgerUseCase(
+                token      = token,
+                customerId = customer.id,
+                fromDate   = snapshot.ledgerFromDate.ifBlank { null },
+                toDate     = snapshot.ledgerToDate.ifBlank { null },
+                skip       = ledgerSkip,
+                take       = 200
+            )) {
+                is ResultState.Success -> {
+                    val paged = result.data
+                    ledgerSkip += paged.items.size
+                    ledgerHasMore = paged.hasMore
+                    _state.update {
+                        it.copy(
+                            isLedgerLoadingMore = false,
+                            ledgerEntries = it.ledgerEntries + paged.items,
+                            ledgerHasMore = paged.hasMore,
+                            ledgerTotalCount = paged.totalCount
+                        )
+                    }
+                }
+                is ResultState.Error -> _state.update { it.copy(isLedgerLoadingMore = false) }
                 ResultState.Loading -> Unit
             }
         }
@@ -396,29 +406,5 @@ class CustomerDataViewModel(
         }
     }
 
-    companion object {
-        /** Set to false to disable all caching (e.g. for debug / QA builds). */
-        private const val CACHE_ENABLED = true
-
-        /** Max mobile-summary entries kept in memory. Each entry ≈ 200 bytes. */
-        private const val MOBILE_SUMMARY_CACHE_MAX = 100
-
-        /**
-         * Max ledger entries kept in memory. Ledger lists can be large;
-         * keeping at most 30 unique (customer × date-range) responses limits
-         * worst-case memory to a few MB even with large ledger payloads.
-         */
-        private const val LEDGER_CACHE_MAX = 30
-
-        /**
-         * Returns a LinkedHashMap configured for LRU eviction: once [maxSize] entries
-         * are held, the least-recently-accessed entry is removed before a new one is inserted.
-         * Uses only stdlib — no extra dependency required.
-         */
-        private fun <K, V> lruCache(maxSize: Int): LinkedHashMap<K, V> =
-            object : LinkedHashMap<K, V>(maxSize, 0.75f, /* accessOrder= */ true) {
-                override fun removeEldestEntry(eldest: MutableMap.MutableEntry<K, V>): Boolean =
-                    size > maxSize
-            }
-    }
+    companion object
 }

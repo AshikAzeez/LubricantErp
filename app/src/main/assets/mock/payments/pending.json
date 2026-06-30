@@ -1,46 +1,79 @@
 {
   "success": true,
+  "data": {
+    "items": [
+      {
+        "customerId": 218,
+        "customerName": "SRI SAI AGENCY",
+        "customerCode": "CUST0077",
+        "invoiceCount": 1,
+        "totalInvoiced": 896911.70,
+        "totalPaid": 0.00,
+        "totalOutstanding": 896911.70,
+        "oldestOutstandingDays": 0,
+        "isOverdue": false
+      },
+      {
+        "customerId": 179,
+        "customerName": "LUBES INDIA PRODUCT",
+        "customerCode": "CUST0038",
+        "invoiceCount": 1,
+        "totalInvoiced": 604221.80,
+        "totalPaid": 0.00,
+        "totalOutstanding": 604221.80,
+        "oldestOutstandingDays": 0,
+        "isOverdue": false
+      },
+      {
+        "customerId": 187,
+        "customerName": "NOORUDHEEN",
+        "customerCode": "CUST0046",
+        "invoiceCount": 1,
+        "totalInvoiced": 547207.48,
+        "totalPaid": 0.00,
+        "totalOutstanding": 547207.48,
+        "oldestOutstandingDays": 0,
+        "isOverdue": false
+      },
+      {
+        "customerId": 212,
+        "customerName": "SELF CARE",
+        "customerCode": "CUST0071",
+        "invoiceCount": 1,
+        "totalInvoiced": 441775.91,
+        "totalPaid": 0.00,
+        "totalOutstanding": 441775.91,
+        "oldestOutstandingDays": 0,
+        "isOverdue": false
+      },
+      {
+        "customerId": 209,
+        "customerName": "SAJEEV KUMAR",
+        "customerCode": "CUST0068",
+        "invoiceCount": 1,
+        "totalInvoiced": 298898.12,
+        "totalPaid": 0.00,
+        "totalOutstanding": 298898.12,
+        "oldestOutstandingDays": 0,
+        "isOverdue": false
+      },
+      {
+        "customerId": 162,
+        "customerName": "FAIZAL",
+        "customerCode": "CUST0021",
+        "invoiceCount": 1,
+        "totalInvoiced": 155379.56,
+        "totalPaid": 0.00,
+        "totalOutstanding": 155379.56,
+        "oldestOutstandingDays": 0,
+        "isOverdue": false
+      }
+    ],
+    "totalCount": 47,
+    "skip": 0,
+    "take": 6,
+    "hasMore": true
+  },
   "message": null,
-  "data": [
-    {
-      "customerId": 5,
-      "customerName": "Sunrise Petroleum",
-      "customerCode": "CUST-005",
-      "phone": "9000111222",
-      "outstandingAmount": 127500.00,
-      "overdueAmount": 127500.00,
-      "oldestDueDate": "2026-05-23",
-      "unpaidInvoiceCount": 1
-    },
-    {
-      "customerId": 4,
-      "customerName": "Ahmed Trading Co.",
-      "customerCode": "CUST-004",
-      "phone": "9123456780",
-      "outstandingAmount": 41800.00,
-      "overdueAmount": 0.00,
-      "oldestDueDate": "2026-06-06",
-      "unpaidInvoiceCount": 1
-    },
-    {
-      "customerId": 2,
-      "customerName": "Sri Balaji Lubricants",
-      "customerCode": "CUST-002",
-      "phone": "9876543210",
-      "outstandingAmount": 62400.00,
-      "overdueAmount": 0.00,
-      "oldestDueDate": "2026-06-07",
-      "unpaidInvoiceCount": 1
-    },
-    {
-      "customerId": 1,
-      "customerName": "Kiran Auto Parts",
-      "customerCode": "CUST-001",
-      "phone": "9845012345",
-      "outstandingAmount": 48750.00,
-      "overdueAmount": 0.00,
-      "oldestDueDate": "2026-06-07",
-      "unpaidInvoiceCount": 1
-    }
-  ]
+  "errors": null
 }

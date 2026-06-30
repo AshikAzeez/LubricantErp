@@ -28,11 +28,12 @@ import com.havos.lubricerp.feature_reports.domain.model.SalesOrderDetail
 import com.havos.lubricerp.feature_reports.domain.model.SalesOrderItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
+import com.havos.lubricerp.core.common.PagedResult
 import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 
 interface ReportsRepository {
-    suspend fun getTankStockSummary(): ResultState<List<TankStockItem>>
+    suspend fun getTankStockSummary(token: String): ResultState<List<TankStockItem>>
 
     suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItem>>
 
@@ -40,10 +41,22 @@ interface ReportsRepository {
 
     suspend fun getDashboard(token: String): ResultState<DashboardSummary>
     suspend fun getSalesSummary(token: String, filter: DateRangeFilter): ResultState<List<SalesSummaryItem>>
-    suspend fun getPaymentsReceived(token: String, filter: DateRangeFilter): ResultState<List<PaymentReceivedItem>>
+    suspend fun getPaymentsReceived(
+        token: String,
+        filter: DateRangeFilter,
+        skip: Int = 0,
+        take: Int = 20
+    ): ResultState<PagedResult<PaymentReceivedItem>>
     suspend fun getStockOverviewTanks(token: String): ResultState<List<StockOverviewTankItem>>
     suspend fun getCustomers(token: String): ResultState<List<Customer>>
-    suspend fun getCustomerLedger(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntry>>
+    suspend fun getCustomerLedger(
+        token: String,
+        customerId: Long,
+        fromDate: String?,
+        toDate: String?,
+        skip: Int = 0,
+        take: Int = 200
+    ): ResultState<PagedResult<CustomerLedgerEntry>>
     suspend fun getCustomerMobileSummary(token: String, customerId: Long): ResultState<CustomerMobileSummary>
     suspend fun getProductSales(token: String, filter: DateRangeFilter): ResultState<List<ProductSalesItem>>
     suspend fun getNetProfit(token: String, filter: DateRangeFilter): ResultState<NetProfitReport>
@@ -57,7 +70,11 @@ interface ReportsRepository {
 
     suspend fun getFastMoving(token: String, days: Int, top: Int): ResultState<List<FastMovingItem>>
     suspend fun recordPayment(token: String, request: RecordPaymentRequest): ResultState<RecordPaymentResponse>
-    suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomer>>
+    suspend fun getPaymentsPending(
+        token: String,
+        skip: Int = 0,
+        take: Int = 20
+    ): ResultState<PagedResult<PaymentPendingCustomer>>
     suspend fun getAccountsSummary(token: String, filter: DateRangeFilter): ResultState<AccountsSummary>
 
     suspend fun getSalesOrders(token: String, status: String): ResultState<List<SalesOrderItem>>
@@ -77,4 +94,40 @@ interface ReportsRepository {
     suspend fun getReceivablesAging(token: String): ResultState<ReceivablesAging>
     suspend fun getPurchaseSummary(token: String): ResultState<PurchaseSummary>
     suspend fun getCashPosition(token: String): ResultState<CashPosition>
+
+    suspend fun getProformaInvoices(
+        token: String,
+        status: String?
+    ): ResultState<List<com.havos.lubricerp.feature_reports.domain.model.ProformaInvoice>>
+
+    suspend fun getProformaInvoiceDetail(
+        token: String,
+        id: Long
+    ): ResultState<com.havos.lubricerp.feature_reports.domain.model.ProformaInvoiceDetail>
+
+    suspend fun createProformaInvoice(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest
+    ): ResultState<com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceResponse>
+
+    suspend fun getProductSkus(
+        token: String,
+        gradeId: Int?
+    ): ResultState<List<com.havos.lubricerp.feature_reports.domain.model.ProductSku>>
+
+    suspend fun updateProformaInvoice(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest
+    ): ResultState<Unit>
+
+    suspend fun sendProformaInvoice(
+        token: String,
+        id: Long
+    ): ResultState<Unit>
+
+    suspend fun cancelProformaInvoice(
+        token: String,
+        id: Long
+    ): ResultState<Unit>
 }

@@ -35,6 +35,9 @@ import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.Open
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenSettings
 import com.havos.lubricerp.feature_reports.presentation.notification.NotificationRoute
 import com.havos.lubricerp.feature_reports.presentation.login.LoginRoute
+import com.havos.lubricerp.feature_reports.presentation.proforma.ProformaInvoiceRoute
+import com.havos.lubricerp.feature_reports.presentation.proforma.ProformaInvoiceDetailRoute
+import com.havos.lubricerp.feature_reports.presentation.proforma.CreateProformaInvoiceRoute
 import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModuleRoute
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportDetailRoute
 import com.havos.lubricerp.feature_reports.presentation.settings.SettingsRoute
@@ -127,7 +130,11 @@ fun GoalErpNavGraph(
                     onNavigate = { navigation ->
                         when (navigation) {
                             is OpenReport -> {
-                                navController.navigate(AppRoutes.reportDetail(navigation.reportKey))
+                                if (navigation.reportKey == "proforma_invoices") {
+                                    navController.navigate(AppRoutes.PROFORMA_INVOICES)
+                                } else {
+                                    navController.navigate(AppRoutes.reportDetail(navigation.reportKey))
+                                }
                             }
                             OpenCustomerData -> {
                                 navController.navigate(AppRoutes.CUSTOMER_DATA)
@@ -195,6 +202,54 @@ fun GoalErpNavGraph(
             composable(AppRoutes.ORDERS) {
                 OrdersRoute(
                     onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(AppRoutes.PROFORMA_INVOICES) {
+                ProformaInvoiceRoute(
+                    onBackClick = { navController.popBackStack() },
+                    onInvoiceClick = { id ->
+                        navController.navigate(AppRoutes.proformaInvoiceDetail(id))
+                    },
+                    onCreateClick = {
+                        navController.navigate(AppRoutes.CREATE_PROFORMA_INVOICE)
+                    }
+                )
+            }
+
+            composable(
+                route = AppRoutes.PROFORMA_INVOICE_DETAIL,
+                arguments = listOf(navArgument("invoiceId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
+                ProformaInvoiceDetailRoute(
+                    invoiceId = invoiceId,
+                    onBackClick = { navController.popBackStack() },
+                    onCreateClick = {
+                        navController.navigate(AppRoutes.CREATE_PROFORMA_INVOICE)
+                    },
+                    onEditClick = { id ->
+                        navController.navigate(AppRoutes.createProformaInvoice(id))
+                    }
+                )
+            }
+
+            composable(
+                route = AppRoutes.CREATE_PROFORMA_INVOICE,
+                arguments = listOf(navArgument("invoiceId") {
+                    type = NavType.StringType
+                    nullable = true
+                })
+            ) { backStackEntry ->
+                val invoiceIdStr = backStackEntry.arguments?.getString("invoiceId")
+                val invoiceId = invoiceIdStr?.toLongOrNull()
+                CreateProformaInvoiceRoute(
+                    invoiceId = invoiceId,
+                    onBackClick = { navController.popBackStack() },
+                    onInvoiceCreated = { id ->
+                        navController.popBackStack()
+                        navController.navigate(AppRoutes.proformaInvoiceDetail(id))
+                    }
                 )
             }
 

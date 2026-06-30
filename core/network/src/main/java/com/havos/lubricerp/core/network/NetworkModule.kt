@@ -42,7 +42,7 @@ val coreNetworkModule = module {
         val koinScope = this
         val isDebuggableApp =
             (androidContext().applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) != 0
-        val enableVerboseLogs = isDebuggableApp && networkConfig.environment != AppEnvironment.PRODUCTION
+        val enableVerboseLogs = isDebuggableApp /*&& networkConfig.environment != AppEnvironment.PRODUCTION*/
         val logLevel = if (enableVerboseLogs) LogLevel.ALL else LogLevel.NONE
         val logTag = if (networkConfig.useMockEngine) {
             "GoalERP-Mock(${networkConfig.environment})"

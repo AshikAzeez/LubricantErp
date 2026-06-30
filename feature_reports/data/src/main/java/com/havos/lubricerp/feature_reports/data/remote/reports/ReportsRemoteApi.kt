@@ -31,8 +31,12 @@ import com.havos.lubricerp.feature_reports.data.dto.NetProfitReportDto
 import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainReportDto
 import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedItemDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedPagedDataDto
+import com.havos.lubricerp.feature_reports.data.dto.ProformaInvoicePagedDataDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesInvoicePagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.ProductSalesApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.ProductSalesItemDto
 import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
@@ -46,6 +50,7 @@ import com.havos.lubricerp.feature_reports.data.dto.SalesInvoiceListApiResponseD
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderDetailApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderDetailDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderItemDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesOrderPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderListApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
@@ -53,6 +58,7 @@ import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankApiResponse
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockListApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.TankStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import io.ktor.client.HttpClient
@@ -60,6 +66,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
@@ -68,10 +75,13 @@ class ReportsRemoteApi(
     private val client: HttpClient
 ) : ReportsRemoteDataSource {
 
-    override suspend fun getTankStockSummary(): ResultState<List<TankStockItemDto>> {
+    override suspend fun getTankStockSummary(token: String): ResultState<List<TankStockItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (
             val result = safeApiCall<TankStockListApiResponseDto> {
-                client.get("api/reports/tank-stock")
+                client.get("api/reports/tank-stock") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
         ) {
             is ResultState.Success -> {
@@ -176,8 +186,10 @@ class ReportsRemoteApi(
     override suspend fun getPaymentsReceived(
         token: String,
         fromDate: String,
-        toDate: String
-    ): ResultState<List<PaymentReceivedItemDto>> {
+        toDate: String,
+        skip: Int,
+        take: Int
+    ): ResultState<PaymentReceivedPagedDataDto> {
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
 
         return when (
@@ -186,18 +198,21 @@ class ReportsRemoteApi(
                     header(HttpHeaders.Authorization, "Bearer $token")
                     parameter("fromDate", fromDate)
                     parameter("toDate", toDate)
+                    parameter("skip", skip)
+                    parameter("take", take)
                 }
             }
         ) {
             is ResultState.Success -> {
                 val payload = result.data
-                if (!payload.success) {
+                val pagedData = payload.data
+                if (!payload.success || pagedData == null) {
                     val serverMessage = payload.message?.takeIf { it.isNotBlank() }
                         ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
                         ?: "Unable to fetch payments received"
                     ResultState.Error(serverMessage)
                 } else {
-                    ResultState.Success(payload.data)
+                    ResultState.Success(pagedData)
                 }
             }
             is ResultState.Error -> ResultState.Error("Unable to fetch payments received.")
@@ -421,17 +436,25 @@ class ReportsRemoteApi(
         }
     }
 
-    override suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomerDto>> {
+    override suspend fun getPaymentsPending(
+        token: String,
+        skip: Int,
+        take: Int
+    ): ResultState<PaymentPendingPagedDataDto> {
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (val result = safeApiCall<PaymentPendingApiResponseDto> {
             client.get("api/payments/pending") {
                 header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("skip", skip)
+                parameter("take", take)
             }
         }) {
             is ResultState.Success -> {
                 val payload = result.data
-                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch pending payments")
-                else ResultState.Success(payload.data)
+                val pagedData = payload.data
+                if (!payload.success || pagedData == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch pending payments")
+                else ResultState.Success(pagedData)
             }
             is ResultState.Error -> ResultState.Error("Unable to fetch pending payments.")
             ResultState.Loading -> ResultState.Loading
@@ -460,19 +483,25 @@ class ReportsRemoteApi(
 
     override suspend fun getSalesOrders(
         token: String,
-        status: String
-    ): ResultState<List<SalesOrderItemDto>> {
+        status: String,
+        skip: Int,
+        take: Int
+    ): ResultState<SalesOrderPagedDataDto> {
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (val result = safeApiCall<SalesOrderListApiResponseDto> {
             client.get("api/sales-orders") {
                 header(HttpHeaders.Authorization, "Bearer $token")
                 parameter("status", status)
+                parameter("skip", skip)
+                parameter("take", take)
             }
         }) {
             is ResultState.Success -> {
                 val payload = result.data
-                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch sales orders")
-                else ResultState.Success(payload.data)
+                val pagedData = payload.data
+                if (!payload.success || pagedData == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch sales orders")
+                else ResultState.Success(pagedData)
             }
             is ResultState.Error -> ResultState.Error("Unable to fetch sales orders.")
             ResultState.Loading -> ResultState.Loading
@@ -504,8 +533,10 @@ class ReportsRemoteApi(
         token: String,
         fromDate: String?,
         toDate: String?,
-        paymentStatus: String?
-    ): ResultState<List<SalesInvoiceItemDto>> {
+        paymentStatus: String?,
+        skip: Int,
+        take: Int
+    ): ResultState<SalesInvoicePagedDataDto> {
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (val result = safeApiCall<SalesInvoiceListApiResponseDto> {
             client.get("api/sales-invoices") {
@@ -513,12 +544,16 @@ class ReportsRemoteApi(
                 if (!fromDate.isNullOrBlank()) parameter("fromDate", fromDate)
                 if (!toDate.isNullOrBlank()) parameter("toDate", toDate)
                 if (!paymentStatus.isNullOrBlank()) parameter("paymentStatus", paymentStatus)
+                parameter("skip", skip)
+                parameter("take", take)
             }
         }) {
             is ResultState.Success -> {
                 val payload = result.data
-                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch invoices")
-                else ResultState.Success(payload.data)
+                val pagedData = payload.data
+                if (!payload.success || pagedData == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch invoices")
+                else ResultState.Success(pagedData)
             }
             is ResultState.Error -> ResultState.Error("Unable to fetch invoices.")
             ResultState.Loading -> ResultState.Loading
@@ -607,8 +642,10 @@ class ReportsRemoteApi(
         token: String,
         customerId: Long,
         fromDate: String?,
-        toDate: String?
-    ): ResultState<List<CustomerLedgerEntryDto>> {
+        toDate: String?,
+        skip: Int,
+        take: Int
+    ): ResultState<CustomerLedgerPagedDataDto> {
         if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (
             val result = safeApiCall<CustomerLedgerApiResponseDto> {
@@ -616,15 +653,184 @@ class ReportsRemoteApi(
                     header(HttpHeaders.Authorization, "Bearer $token")
                     if (!fromDate.isNullOrBlank()) parameter("fromDate", fromDate)
                     if (!toDate.isNullOrBlank()) parameter("toDate", toDate)
+                    parameter("skip", skip)
+                    parameter("take", take)
                 }
             }
         ) {
             is ResultState.Success -> {
                 val payload = result.data
-                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch ledger")
-                else ResultState.Success(payload.data)
+                val pagedData = payload.data
+                if (!payload.success || pagedData == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch ledger")
+                else ResultState.Success(pagedData)
             }
             is ResultState.Error -> ResultState.Error("Unable to fetch customer ledger.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getProformaInvoices(
+        token: String,
+        status: String?,
+        skip: Int,
+        take: Int
+    ): ResultState<ProformaInvoicePagedDataDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.ProformaInvoiceListApiResponseDto> {
+            client.get("api/proforma-invoices") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                if (!status.isNullOrBlank()) parameter("status", status)
+                parameter("skip", skip)
+                parameter("take", take)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                val pagedData = payload.data
+                if (!payload.success || pagedData == null)
+                    ResultState.Error(payload.message ?: "Unable to fetch proforma invoices")
+                else ResultState.Success(pagedData)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch proforma invoices.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getProformaInvoiceDetail(
+        token: String,
+        id: Long
+    ): ResultState<com.havos.lubricerp.feature_reports.data.dto.ProformaInvoiceDetailDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.ProformaInvoiceDetailApiResponseDto> {
+            client.get("api/proforma-invoices/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                val details = payload.data
+                if (!payload.success || details == null) {
+                    ResultState.Error(payload.message ?: "Unable to fetch proforma invoice detail")
+                } else {
+                    ResultState.Success(details)
+                }
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch proforma invoice detail.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun createProformaInvoice(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceRequestDto
+    ): ResultState<com.havos.lubricerp.feature_reports.data.dto.ProformaInvoiceDetailDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceApiResponseDto> {
+            client.post("api/proforma-invoices") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+                setBody(request)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                val responseData = payload.data
+                if (!payload.success || responseData == null) {
+                    ResultState.Error(payload.message ?: "Unable to create proforma invoice")
+                } else {
+                    ResultState.Success(responseData)
+                }
+            }
+            is ResultState.Error -> ResultState.Error(result.message)
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getProductSkus(
+        token: String,
+        gradeId: Int?
+    ): ResultState<List<com.havos.lubricerp.feature_reports.data.dto.ProductSkuDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.ProductSkuListApiResponseDto> {
+            client.get("api/product-skus") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                if (gradeId != null) parameter("gradeId", gradeId)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch product SKUs")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch product SKUs.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun updateProformaInvoice(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceRequestDto
+    ): ResultState<Unit> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.UpdateProformaInvoiceApiResponseDto> {
+            client.put("api/proforma-invoices/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+                setBody(request)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to update proforma invoice")
+                else ResultState.Success(Unit)
+            }
+            is ResultState.Error -> ResultState.Error(result.message)
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun sendProformaInvoice(
+        token: String,
+        id: Long
+    ): ResultState<Unit> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.UpdateProformaInvoiceApiResponseDto> {
+            client.post("api/proforma-invoices/$id/send") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to send proforma invoice")
+                else ResultState.Success(Unit)
+            }
+            is ResultState.Error -> ResultState.Error(result.message)
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun cancelProformaInvoice(
+        token: String,
+        id: Long
+    ): ResultState<Unit> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.UpdateProformaInvoiceApiResponseDto> {
+            client.post("api/proforma-invoices/$id/cancel") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to cancel proforma invoice")
+                else ResultState.Success(Unit)
+            }
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }

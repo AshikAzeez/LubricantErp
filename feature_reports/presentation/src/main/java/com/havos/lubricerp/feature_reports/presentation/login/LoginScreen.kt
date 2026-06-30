@@ -145,7 +145,7 @@ private fun LoginScreen(
             state.passwordError == null &&
             !state.isLoading
     val logoResId = remember {
-        context.resources.getIdentifier("erp_logo", "drawable", context.packageName)
+        context.resources.getIdentifier("ic_logo", "drawable", context.packageName)
     }
 
     val colors = MaterialTheme.colorScheme

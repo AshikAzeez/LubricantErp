@@ -363,14 +363,13 @@ data class PaymentPendingCustomer(
     val customerId: Long,
     val customerName: String,
     val customerCode: String,
-    val phone: String,
-    val outstandingAmount: Double,
-    val overdueAmount: Double,
-    val oldestDueDate: String,
-    val unpaidInvoiceCount: Int
-) {
-    val isOverdue: Boolean get() = overdueAmount > 0
-}
+    val invoiceCount: Int,
+    val totalInvoiced: Double,
+    val totalPaid: Double,
+    val totalOutstanding: Double,
+    val oldestOutstandingDays: Int,
+    val isOverdue: Boolean
+)
 
 data class AccountsSummary(
     val fromDate: String,

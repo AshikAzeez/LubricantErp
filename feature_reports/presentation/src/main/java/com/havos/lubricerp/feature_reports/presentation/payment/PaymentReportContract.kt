@@ -11,6 +11,8 @@ import com.havos.lubricerp.feature_reports.domain.model.RecordPaymentResponse
 sealed interface PaymentReportIntent : UiIntent {
     data class LoadReceived(val fromDate: String, val toDate: String) : PaymentReportIntent
     data object LoadPending : PaymentReportIntent
+    data object LoadMoreReceived : PaymentReportIntent
+    data object LoadMorePending : PaymentReportIntent
     data class LoadAccountsSummary(val fromDate: String, val toDate: String) : PaymentReportIntent
     data class FromDateReceivedChanged(val date: String) : PaymentReportIntent
     data class ToDateReceivedChanged(val date: String) : PaymentReportIntent
@@ -40,6 +42,12 @@ data class PaymentReportUiState(
     val selectedTab: Int = 0,
     val receivedDateFrom: String = "",
     val receivedDateTo: String = "",
+    val isReceivedLoadingMore: Boolean = false,
+    val receivedHasMore: Boolean = true,
+    val receivedTotalCount: Int = 0,
+    val isPendingLoadingMore: Boolean = false,
+    val pendingHasMore: Boolean = true,
+    val pendingTotalCount: Int = 0,
     val accountsDateFrom: String = "",
     val accountsDateTo: String = "",
     val receivedItems: List<PaymentReceivedItem> = emptyList(),
@@ -77,6 +85,8 @@ sealed interface PaymentReportAction {
     data object SubmitPayment : PaymentReportAction
     data object Retry : PaymentReportAction
     data object Refresh : PaymentReportAction
+    data object LoadMoreReceived : PaymentReportAction
+    data object LoadMorePending : PaymentReportAction
 }
 
 sealed interface PaymentReportEffect {

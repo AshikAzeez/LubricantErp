@@ -1,31 +1,21 @@
 {
-  "success": true,
-  "data": [
+  "customerId": 144,
+  "proformaDate": "2026-06-23",
+  "validUntilDate": "2026-07-07",
+  "remarks": "Remark sample",
+  "termsAndConditions": "T&C",
+  "lines": [
     {
-      "customerId": 1,
-      "customerName": "Al Noor Trucks",
-      "customerCode": "C-001",
-      "invoiceCount": 12,
-      "subTotal": 245000.0,
-      "taxAmount": 22050.0,
-      "totalAmount": 267050.0,
-      "paidAmount": 200000.0,
-      "balanceAmount": 67050.0
-    },
-    {
-      "customerId": 2,
-      "customerName": "Gulf Transport Co.",
-      "customerCode": "C-002",
-      "invoiceCount": 9,
-      "subTotal": 187600.0,
-      "taxAmount": 16884.0,
-      "totalAmount": 204484.0,
-      "paidAmount": 204484.0,
-      "balanceAmount": 0.0
+      "deliveryType": "Bulk",
+      "productGradeId": 13,
+      "productSKUId": 114,
+      "hsnCode": "27101980",
+      "description": null,
+      "quantity": 1.0,
+      "unitPrice": 123.0,
+      "taxRate": 18.0,
+      "discountPercent": 0.0,
+      "unitOfMeasurement": "NOS"
     }
-  ],
-  "message": null,
-  "errors": null,
-  "_period": "2026-05-01 to 2026-05-08",
-  "_generatedAt": "2026-05-08T10:00:00Z"
+  ]
 }

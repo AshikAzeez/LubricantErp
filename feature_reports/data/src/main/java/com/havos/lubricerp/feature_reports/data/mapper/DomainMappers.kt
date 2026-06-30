@@ -3,6 +3,7 @@ package com.havos.lubricerp.feature_reports.data.mapper
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
+import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerMobileSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.DashboardDto
 import com.havos.lubricerp.feature_reports.data.dto.DeliveryNoteDto
@@ -17,6 +18,7 @@ import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainReportDto
 import com.havos.lubricerp.feature_reports.data.dto.PackagingLossGainRowDto
 import com.havos.lubricerp.feature_reports.data.dto.PaymentReceiptDto
 import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedItemDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentReceivedPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.ProductSalesItemDto
 import com.havos.lubricerp.feature_reports.data.dto.ProfileDataDto
 import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
@@ -25,9 +27,11 @@ import com.havos.lubricerp.feature_reports.data.dto.SalesInvoiceDetailDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesInvoiceItemDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderDetailDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderItemDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesOrderPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesOrderLineDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesSummaryItemDto
 import com.havos.lubricerp.feature_reports.data.dto.StockOverviewTankItemDto
+import com.havos.lubricerp.core.common.PagedResult
 import com.havos.lubricerp.feature_reports.data.dto.TankStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import com.havos.lubricerp.feature_reports.domain.model.AuthSession
@@ -68,6 +72,7 @@ import com.havos.lubricerp.feature_reports.data.dto.PurchaseSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.RecentPurchaseOrderDto
 import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingDto
 import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingCustomerDto
+import com.havos.lubricerp.feature_reports.data.dto.PaymentPendingPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentResponseDto
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 import com.havos.lubricerp.feature_reports.domain.model.AgingBucket
@@ -166,6 +171,14 @@ fun PaymentReceivedItemDto.toDomain(): PaymentReceivedItem = PaymentReceivedItem
     remarks = remarks
 )
 
+fun PaymentReceivedPagedDataDto.toDomain(): PagedResult<PaymentReceivedItem> = PagedResult(
+    items = items.map { it.toDomain() },
+    totalCount = totalCount,
+    skip = skip,
+    take = take,
+    hasMore = hasMore
+)
+
 fun CustomerDto.toDomain(): Customer = Customer(
     id = id,
     name = name,
@@ -185,6 +198,14 @@ fun CustomerLedgerEntryDto.toDomain(): CustomerLedgerEntry = CustomerLedgerEntry
     credit = credit,
     runningBalance = runningBalance,
     invoiceId = invoiceId
+)
+
+fun CustomerLedgerPagedDataDto.toDomain(): PagedResult<CustomerLedgerEntry> = PagedResult(
+    items = items.map { it.toDomain() },
+    totalCount = totalCount,
+    skip = skip,
+    take = take,
+    hasMore = hasMore
 )
 
 fun StockOverviewTankItemDto.toDomain(): StockOverviewTankItem = StockOverviewTankItem(
@@ -332,11 +353,20 @@ fun PaymentPendingCustomerDto.toDomain(): PaymentPendingCustomer = PaymentPendin
     customerId = customerId,
     customerName = customerName,
     customerCode = customerCode,
-    phone = phone,
-    outstandingAmount = outstandingAmount,
-    overdueAmount = overdueAmount,
-    oldestDueDate = oldestDueDate,
-    unpaidInvoiceCount = unpaidInvoiceCount
+    invoiceCount = invoiceCount,
+    totalInvoiced = totalInvoiced,
+    totalPaid = totalPaid,
+    totalOutstanding = totalOutstanding,
+    oldestOutstandingDays = oldestOutstandingDays,
+    isOverdue = isOverdue
+)
+
+fun PaymentPendingPagedDataDto.toDomain(): PagedResult<PaymentPendingCustomer> = PagedResult(
+    items = items.map { it.toDomain() },
+    totalCount = totalCount,
+    skip = skip,
+    take = take,
+    hasMore = hasMore
 )
 
 fun AccountsSummaryDto.toDomain(): AccountsSummary = AccountsSummary(
@@ -349,6 +379,14 @@ fun AccountsSummaryDto.toDomain(): AccountsSummary = AccountsSummary(
     totalOutstandingReceivables = totalOutstandingReceivables,
     totalOutstandingPayables = totalOutstandingPayables,
     netCashFlow = netCashFlow
+)
+
+fun SalesOrderPagedDataDto.toDomain(): PagedResult<SalesOrderItem> = PagedResult(
+    items = items.map { it.toDomain() },
+    totalCount = totalCount,
+    skip = skip,
+    take = take,
+    hasMore = hasMore
 )
 
 fun SalesOrderItemDto.toDomain(): SalesOrderItem = SalesOrderItem(
@@ -415,7 +453,7 @@ fun SalesInvoiceItemDto.toDomain(): SalesInvoiceItem = SalesInvoiceItem(
     paymentStatus = paymentStatus,
     paidAmount = paidAmount,
     balanceAmount = balanceAmount,
-    dueDate = dueDate,
+    dueDate = dueDate.orEmpty(),
     isOverdue = isOverdue,
     isInterState = isInterState
 )
@@ -520,4 +558,105 @@ fun BankAccountBalanceDto.toDomain(): BankAccountBalance = BankAccountBalance(
     accountName = accountName,
     accountNumber = accountNumber,
     balance = balance
+)
+
+fun com.havos.lubricerp.feature_reports.data.dto.ProformaInvoiceDto.toDomain(): com.havos.lubricerp.feature_reports.domain.model.ProformaInvoice = com.havos.lubricerp.feature_reports.domain.model.ProformaInvoice(
+    id = id,
+    proformaNumber = proformaNumber,
+    date = date,
+    validUntilDate = validUntilDate,
+    customerName = customerName,
+    customerCode = customerCode,
+    status = status,
+    totalAmount = totalAmount,
+    lineCount = lineCount,
+    soNumber = soNumber,
+    salesOrderId = salesOrderId,
+    isInterState = isInterState
+)
+
+fun com.havos.lubricerp.feature_reports.data.dto.ProformaInvoiceLineDto.toDomain(): com.havos.lubricerp.feature_reports.domain.model.ProformaInvoiceLine = com.havos.lubricerp.feature_reports.domain.model.ProformaInvoiceLine(
+    id = id,
+    deliveryType = deliveryType,
+    productGradeId = productGradeId,
+    productGradeName = productGradeName.ifBlank { productGrade ?: "" },
+    productSKUId = productSKUId,
+    productSKUName = productSKUName.ifBlank { sku ?: "" },
+    hsnCode = hsnCode,
+    description = description,
+    quantity = quantity,
+    unitOfMeasurement = unitOfMeasurement,
+    unitPrice = unitPrice,
+    discountPercent = discountPercent ?: 0.0,
+    taxRate = taxRate,
+    lineSubTotal = lineSubTotal,
+    taxAmount = taxAmount,
+    lineTotal = lineTotal
+)
+
+fun com.havos.lubricerp.feature_reports.data.dto.ProformaInvoiceDetailDto.toDomain(): com.havos.lubricerp.feature_reports.domain.model.ProformaInvoiceDetail = com.havos.lubricerp.feature_reports.domain.model.ProformaInvoiceDetail(
+    id = id,
+    proformaNumber = proformaNumber,
+    date = date,
+    validUntilDate = validUntilDate,
+    customerId = customerId,
+    customerName = customerName,
+    customerCode = customerCode,
+    customerGST = customerGST ?: customerGSTNumber,
+    customerAddress = customerAddress,
+    customerState = customerState,
+    customerStateCode = customerStateCode,
+    status = status,
+    isInterState = isInterState,
+    remarks = remarks,
+    termsAndConditions = termsAndConditions,
+    subTotal = subTotal,
+    cgstAmount = cgstAmount,
+    sgstAmount = sgstAmount,
+    igstAmount = igstAmount,
+    roundOffAmount = roundOffAmount,
+    totalAmount = totalAmount,
+    salesOrderId = salesOrderId,
+    salesOrderNumber = salesOrderNumber,
+    lines = lines.map { it.toDomain() }
+)
+
+fun com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceResponseDto.toDomain(): com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceResponse = com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceResponse(
+    id = id,
+    proformaNumber = proformaNumber
+)
+
+fun com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceLine.toDto(): com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceLineDto = com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceLineDto(
+    deliveryType = deliveryType,
+    productGradeId = productGradeId,
+    productSKUId = productSKUId,
+    hsnCode = hsnCode,
+    description = description,
+    quantity = quantity,
+    unitPrice = unitPrice,
+    taxRate = taxRate,
+    discountPercent = discountPercent,
+    unitOfMeasurement = unitOfMeasurement
+)
+
+fun com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest.toDto(): com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceRequestDto = com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceRequestDto(
+    customerId = customerId,
+    proformaDate = proformaDate,
+    validUntilDate = validUntilDate,
+    remarks = remarks,
+    termsAndConditions = termsAndConditions,
+    lines = lines.map { it.toDto() }
+)
+
+fun com.havos.lubricerp.feature_reports.data.dto.ProductSkuDto.toDomain(): com.havos.lubricerp.feature_reports.domain.model.ProductSku = com.havos.lubricerp.feature_reports.domain.model.ProductSku(
+    id = id,
+    name = name,
+    code = code,
+    productGradeId = productGradeId,
+    productGrade = productGrade,
+    productFamily = productFamily,
+    hsnCode = hsnCode,
+    packSizeLiters = packSizeLiters,
+    packSizeLabel = packSizeLabel,
+    unitOfMeasureId = unitOfMeasureId
 )

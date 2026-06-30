@@ -1,5 +1,6 @@
 package com.havos.lubricerp.feature_reports.data.dto
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -7,10 +8,14 @@ data class TankStockItemDto(
     val tankId: Long = 0L,
     val tankName: String = "",
     val tankCode: String = "",
+    @SerialName("capacityLiters")
     val capacity: Double = 0.0,
+    @SerialName("currentStockLiters")
     val currentStock: Double = 0.0,
     val availableCapacity: Double = 0.0,
+    @SerialName("fillPercentage")
     val utilizationPercent: Double = 0.0,
+    @SerialName("productGrade")
     val lastGrade: String = "",
     val tankType: String = ""
 )
@@ -94,9 +99,18 @@ data class SalesSummaryApiResponseDto(
 )
 
 @Serializable
+data class PaymentReceivedPagedDataDto(
+    val items: List<PaymentReceivedItemDto> = emptyList(),
+    val totalCount: Int = 0,
+    val skip: Int = 0,
+    val take: Int = 20,
+    val hasMore: Boolean = false
+)
+
+@Serializable
 data class PaymentReceivedApiResponseDto(
     val success: Boolean = false,
-    val data: List<PaymentReceivedItemDto> = emptyList(),
+    val data: PaymentReceivedPagedDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
 )
@@ -105,6 +119,7 @@ data class PaymentReceivedApiResponseDto(
 data class PaymentReceivedItemDto(
     val id: Long = 0,
     val receiptNumber: String = "",
+    @SerialName("receiptDate")
     val paymentDate: String = "",
     val customerName: String = "",
     val invoiceNumber: String = "",
@@ -146,9 +161,18 @@ data class CustomerLedgerEntryDto(
 )
 
 @Serializable
+data class CustomerLedgerPagedDataDto(
+    val items: List<CustomerLedgerEntryDto> = emptyList(),
+    val totalCount: Int = 0,
+    val skip: Int = 0,
+    val take: Int = 50,
+    val hasMore: Boolean = false
+)
+
+@Serializable
 data class CustomerLedgerApiResponseDto(
     val success: Boolean = false,
-    val data: List<CustomerLedgerEntryDto> = emptyList(),
+    val data: CustomerLedgerPagedDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
 )
@@ -388,17 +412,27 @@ data class PaymentPendingCustomerDto(
     val customerId: Long = 0L,
     val customerName: String = "",
     val customerCode: String = "",
-    val phone: String = "",
-    val outstandingAmount: Double = 0.0,
-    val overdueAmount: Double = 0.0,
-    val oldestDueDate: String = "",
-    val unpaidInvoiceCount: Int = 0
+    val invoiceCount: Int = 0,
+    val totalInvoiced: Double = 0.0,
+    val totalPaid: Double = 0.0,
+    val totalOutstanding: Double = 0.0,
+    val oldestOutstandingDays: Int = 0,
+    val isOverdue: Boolean = false
+)
+
+@Serializable
+data class PaymentPendingPagedDataDto(
+    val items: List<PaymentPendingCustomerDto> = emptyList(),
+    val totalCount: Int = 0,
+    val skip: Int = 0,
+    val take: Int = 20,
+    val hasMore: Boolean = false
 )
 
 @Serializable
 data class PaymentPendingApiResponseDto(
     val success: Boolean = false,
-    val data: List<PaymentPendingCustomerDto> = emptyList(),
+    val data: PaymentPendingPagedDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
 )
@@ -439,9 +473,18 @@ data class SalesOrderItemDto(
 )
 
 @Serializable
+data class SalesOrderPagedDataDto(
+    val items: List<SalesOrderItemDto> = emptyList(),
+    val totalCount: Int = 0,
+    val skip: Int = 0,
+    val take: Int = 20,
+    val hasMore: Boolean = false
+)
+
+@Serializable
 data class SalesOrderListApiResponseDto(
     val success: Boolean = false,
-    val data: List<SalesOrderItemDto> = emptyList(),
+    val data: SalesOrderPagedDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
 )
@@ -509,15 +552,24 @@ data class SalesInvoiceItemDto(
     val paymentStatus: String = "",
     val paidAmount: Double = 0.0,
     val balanceAmount: Double = 0.0,
-    val dueDate: String = "",
+    val dueDate: String? = null,
     val isOverdue: Boolean = false,
     val isInterState: Boolean = false
 )
 
 @Serializable
+data class SalesInvoicePagedDataDto(
+    val items: List<SalesInvoiceItemDto> = emptyList(),
+    val totalCount: Int = 0,
+    val skip: Int = 0,
+    val take: Int = 20,
+    val hasMore: Boolean = false
+)
+
+@Serializable
 data class SalesInvoiceListApiResponseDto(
     val success: Boolean = false,
-    val data: List<SalesInvoiceItemDto> = emptyList(),
+    val data: SalesInvoicePagedDataDto? = null,
     val message: String? = null,
     val errors: List<String>? = null
 )

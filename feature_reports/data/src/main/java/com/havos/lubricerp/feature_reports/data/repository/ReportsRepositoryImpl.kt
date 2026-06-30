@@ -3,6 +3,8 @@ package com.havos.lubricerp.feature_reports.data.repository
 import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
 import com.havos.lubricerp.feature_reports.data.mapper.toDomain
+import com.havos.lubricerp.feature_reports.data.mapper.toDto
+import com.havos.lubricerp.feature_reports.data.dto.SalesOrderPagedDataDto
 import com.havos.lubricerp.feature_reports.data.remote.reports.ReportsRemoteDataSource
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 import com.havos.lubricerp.feature_reports.domain.model.CashPosition
@@ -31,6 +33,7 @@ import com.havos.lubricerp.feature_reports.domain.model.SalesOrderDetail
 import com.havos.lubricerp.feature_reports.domain.model.SalesOrderItem
 import com.havos.lubricerp.feature_reports.domain.model.SalesSummaryItem
 import com.havos.lubricerp.feature_reports.domain.model.StockOverviewTankItem
+import com.havos.lubricerp.core.common.PagedResult
 import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 import com.havos.lubricerp.feature_reports.domain.repository.ReportsRepository
@@ -39,8 +42,8 @@ class ReportsRepositoryImpl(
     private val reportsRemoteDataSource: ReportsRemoteDataSource
 ) : ReportsRepository {
 
-    override suspend fun getTankStockSummary(): ResultState<List<TankStockItem>> {
-        return when (val result = reportsRemoteDataSource.getTankStockSummary()) {
+    override suspend fun getTankStockSummary(token: String): ResultState<List<TankStockItem>> {
+        return when (val result = reportsRemoteDataSource.getTankStockSummary(token)) {
             is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
@@ -79,9 +82,14 @@ class ReportsRepositoryImpl(
         }
     }
 
-    override suspend fun getPaymentsReceived(token: String, filter: DateRangeFilter): ResultState<List<PaymentReceivedItem>> {
-        return when (val result = reportsRemoteDataSource.getPaymentsReceived(token, filter.fromDate, filter.toDate)) {
-            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+    override suspend fun getPaymentsReceived(
+        token: String,
+        filter: DateRangeFilter,
+        skip: Int,
+        take: Int
+    ): ResultState<PagedResult<PaymentReceivedItem>> {
+        return when (val result = reportsRemoteDataSource.getPaymentsReceived(token, filter.fromDate, filter.toDate, skip, take)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }
@@ -103,9 +111,16 @@ class ReportsRepositoryImpl(
         }
     }
 
-    override suspend fun getCustomerLedger(token: String, customerId: Long, fromDate: String?, toDate: String?): ResultState<List<CustomerLedgerEntry>> {
-        return when (val result = reportsRemoteDataSource.getCustomerLedger(token, customerId, fromDate, toDate)) {
-            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+    override suspend fun getCustomerLedger(
+        token: String,
+        customerId: Long,
+        fromDate: String?,
+        toDate: String?,
+        skip: Int,
+        take: Int
+    ): ResultState<PagedResult<CustomerLedgerEntry>> {
+        return when (val result = reportsRemoteDataSource.getCustomerLedger(token, customerId, fromDate, toDate, skip, take)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }
@@ -175,9 +190,13 @@ class ReportsRepositoryImpl(
         }
     }
 
-    override suspend fun getPaymentsPending(token: String): ResultState<List<PaymentPendingCustomer>> {
-        return when (val result = reportsRemoteDataSource.getPaymentsPending(token)) {
-            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+    override suspend fun getPaymentsPending(
+        token: String,
+        skip: Int,
+        take: Int
+    ): ResultState<PagedResult<PaymentPendingCustomer>> {
+        return when (val result = reportsRemoteDataSource.getPaymentsPending(token, skip, take)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }
@@ -192,11 +211,24 @@ class ReportsRepositoryImpl(
     }
 
     override suspend fun getSalesOrders(token: String, status: String): ResultState<List<SalesOrderItem>> {
-        return when (val result = reportsRemoteDataSource.getSalesOrders(token, status)) {
-            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
-            is ResultState.Error -> result
-            ResultState.Loading -> ResultState.Loading
+        val allItems = mutableListOf<SalesOrderItem>()
+        var skip = 0
+        val take = 200
+        while (true) {
+            when (val result = reportsRemoteDataSource.getSalesOrders(token, status, skip, take)) {
+                is ResultState.Success -> {
+                    allItems.addAll(result.data.items.map { it.toDomain() })
+                    if (!result.data.hasMore) break
+                    skip += result.data.items.size
+                }
+                is ResultState.Error -> {
+                    if (allItems.isEmpty()) return result
+                    break
+                }
+                ResultState.Loading -> return ResultState.Loading
+            }
         }
+        return ResultState.Success(allItems)
     }
 
     override suspend fun getSalesOrderDetail(token: String, orderId: Long): ResultState<SalesOrderDetail> {
@@ -213,11 +245,24 @@ class ReportsRepositoryImpl(
         toDate: String?,
         paymentStatus: String?
     ): ResultState<List<SalesInvoiceItem>> {
-        return when (val result = reportsRemoteDataSource.getSalesInvoices(token, fromDate, toDate, paymentStatus)) {
-            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
-            is ResultState.Error -> result
-            ResultState.Loading -> ResultState.Loading
+        val allItems = mutableListOf<SalesInvoiceItem>()
+        var skip = 0
+        val take = 200
+        while (true) {
+            when (val result = reportsRemoteDataSource.getSalesInvoices(token, fromDate, toDate, paymentStatus, skip, take)) {
+                is ResultState.Success -> {
+                    allItems.addAll(result.data.items.map { it.toDomain() })
+                    if (!result.data.hasMore) break
+                    skip += result.data.items.size
+                }
+                is ResultState.Error -> {
+                    if (allItems.isEmpty()) return result
+                    break
+                }
+                ResultState.Loading -> return ResultState.Loading
+            }
         }
+        return ResultState.Success(allItems)
     }
 
     override suspend fun getSalesInvoiceDetail(token: String, invoiceId: Long): ResultState<SalesInvoiceDetail> {
@@ -266,6 +311,105 @@ class ReportsRepositoryImpl(
         )
         return when (val result = reportsRemoteDataSource.recordPayment(token, dto)) {
             is ResultState.Success -> ResultState.Success(result.data.toDomain())
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getProformaInvoices(
+        token: String,
+        status: String?
+    ): ResultState<List<com.havos.lubricerp.feature_reports.domain.model.ProformaInvoice>> {
+        val allItems = mutableListOf<com.havos.lubricerp.feature_reports.domain.model.ProformaInvoice>()
+        var skip = 0
+        val take = 200
+        while (true) {
+            when (val result = reportsRemoteDataSource.getProformaInvoices(token, status, skip, take)) {
+                is ResultState.Success -> {
+                    allItems.addAll(result.data.items.map { it.toDomain() })
+                    if (!result.data.hasMore) break
+                    skip += result.data.items.size
+                }
+                is ResultState.Error -> {
+                    if (allItems.isEmpty()) return result
+                    break
+                }
+                ResultState.Loading -> return ResultState.Loading
+            }
+        }
+        return ResultState.Success(allItems)
+    }
+
+    override suspend fun getProformaInvoiceDetail(
+        token: String,
+        id: Long
+    ): ResultState<com.havos.lubricerp.feature_reports.domain.model.ProformaInvoiceDetail> {
+        return when (val result = reportsRemoteDataSource.getProformaInvoiceDetail(token, id)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun createProformaInvoice(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest
+    ): ResultState<com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceResponse> {
+        return when (val result = reportsRemoteDataSource.createProformaInvoice(token, request.toDto())) {
+            is ResultState.Success -> {
+                val detail = result.data.toDomain()
+                ResultState.Success(
+                    com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceResponse(
+                        id = detail.id,
+                        proformaNumber = detail.proformaNumber
+                    )
+                )
+            }
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getProductSkus(
+        token: String,
+        gradeId: Int?
+    ): ResultState<List<com.havos.lubricerp.feature_reports.domain.model.ProductSku>> {
+        return when (val result = reportsRemoteDataSource.getProductSkus(token, gradeId)) {
+            is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun updateProformaInvoice(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest
+    ): ResultState<Unit> {
+        return when (val result = reportsRemoteDataSource.updateProformaInvoice(token, id, request.toDto())) {
+            is ResultState.Success -> ResultState.Success(Unit)
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun sendProformaInvoice(
+        token: String,
+        id: Long
+    ): ResultState<Unit> {
+        return when (val result = reportsRemoteDataSource.sendProformaInvoice(token, id)) {
+            is ResultState.Success -> ResultState.Success(Unit)
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun cancelProformaInvoice(
+        token: String,
+        id: Long
+    ): ResultState<Unit> {
+        return when (val result = reportsRemoteDataSource.cancelProformaInvoice(token, id)) {
+            is ResultState.Success -> ResultState.Success(Unit)
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }

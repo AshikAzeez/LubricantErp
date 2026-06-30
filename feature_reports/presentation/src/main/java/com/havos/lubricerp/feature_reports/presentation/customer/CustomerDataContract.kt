@@ -13,6 +13,9 @@ data class CustomerDataUiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val isLedgerLoading: Boolean = false,
+    val isLedgerLoadingMore: Boolean = false,
+    val ledgerHasMore: Boolean = true,
+    val ledgerTotalCount: Int = 0,
     val isMobileSummaryLoading: Boolean = false,
     val isOffline: Boolean = false,
     val retryPending: Boolean = false,
@@ -57,6 +60,7 @@ sealed interface CustomerDataIntent : UiIntent {
     data class LedgerToDateChanged(val date: String) : CustomerDataIntent
     data object LoadLedger : CustomerDataIntent
     data object LoadMobileSummary : CustomerDataIntent
+    data object LoadMoreLedger : CustomerDataIntent
     data class LedgerDatePreset(val label: String, val fromDate: String, val toDate: String) : CustomerDataIntent
     data object ShowPaymentSheet : CustomerDataIntent
     data object DismissPaymentSheet : CustomerDataIntent
@@ -80,6 +84,7 @@ sealed interface CustomerDataAction {
     data class LedgerToDateChanged(val date: String) : CustomerDataAction
     data object LoadLedger : CustomerDataAction
     data object LoadMobileSummary : CustomerDataAction
+    data object LoadMoreLedger : CustomerDataAction
     data class LedgerDatePreset(val label: String, val fromDate: String, val toDate: String) : CustomerDataAction
     data object Retry : CustomerDataAction
     data object Refresh : CustomerDataAction

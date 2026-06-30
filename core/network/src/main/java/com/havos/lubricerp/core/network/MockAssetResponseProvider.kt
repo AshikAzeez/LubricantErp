@@ -140,6 +140,17 @@ class MockAssetResponseProvider(
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/notifications") ->
             respondNotificationsPaged(this, request)
 
+        // ── Proforma Invoices ────────────────────────────────────────────────
+        request.method == HttpMethod.Get && normalizedPath(request).let {
+            it.startsWith("api/proforma-invoices/")
+        } -> respondAsset(this, "mock/proforma-invoices/proforma_invoice_detail.json")
+
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/proforma-invoices") ->
+            respondAsset(this, "mock/proforma-invoices/proforma_invoices.json")
+
+        request.method == HttpMethod.Post && normalizedPath(request).contains("api/proforma-invoices") ->
+            respondAsset(this, "mock/proforma-invoices/create_proforma_invoice.json")
+
         // ── Fallback ──────────────────────────────────────────────────────────
         else -> this.respond(
             content = "{\"error\":\"Mock route not found\",\"path\":\"${normalizedPath(request)}\",\"method\":\"${request.method.value}\"}",

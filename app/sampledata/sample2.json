@@ -1,0 +1,21 @@
+{
+  "customerId": 5,
+  "proformaDate": "2026-05-24",
+  "validUntilDate": "2026-06-07",
+  "remarks": "As per your inquiry dated 22-May-2026",
+  "termsAndConditions": "Payment within 14 days.",
+  "lines": [
+    {
+      "deliveryType": "Packaged",
+      "productGradeId": 1,
+      "productSKUId": 2,
+      "hsnCode": "27101980",
+      "description": "CF4 15W40 Engine Oil 5 Litre",
+      "quantity": 200,
+      "unitPrice": 1150.00,
+      "taxRate": 18.00,
+      "discountPercent": 0.00,
+      "unitOfMeasurement": "NOS"
+    }
+  ]
+}

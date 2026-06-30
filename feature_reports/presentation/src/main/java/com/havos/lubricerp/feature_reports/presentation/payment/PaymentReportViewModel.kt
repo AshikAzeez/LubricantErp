@@ -34,6 +34,10 @@ class PaymentReportViewModel(
 
     private val _state = MutableStateFlow(PaymentReportUiState())
     val state: StateFlow<PaymentReportUiState> = _state.asStateFlow()
+    private var receivedSkip: Int = 0
+    private var receivedHasMore: Boolean = true
+    private var pendingSkip: Int = 0
+    private var pendingHasMore: Boolean = true
 
     private val _effect = MutableSharedFlow<PaymentReportEffect>()
     val effect: SharedFlow<PaymentReportEffect> = _effect.asSharedFlow()
@@ -59,8 +63,12 @@ class PaymentReportViewModel(
     private fun loadAll(token: String) {
         if (token.isBlank()) return
         val s = _state.value
-        loadReceived(token, s.receivedDateFrom, s.receivedDateTo)
-        loadPending(token)
+        receivedSkip = 0
+        receivedHasMore = true
+        pendingSkip = 0
+        pendingHasMore = true
+        loadReceived(token, s.receivedDateFrom, s.receivedDateTo, skip = 0)
+        loadPending(token, skip = 0)
         loadAccountsSummary(token, s.accountsDateFrom, s.accountsDateTo)
     }
 
@@ -68,25 +76,70 @@ class PaymentReportViewModel(
         return runCatching { apiFmt.format(displayFmt.parse(displayDate)!!) }.getOrElse { displayDate }
     }
 
-    private fun loadReceived(token: String, displayFrom: String, displayTo: String) {
+    private fun loadReceived(token: String, displayFrom: String, displayTo: String, skip: Int = 0, take: Int = 20) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true, errorMessage = null) }
-            when (val result = getPaymentsReceivedUseCase(token, DateRangeFilter(toApiDate(displayFrom), toApiDate(displayTo)))) {
-                is ResultState.Success -> _state.update { it.copy(isLoading = false, receivedItems = result.data, isRefreshing = false) }
-                is ResultState.Error -> _state.update { it.copy(isLoading = false, errorMessage = result.message, isRefreshing = false) }
+            val loadingMore = _state.value.isReceivedLoadingMore
+            if (!loadingMore) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            when (val result = getPaymentsReceivedUseCase(
+                token, DateRangeFilter(toApiDate(displayFrom), toApiDate(displayTo)), skip, take
+            )) {
+                is ResultState.Success -> {
+                    val paged = result.data
+                    receivedHasMore = paged.hasMore
+                    receivedSkip = skip + paged.items.size
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isReceivedLoadingMore = false,
+                            receivedItems = if (skip == 0) paged.items else it.receivedItems + paged.items,
+                            receivedTotalCount = paged.totalCount,
+                            isRefreshing = false
+                        )
+                    }
+                }
+                is ResultState.Error -> _state.update { it.copy(isLoading = false, isReceivedLoadingMore = false, errorMessage = result.message, isRefreshing = false) }
                 ResultState.Loading -> {}
             }
         }
     }
 
-    private fun loadPending(token: String) {
+    private fun loadMoreReceived() {
+        val s = _state.value
+        if (!receivedHasMore || s.isReceivedLoadingMore || s.isLoading) return
+        _state.update { it.copy(isReceivedLoadingMore = true) }
+        loadReceived(getToken(), s.receivedDateFrom, s.receivedDateTo, skip = receivedSkip)
+    }
+
+    private fun loadPending(token: String, skip: Int = 0, take: Int = 20) {
         viewModelScope.launch {
-            when (val result = getPaymentsPendingUseCase(token)) {
-                is ResultState.Success -> _state.update { it.copy(pendingItems = result.data) }
-                is ResultState.Error -> {}
+            val loadingMore = _state.value.isPendingLoadingMore
+            if (!loadingMore) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            when (val result = getPaymentsPendingUseCase(token, skip, take)) {
+                is ResultState.Success -> {
+                    val paged = result.data
+                    pendingHasMore = paged.hasMore
+                    pendingSkip = skip + paged.items.size
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            isPendingLoadingMore = false,
+                            pendingItems = if (skip == 0) paged.items else it.pendingItems + paged.items,
+                            pendingTotalCount = paged.totalCount,
+                            isRefreshing = false
+                        )
+                    }
+                }
+                is ResultState.Error -> _state.update { it.copy(isLoading = false, isPendingLoadingMore = false, isRefreshing = false) }
                 ResultState.Loading -> {}
             }
         }
+    }
+
+    private fun loadMorePending() {
+        val s = _state.value
+        if (!pendingHasMore || s.isPendingLoadingMore || s.isLoading) return
+        _state.update { it.copy(isPendingLoadingMore = true) }
+        loadPending(getToken(), skip = pendingSkip)
     }
 
     private fun loadAccountsSummary(token: String, displayFrom: String, displayTo: String) {
@@ -132,8 +185,16 @@ class PaymentReportViewModel(
                 _state.update { it.copy(isRefreshing = true) }
                 loadAll(getToken())
             }
-            is PaymentReportIntent.LoadReceived -> loadReceived(getToken(), intent.fromDate, intent.toDate)
-            PaymentReportIntent.LoadPending -> loadPending(getToken())
+            is PaymentReportIntent.LoadReceived -> {
+                receivedSkip = 0; receivedHasMore = true
+                loadReceived(getToken(), intent.fromDate, intent.toDate, skip = 0)
+            }
+            PaymentReportIntent.LoadPending -> {
+                pendingSkip = 0; pendingHasMore = true
+                loadPending(getToken(), skip = 0)
+            }
+            PaymentReportIntent.LoadMoreReceived -> loadMoreReceived()
+            PaymentReportIntent.LoadMorePending -> loadMorePending()
             is PaymentReportIntent.LoadAccountsSummary -> loadAccountsSummary(getToken(), intent.fromDate, intent.toDate)
         }
     }

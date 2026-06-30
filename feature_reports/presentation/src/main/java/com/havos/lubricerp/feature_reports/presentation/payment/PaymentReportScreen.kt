@@ -21,6 +21,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -156,6 +159,8 @@ fun PaymentReportRoute(
                 )
                 PaymentReportAction.Retry -> viewModel.onIntent(PaymentReportIntent.Retry)
                 PaymentReportAction.Refresh -> viewModel.onIntent(PaymentReportIntent.Refresh)
+                PaymentReportAction.LoadMoreReceived -> viewModel.onIntent(PaymentReportIntent.LoadMoreReceived)
+                PaymentReportAction.LoadMorePending -> viewModel.onIntent(PaymentReportIntent.LoadMorePending)
             }
         },
         onBackClick = onBackClick
@@ -284,6 +289,20 @@ private fun ReceivedTodayTab(
             timeZone = java.util.TimeZone.getTimeZone("UTC")
         }
     }
+    val receivedListState = rememberLazyListState()
+    val shouldLoadMoreReceived = remember {
+        derivedStateOf {
+            val layoutInfo = receivedListState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            state.receivedHasMore && !state.isReceivedLoadingMore && lastVisibleItem >= totalItems - 3
+        }
+    }
+    LaunchedEffect(shouldLoadMoreReceived.value) {
+        if (shouldLoadMoreReceived.value) {
+            onAction(PaymentReportAction.LoadMoreReceived)
+        }
+    }
     val fromMillis = remember(state.receivedDateFrom) {
         runCatching { utcFmt.parse(state.receivedDateFrom)?.time }.getOrNull()
     }
@@ -356,6 +375,21 @@ private fun ReceivedTodayTab(
             }
         }
 
+        if (state.receivedHasMore) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.isReceivedLoadingMore) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+            }
+        }
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 }
@@ -370,6 +404,20 @@ private fun PendingCollectionsTab(
         if (state.overdueOnly) state.pendingItems.filter { it.isOverdue }
         else state.pendingItems
     }
+    val pendingListState = rememberLazyListState()
+    val shouldLoadMorePending = remember {
+        derivedStateOf {
+            val layoutInfo = pendingListState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            state.pendingHasMore && !state.isPendingLoadingMore && lastVisibleItem >= totalItems - 3
+        }
+    }
+    LaunchedEffect(shouldLoadMorePending.value) {
+        if (shouldLoadMorePending.value) {
+            onAction(PaymentReportAction.LoadMorePending)
+        }
+    }
 
     if (state.isLoading && state.pendingItems.isEmpty()) {
         PaymentShimmer()
@@ -382,6 +430,7 @@ private fun PendingCollectionsTab(
     }
 
     LazyColumn(
+        state = pendingListState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -420,6 +469,22 @@ private fun PendingCollectionsTab(
             }
         }
 
+        if (state.pendingHasMore) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.isPendingLoadingMore) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+            }
+        }
+
         item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 }
@@ -433,6 +498,20 @@ private fun OverdueCustomersTab(
     val overdueItems = remember(state.pendingItems) {
         state.pendingItems.filter { it.isOverdue }
     }
+    val overdueListState = rememberLazyListState()
+    val shouldLoadMoreOverdue = remember {
+        derivedStateOf {
+            val layoutInfo = overdueListState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            state.pendingHasMore && !state.isPendingLoadingMore && lastVisibleItem >= totalItems - 3
+        }
+    }
+    LaunchedEffect(shouldLoadMoreOverdue.value) {
+        if (shouldLoadMoreOverdue.value) {
+            onAction(PaymentReportAction.LoadMorePending)
+        }
+    }
 
     if (state.isLoading && state.pendingItems.isEmpty()) {
         PaymentShimmer()
@@ -445,6 +524,7 @@ private fun OverdueCustomersTab(
     }
 
     LazyColumn(
+        state = overdueListState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -465,6 +545,22 @@ private fun OverdueCustomersTab(
         } else {
             items(overdueItems, key = { it.customerId }) { customer ->
                 PendingCustomerRow(customer = customer, currencyFmt = currencyFmt, onCollect = { onAction(PaymentReportAction.OpenCollectPayment) })
+            }
+        }
+
+        if (state.pendingHasMore) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.isPendingLoadingMore) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(16.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
             }
         }
 
@@ -504,7 +600,7 @@ private fun AccountsSummaryTab(
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         item {
             Row(
@@ -740,7 +836,7 @@ private fun InvoiceSelector(
     onInvoiceSelected: (Long) -> Unit
 ) {
     val candidates = remember(pendingItems) {
-        pendingItems.filter { it.outstandingAmount > 0 }
+        pendingItems.filter { it.totalOutstanding > 0 }
     }
 
     if (candidates.isEmpty()) {
@@ -763,7 +859,7 @@ private fun InvoiceSelector(
                 onClick = { onInvoiceSelected(customer.customerId) },
                 label = {
                     Text(
-                        text = "${customer.customerName} (₹${currencyFmt.format(customer.outstandingAmount)})",
+                        text = "${customer.customerName} (₹${currencyFmt.format(customer.totalOutstanding)})",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -971,21 +1067,21 @@ internal fun PendingCustomerRow(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Outstanding: ₹${currencyFmt.format(customer.outstandingAmount)}",
+                    text = "Outstanding: ₹${currencyFmt.format(customer.totalOutstanding)}",
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "${customer.unpaidInvoiceCount} invoice(s)",
+                    text = "${customer.invoiceCount} invoice(s)",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            if (customer.oldestDueDate.isNotBlank()) {
+            if (customer.oldestOutstandingDays > 0) {
                 Text(
-                    text = "Oldest due: ${customer.oldestDueDate}",
+                    text = "Oldest due: ${customer.oldestOutstandingDays} days",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

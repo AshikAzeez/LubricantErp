@@ -2,7 +2,9 @@ package com.havos.lubricerp.feature_reports.presentation.home
 
 import app.cash.turbine.test
 import com.havos.lubricerp.feature_reports.domain.model.AuthSession
+import com.havos.lubricerp.feature_reports.domain.usecase.EnsureProfileLoadedUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.LogoutUseCase
+import com.havos.lubricerp.feature_reports.domain.usecase.ObserveProfileUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
 import com.havos.lubricerp.feature_reports.presentation.MainDispatcherRule
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportMenu
@@ -14,8 +16,10 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -27,11 +31,23 @@ class HomeViewModelTest {
     val dispatcherRule = MainDispatcherRule()
 
     private val observeSessionUseCase: ObserveSessionUseCase = mock()
+    private val observeProfileUseCase: ObserveProfileUseCase = mock()
+    private val ensureProfileLoadedUseCase: EnsureProfileLoadedUseCase = mock()
     private val logoutUseCase: LogoutUseCase = mock()
+
+    @Before
+    fun setUp() = runTest {
+        whenever(observeProfileUseCase()).thenReturn(flowOf(null))
+        whenever(ensureProfileLoadedUseCase(any())).thenReturn(
+            com.havos.lubricerp.core.common.ResultState.Error("Profile load failed")
+        )
+    }
 
     private fun createViewModel(): HomeViewModel {
         return HomeViewModel(
             observeSessionUseCase = observeSessionUseCase,
+            observeProfileUseCase = observeProfileUseCase,
+            ensureProfileLoadedUseCase = ensureProfileLoadedUseCase,
             logoutUseCase = logoutUseCase
         )
     }
@@ -51,7 +67,7 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun initialState_usernameIsEmpty() = runTest {
+    fun initialState_greetingNameIsEmpty() = runTest {
         // Given
         whenever(observeSessionUseCase()).thenReturn(flowOf(null))
 
@@ -60,7 +76,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("", viewModel.state.value.username)
+        assertEquals("", viewModel.state.value.greetingName)
     }
 
     @Test
@@ -77,7 +93,7 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun observeSession_updatesUsername() = runTest {
+    fun observeSession_updatesGreetingName() = runTest {
         // Given
         val session = AuthSession(username = "john.doe@example.com", token = "token123")
         whenever(observeSessionUseCase()).thenReturn(flowOf(session))
@@ -87,11 +103,11 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("John Doe", viewModel.state.value.username)
+        assertEquals("John Doe", viewModel.state.value.greetingName)
     }
 
     @Test
-    fun observeSession_withNullSession_setsEmptyUsername() = runTest {
+    fun observeSession_withNullSession_setsEmptyGreetingName() = runTest {
         // Given
         whenever(observeSessionUseCase()).thenReturn(flowOf(null))
 
@@ -100,7 +116,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("", viewModel.state.value.username)
+        assertEquals("", viewModel.state.value.greetingName)
     }
 
     @Test
@@ -222,7 +238,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("John Doe", viewModel.state.value.username)
+        assertEquals("John Doe", viewModel.state.value.greetingName)
     }
 
     @Test
@@ -236,7 +252,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("John Doe", viewModel.state.value.username)
+        assertEquals("John Doe", viewModel.state.value.greetingName)
     }
 
     @Test
@@ -250,7 +266,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("John Doe", viewModel.state.value.username)
+        assertEquals("John Doe", viewModel.state.value.greetingName)
     }
 
     @Test
@@ -264,7 +280,7 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("", viewModel.state.value.username)
+        assertEquals("", viewModel.state.value.greetingName)
     }
 
     @Test
@@ -278,6 +294,6 @@ class HomeViewModelTest {
         advanceUntilIdle()
 
         // Then
-        assertEquals("@example.com", viewModel.state.value.username)
+        assertEquals("@example.com", viewModel.state.value.greetingName)
     }
 }

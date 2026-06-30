@@ -253,6 +253,12 @@ fun HomeTabScreen(
                     }
 
                     item {
+                        ProformaInvoiceCard(
+                            onClick = { onNavigateToReport("proforma_invoices") }
+                        )
+                    }
+
+                    item {
                         TankUtilizationCard(
                             onClick = { onNavigateToReport("tank_stock_summary") }
                         )
@@ -834,6 +840,210 @@ private fun TankUtilizationCard(
                     Icon(
                         imageVector = Icons.Filled.Inventory,
                         contentDescription = "Tank stock report",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(26.dp)
+                            .graphicsLayer { scaleX = iconPulse; scaleY = iconPulse }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProformaInvoiceCard(
+    onClick: () -> Unit
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val cardScale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessHigh
+        ),
+        label = "proformaCardScale"
+    )
+
+    val infiniteTransition = rememberInfiniteTransition(label = "proformaCardAnim")
+
+    val arrowOffset by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 900, easing = EaseInOutCubic),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "proformaArrowOffset"
+    )
+
+    val shimmerOffset by infiniteTransition.animateFloat(
+        initialValue = -1f,
+        targetValue = 2f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 2200, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "proformaShimmerOffset"
+    )
+
+    val iconPulse by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1400, easing = EaseInOutCubic),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "proformaIconPulse"
+    )
+
+    val rippleRadius by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1800, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "proformaRippleRadius"
+    )
+    val rippleAlpha = if (rippleRadius < 0.5f) rippleRadius * 2f else (1f - rippleRadius) * 2f
+
+    val startColor = Color(0xFFEC4899)
+    val endColor = Color(0xFF8B5CF6)
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .scale(cardScale)
+            .clip(RoundedCornerShape(20.dp))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        startColor.copy(alpha = 0.85f),
+                        endColor.copy(alpha = 0.75f),
+                        startColor.copy(alpha = 0.65f)
+                    )
+                )
+            )
+            .background(
+                Brush.linearGradient(
+                    colorStops = arrayOf(
+                        0f to Color.Transparent,
+                        (shimmerOffset * 0.3f + 0.35f).coerceIn(0f, 1f) to Color.White.copy(alpha = 0.10f),
+                        (shimmerOffset * 0.3f + 0.50f).coerceIn(0f, 1f) to Color.White.copy(alpha = 0.18f),
+                        (shimmerOffset * 0.3f + 0.65f).coerceIn(0f, 1f) to Color.White.copy(alpha = 0.10f),
+                        1f to Color.Transparent
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                brush = Brush.linearGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.35f),
+                        Color.White.copy(alpha = 0.10f)
+                    )
+                ),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            )
+            .padding(horizontal = 20.dp, vertical = 18.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color.White.copy(alpha = 0.18f))
+                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                ) {
+                    Text(
+                        text = "TAP TO EXPLORE",
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White.copy(alpha = 0.90f),
+                        fontSize = 9.sp,
+                        letterSpacing = 0.8.sp
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Proforma Invoice",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "View and filter proforma invoices",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.80f)
+                )
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50.dp))
+                        .background(Color.White.copy(alpha = 0.22f))
+                        .border(
+                            1.dp,
+                            Color.White.copy(alpha = 0.40f),
+                            RoundedCornerShape(50.dp)
+                        )
+                        .padding(horizontal = 14.dp, vertical = 7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "View Screen",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(14.dp)
+                            .offset(x = arrowOffset.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(72.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size((40 + rippleRadius * 32).dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = rippleAlpha * 0.12f))
+                )
+                Box(
+                    modifier = Modifier
+                        .size(54.dp)
+                        .clip(CircleShape)
+                        .background(Color.White.copy(alpha = 0.20f))
+                        .border(1.5.dp, Color.White.copy(alpha = 0.35f), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Receipt,
+                        contentDescription = "Proforma Invoice",
                         tint = Color.White,
                         modifier = Modifier
                             .size(26.dp)

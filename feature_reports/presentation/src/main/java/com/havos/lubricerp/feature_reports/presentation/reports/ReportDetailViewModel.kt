@@ -225,7 +225,14 @@ class ReportDetailViewModel(
     private fun fetchTankStockSummary(isRefresh: Boolean = false) {
         isFetchInFlight = true
         viewModelScope.launch {
-            when (val result = getTankStockSummaryUseCase()) {
+            if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) {
+                _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = "Session not available.") }
+                isFetchInFlight = false
+                return@launch
+            }
+            when (val result = getTankStockSummaryUseCase(token)) {
                 is ResultState.Success -> {
                     _state.update {
                         ReportDetailReducer.reduceForTankSuccess(it, result.data)
@@ -237,7 +244,7 @@ class ReportDetailViewModel(
                         it, if (result.isOffline) "No internet connection" else result.message
                     ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
                 }
-                ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
+                ResultState.Loading -> Unit
             }
             isFetchInFlight = false
         }
@@ -334,7 +341,7 @@ class ReportDetailViewModel(
                         val withSales = ReportDetailReducer.reduceForSalesSummarySuccess(it, result.data, dashboardCount)
                             .copy(isRefreshing = false, isOffline = false, retryPending = false)
                         when (paymentsResult) {
-                            is ResultState.Success -> ReportDetailReducer.reduceForPaymentsReceivedSuccess(withSales, paymentsResult.data)
+                            is ResultState.Success -> ReportDetailReducer.reduceForPaymentsReceivedSuccess(withSales, paymentsResult.data.items)
                             else -> withSales.copy(paymentReceivedItems = emptyList())
                         }
                     }
