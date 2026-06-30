@@ -1,38 +1,16 @@
 package com.havos.lubricerp.feature_reports.presentation.reports
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Storage
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -41,17 +19,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.havos.lubricerp.feature_reports.domain.model.TankStockItem
 import java.text.NumberFormat
+import kotlin.math.PI
+import kotlin.math.sin
 
 @Composable
 internal fun TankStockSummaryScreen(
@@ -309,14 +292,36 @@ private fun SectionTitleWithBadge(
 
 @Composable
 private fun TankLevelCapsule(tank: TankStockItem) {
-    val fillFraction = (tank.utilizationPercent.toFloat() / 100f).coerceIn(0f, 1f)
+    val targetFraction = (tank.utilizationPercent.toFloat() / 100f).coerceIn(0f, 1f)
+
+    // Smoothly animates toward the new level whenever tank data updates,
+    // instead of snapping the fill instantly.
+    val animatedFraction by animateFloatAsState(
+        targetValue = targetFraction,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow,
+        ),
+        label = "tankFill",
+    )
+
+    // Continuous gentle sloshing motion on the liquid surface.
+    val infiniteTransition = rememberInfiniteTransition(label = "liquidWave")
+    val wavePhase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = (2 * PI).toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 3200, easing = LinearEasing),
+        ),
+        label = "wavePhase",
+    )
 
     val tankBaseColor = MaterialTheme.colorScheme.surfaceContainerHighest
-    val tankBaseShadow = MaterialTheme.colorScheme.surfaceContainerHighest
-        .copy(alpha = 0.7f)
+    val tankShadeColor = MaterialTheme.colorScheme.surfaceContainerHigh
     val rimColor = MaterialTheme.colorScheme.outlineVariant
-    val liquidTop = MaterialTheme.colorScheme.primary.copy(alpha = 0.95f)
-    val liquidBottom = MaterialTheme.colorScheme.primary.copy(alpha = 0.65f)
+    val liquidTop = MaterialTheme.colorScheme.primary.copy(alpha = 0.92f)
+    val liquidBottom = MaterialTheme.colorScheme.primary.copy(alpha = 0.62f)
+    val liquidHighlight = Color.White.copy(alpha = 0.25f)
 
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Canvas(
@@ -326,62 +331,73 @@ private fun TankLevelCapsule(tank: TankStockItem) {
         ) {
             val w = size.width
             val h = size.height
-            val capH = w * 0.32f               // height of the top/bottom ellipses
+            val capH = w * 0.32f
             val bodyTop = capH / 2f
             val bodyBottom = h - capH / 2f
+            val strokePx = 1.5.dp.toPx()
 
-            // ---- 1. Tank base (bottom curve peeks out below the body rect) ----
-            drawOval(
-                color = tankBaseShadow,
-                topLeft = Offset(0f, h - capH),
-                size = Size(w, capH),
-            )
-
-            // ---- 2. Tank body ----
-            drawRect(
-                color = tankBaseColor,
-                topLeft = Offset(0f, bodyTop),
-                size = Size(w, bodyBottom - bodyTop),
-            )
-
-            // ---- 3. Tank lid (covers the rect's top edge, gives the dome look) ----
-            drawOval(
-                brush = Brush.verticalGradient(
-                    colors = listOf(tankBaseColor.copy(alpha = 1f), tankBaseColor),
-                ),
-                topLeft = Offset(0f, 0f),
-                size = Size(w, capH),
-            )
-
-            // ---- 4. Liquid fill, clamped between empty (bottom) and full (top) ----
-            val liquidSurfaceY = lerp(bodyBottom, capH / 2f, fillFraction)
-            if (fillFraction > 0.01f) {
-                drawRect(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(liquidTop, liquidBottom),
-                    ),
-                    topLeft = Offset(0f, liquidSurfaceY),
-                    size = Size(w, bodyBottom - liquidSurfaceY),
-                )
-                // meniscus — curved liquid surface instead of a flat cut
-                drawOval(
-                    brush = Brush.verticalGradient(
-                        colors = listOf(liquidTop.copy(alpha = 1f), liquidBottom),
-                    ),
-                    topLeft = Offset(0f, liquidSurfaceY - capH / 2f),
-                    size = Size(w, capH),
-                )
+            // Tank interior silhouette (bottom cap + body only — deliberately
+            // excludes the top dome) used purely as a clip mask. Anything
+            // drawn through this can never visually escape the tank.
+            val tankInterior = Path().apply {
+                addOval(Rect(Offset(0f, h - capH), Size(w, capH)))
+                addRect(Rect(Offset(0f, bodyTop), Offset(w, bodyBottom)))
             }
 
-            // ---- 5. Rim / outline strokes (drawn last so they stay visible over liquid) ----
+            // ---- 1. Bottom cap shadow ----
+            drawOval(color = tankShadeColor, topLeft = Offset(0f, h - capH), size = Size(w, capH))
+
+            // ---- 2. Tank body ----
+            drawRect(color = tankBaseColor, topLeft = Offset(0f, bodyTop), size = Size(w, bodyBottom - bodyTop))
+
+            // ---- 3. Liquid, clipped to the tank interior ----
+            if (animatedFraction > 0.005f) {
+                clipPath(tankInterior) {
+                    val surfaceY = lerp(bodyBottom, bodyTop, animatedFraction)
+                    val waveAmp = 2.dp.toPx() * (1f - animatedFraction * 0.3f) // calms down near full
+                    val steps = 20
+
+                    val surfaceLine = Path()
+                    val fillPath = Path()
+                    for (i in 0..steps) {
+                        val x = w * i / steps
+                        val y = surfaceY + sin(wavePhase + x / w * 2 * PI.toFloat()) * waveAmp
+                        if (i == 0) {
+                            surfaceLine.moveTo(x, y)
+                            fillPath.moveTo(x, y)
+                        } else {
+                            surfaceLine.lineTo(x, y)
+                            fillPath.lineTo(x, y)
+                        }
+                    }
+                    fillPath.lineTo(w, bodyBottom + capH)
+                    fillPath.lineTo(0f, bodyBottom + capH)
+                    fillPath.close()
+
+                    drawPath(
+                        path = fillPath,
+                        brush = Brush.verticalGradient(
+                            colors = listOf(liquidTop, liquidBottom),
+                            startY = surfaceY - waveAmp,
+                            endY = bodyBottom,
+                        ),
+                    )
+                    drawPath(path = surfaceLine, color = liquidHighlight, style = Stroke(width = 1.dp.toPx()))
+                }
+            }
+
+            // ---- 4. Lid — drawn after the liquid so the rim always reads as
+            // tank metal, never gets painted over even at 100% fill ----
             drawOval(
-                color = rimColor,
+                brush = Brush.verticalGradient(colors = listOf(tankBaseColor, tankShadeColor)),
                 topLeft = Offset(0f, 0f),
                 size = Size(w, capH),
-                style = Stroke(width = 1.5.dp.toPx()),
             )
-            drawLine(rimColor, Offset(0f, bodyTop), Offset(0f, bodyBottom), strokeWidth = 1.5.dp.toPx())
-            drawLine(rimColor, Offset(w, bodyTop), Offset(w, bodyBottom), strokeWidth = 1.5.dp.toPx())
+
+            // ---- 5. Outlines ----
+            drawOval(rimColor, topLeft = Offset(0f, 0f), size = Size(w, capH), style = Stroke(strokePx))
+            drawLine(rimColor, Offset(0f, bodyTop), Offset(0f, bodyBottom), strokeWidth = strokePx)
+            drawLine(rimColor, Offset(w, bodyTop), Offset(w, bodyBottom), strokeWidth = strokePx)
             drawArc(
                 color = rimColor,
                 startAngle = 0f,
@@ -389,41 +405,28 @@ private fun TankLevelCapsule(tank: TankStockItem) {
                 useCenter = false,
                 topLeft = Offset(0f, h - capH),
                 size = Size(w, capH),
-                style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round),
+                style = Stroke(width = strokePx, cap = StrokeCap.Round),
             )
 
             // ---- 6. Barrel ridges ----
             listOf(0.4f, 0.7f).forEach { t ->
                 val y = bodyTop + (bodyBottom - bodyTop) * t
-                drawLine(
-                    color = rimColor.copy(alpha = 0.6f),
-                    start = Offset(0f, y),
-                    end = Offset(w, y),
-                    strokeWidth = 2.dp.toPx(),
-                )
+                drawLine(rimColor.copy(alpha = 0.6f), Offset(0f, y), Offset(w, y), strokeWidth = 2.dp.toPx())
             }
 
-            // ---- 7. Bung cap on the lid ----
-            drawCircle(
-                color = rimColor,
-                radius = 3.dp.toPx(),
-                center = Offset(w / 2f, capH * 0.3f),
-            )
+            // ---- 7. Bung cap ----
+            drawCircle(color = rimColor, radius = 3.dp.toPx(), center = Offset(w / 2f, capH * 0.3f))
 
-            // ---- 8. Subtle metal sheen ----
+            // ---- 8. Metal sheen ----
             drawRect(
-                color = androidx.compose.ui.graphics.Color.White.copy(alpha = 0.12f),
+                color = Color.White.copy(alpha = 0.12f),
                 topLeft = Offset(w * 0.16f, bodyTop + 2.dp.toPx()),
                 size = Size(w * 0.14f, bodyBottom - bodyTop - 4.dp.toPx()),
             )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = tank.tankCode,
-            style = MaterialTheme.typography.labelSmall,
-            textAlign = TextAlign.Center,
-        )
+        Text(text = tank.tankCode, style = MaterialTheme.typography.labelSmall, textAlign = TextAlign.Center)
         Text(
             text = "${tank.utilizationPercent}%",
             style = MaterialTheme.typography.labelSmall,

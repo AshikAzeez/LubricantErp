@@ -2,42 +2,48 @@
   "success": true,
   "message": null,
   "errors": null,
-  "data": [
-    {
-      "id": 104,
-      "soNumber": "SO-2526-0098",
-      "soDate": "2026-05-10",
-      "customerName": "Greenfield Motors",
-      "status": "Dispatched",
-      "totalAmount": 96500.00,
-      "expectedDeliveryDate": "2026-05-25",
-      "lineCount": 2,
-      "deliveredPercentage": 100.0,
-      "salesmanName": "Rohit Verma"
-    },
-    {
-      "id": 105,
-      "soNumber": "SO-2526-0097",
-      "soDate": "2026-05-08",
-      "customerName": "Blue Diamond Lubricants",
-      "status": "Dispatched",
-      "totalAmount": 312000.00,
-      "expectedDeliveryDate": "2026-05-22",
-      "lineCount": 4,
-      "deliveredPercentage": 75.0,
-      "salesmanName": "Amit Sharma"
-    },
-    {
-      "id": 106,
-      "soNumber": "SO-2526-0095",
-      "soDate": "2026-05-05",
-      "customerName": "City Auto Spares",
-      "status": "Dispatched",
-      "totalAmount": 184500.00,
-      "expectedDeliveryDate": "2026-05-20",
-      "lineCount": 3,
-      "deliveredPercentage": 100.0,
-      "salesmanName": "Suresh Patel"
-    }
-  ]
+  "data": {
+    "items": [
+      {
+        "id": 104,
+        "soNumber": "SO-2526-0098",
+        "soDate": "2026-05-10",
+        "customerName": "Greenfield Motors",
+        "status": "Dispatched",
+        "totalAmount": 96500.00,
+        "expectedDeliveryDate": "2026-05-25",
+        "lineCount": 2,
+        "deliveredPercentage": 100.0,
+        "salesmanName": "Rohit Verma"
+      },
+      {
+        "id": 105,
+        "soNumber": "SO-2526-0097",
+        "soDate": "2026-05-08",
+        "customerName": "Blue Diamond Lubricants",
+        "status": "Dispatched",
+        "totalAmount": 312000.00,
+        "expectedDeliveryDate": "2026-05-22",
+        "lineCount": 4,
+        "deliveredPercentage": 75.0,
+        "salesmanName": "Amit Sharma"
+      },
+      {
+        "id": 106,
+        "soNumber": "SO-2526-0095",
+        "soDate": "2026-05-05",
+        "customerName": "City Auto Spares",
+        "status": "Dispatched",
+        "totalAmount": 184500.00,
+        "expectedDeliveryDate": "2026-05-20",
+        "lineCount": 3,
+        "deliveredPercentage": 100.0,
+        "salesmanName": "Suresh Patel"
+      }
+    ],
+    "totalCount": 3,
+    "skip": 0,
+    "take": 200,
+    "hasMore": false
+  }
 }

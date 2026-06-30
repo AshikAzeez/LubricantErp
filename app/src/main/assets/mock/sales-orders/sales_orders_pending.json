@@ -2,42 +2,48 @@
   "success": true,
   "message": null,
   "errors": null,
-  "data": [
-    {
-      "id": 101,
-      "soNumber": "SO-2526-0101",
-      "soDate": "2026-05-20",
-      "customerName": "Ravi Motor Works",
-      "status": "Confirmed",
-      "totalAmount": 142500.00,
-      "expectedDeliveryDate": "2026-06-15",
-      "lineCount": 3,
-      "deliveredPercentage": 0.0,
-      "salesmanName": "Amit Sharma"
-    },
-    {
-      "id": 102,
-      "soNumber": "SO-2526-0102",
-      "soDate": "2026-05-21",
-      "customerName": "Ahmed Trading Co.",
-      "status": "Confirmed",
-      "totalAmount": 87500.00,
-      "expectedDeliveryDate": "2026-06-18",
-      "lineCount": 2,
-      "deliveredPercentage": 0.0,
-      "salesmanName": "Suresh Patel"
-    },
-    {
-      "id": 103,
-      "soNumber": "SO-2526-0103",
-      "soDate": "2026-05-22",
-      "customerName": "Kiran Auto Parts",
-      "status": "Confirmed",
-      "totalAmount": 221000.00,
-      "expectedDeliveryDate": "2026-06-20",
-      "lineCount": 5,
-      "deliveredPercentage": 0.0,
-      "salesmanName": "Priya Singh"
-    }
-  ]
+  "data": {
+    "items": [
+      {
+        "id": 101,
+        "soNumber": "SO-2526-0101",
+        "soDate": "2026-05-20",
+        "customerName": "Ravi Motor Works",
+        "status": "Confirmed",
+        "totalAmount": 142500.00,
+        "expectedDeliveryDate": "2026-06-15",
+        "lineCount": 3,
+        "deliveredPercentage": 0.0,
+        "salesmanName": "Amit Sharma"
+      },
+      {
+        "id": 102,
+        "soNumber": "SO-2526-0102",
+        "soDate": "2026-05-21",
+        "customerName": "Ahmed Trading Co.",
+        "status": "Confirmed",
+        "totalAmount": 87500.00,
+        "expectedDeliveryDate": "2026-06-18",
+        "lineCount": 2,
+        "deliveredPercentage": 0.0,
+        "salesmanName": "Suresh Patel"
+      },
+      {
+        "id": 103,
+        "soNumber": "SO-2526-0103",
+        "soDate": "2026-05-22",
+        "customerName": "Kiran Auto Parts",
+        "status": "Confirmed",
+        "totalAmount": 221000.00,
+        "expectedDeliveryDate": "2026-06-20",
+        "lineCount": 5,
+        "deliveredPercentage": 0.0,
+        "salesmanName": "Priya Singh"
+      }
+    ],
+    "totalCount": 3,
+    "skip": 0,
+    "take": 200,
+    "hasMore": false
+  }
 }
