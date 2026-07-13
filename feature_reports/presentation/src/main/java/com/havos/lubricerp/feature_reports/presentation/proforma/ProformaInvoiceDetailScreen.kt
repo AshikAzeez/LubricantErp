@@ -28,8 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.widget.Toast
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
 import com.havos.lubricerp.core.ui.components.OfflinePlaceholder
@@ -52,17 +50,17 @@ fun ProformaInvoiceDetailRoute(
     viewModel: ProformaInvoiceDetailViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(invoiceId) {
         viewModel.onIntent(ProformaInvoiceDetailIntent.LoadDetail(invoiceId))
     }
 
-    val context = LocalContext.current
     LaunchedEffect(viewModel) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is ProformaInvoiceDetailEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    snackbarHostState.showSnackbar(effect.message)
                 }
             }
         }
@@ -74,7 +72,8 @@ fun ProformaInvoiceDetailRoute(
         onBackClick = onBackClick,
         onCreateClick = onCreateClick,
         onEditClick = onEditClick,
-        onIntent = viewModel::onIntent
+        onIntent = viewModel::onIntent,
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -86,13 +85,15 @@ fun ProformaInvoiceDetailScreen(
     onBackClick: () -> Unit,
     onCreateClick: () -> Unit,
     onEditClick: (Long) -> Unit,
-    onIntent: (ProformaInvoiceDetailIntent) -> Unit
+    onIntent: (ProformaInvoiceDetailIntent) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     val detail = state.invoiceDetail
     var showCancelConfirmation by remember { mutableStateOf(false) }
     var showSendConfirmation by remember { mutableStateOf(false) }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onCreateClick,
@@ -160,7 +161,6 @@ fun ProformaInvoiceDetailScreen(
             return@Scaffold
         }
 
-        val detail = state.invoiceDetail
         if (detail == null) {
             Box(modifier = contentModifier, contentAlignment = Alignment.Center) {
                 Text("No data available")

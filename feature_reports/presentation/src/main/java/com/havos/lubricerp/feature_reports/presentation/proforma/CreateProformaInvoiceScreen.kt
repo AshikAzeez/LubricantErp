@@ -1,6 +1,5 @@
 package com.havos.lubricerp.feature_reports.presentation.proforma
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,7 +39,7 @@ fun CreateProformaInvoiceRoute(
     viewModel: CreateProformaInvoiceViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(invoiceId) {
         if (invoiceId != null) {
@@ -52,7 +51,7 @@ fun CreateProformaInvoiceRoute(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is CreateProformaInvoiceEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    snackbarHostState.showSnackbar(effect.message)
                 }
                 CreateProformaInvoiceEffect.NavigateBack -> {
                     onBackClick()
@@ -64,7 +63,8 @@ fun CreateProformaInvoiceRoute(
     CreateProformaInvoiceScreen(
         state = state,
         onBackClick = onBackClick,
-        onIntent = viewModel::onIntent
+        onIntent = viewModel::onIntent,
+        snackbarHostState = snackbarHostState
     )
 }
 
@@ -73,11 +73,13 @@ fun CreateProformaInvoiceRoute(
 fun CreateProformaInvoiceScreen(
     state: CreateProformaInvoiceUiState,
     onBackClick: () -> Unit,
-    onIntent: (CreateProformaInvoiceIntent) -> Unit
+    onIntent: (CreateProformaInvoiceIntent) -> Unit,
+    snackbarHostState: SnackbarHostState
 ) {
     var showAddLineItemBottomSheet by remember { mutableStateOf(false) }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {

@@ -213,7 +213,7 @@ private fun NotificationScreen(
                         }
                         if (visibleItems.isEmpty() && pagingItems.loadState.refresh is LoadState.NotLoading) {
                             EmptyStateView(
-                                modifier = Modifier.fillMaxSize().padding(24.dp),
+                                modifier = Modifier.align(Alignment.Center),
                                 icon = Icons.Filled.NotificationsNone,
                                 title = "No notifications for selected filters",
                                 subtitle = "Try a different filter to see more updates."

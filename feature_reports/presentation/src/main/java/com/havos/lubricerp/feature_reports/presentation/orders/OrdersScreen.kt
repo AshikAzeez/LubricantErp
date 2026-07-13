@@ -139,9 +139,7 @@ internal fun OrdersScreen(
         }
     }
     val context = LocalContext.current
-    val logoResId = remember {
-        context.resources.getIdentifier("ic_logo", "drawable", context.packageName)
-    }
+
 
     Scaffold(
         topBar = {
@@ -152,13 +150,6 @@ internal fun OrdersScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text("Orders")
-                        if (logoResId != 0) {
-                            Image(
-                                painter = painterResource(logoResId),
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
                     }
                 },
                 navigationIcon = {

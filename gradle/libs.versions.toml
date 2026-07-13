@@ -24,6 +24,7 @@ koinCompose = "3.5.6"
 mockitoKotlin = "5.2.1"
 ksp = "2.0.21-1.0.27"
 room = "2.7.2"
+desugar_jdk = "2.1.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -69,6 +70,7 @@ androidx-room-runtime = { group = "androidx.room", name = "room-runtime", versio
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth", version.ref = "ktor" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar_jdk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
