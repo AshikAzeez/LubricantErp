@@ -37,7 +37,6 @@ import java.util.*
 fun CreateProformaInvoiceRoute(
     invoiceId: Long?,
     onBackClick: () -> Unit,
-    onInvoiceCreated: (Long) -> Unit,
     viewModel: CreateProformaInvoiceViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -57,9 +56,6 @@ fun CreateProformaInvoiceRoute(
                 }
                 CreateProformaInvoiceEffect.NavigateBack -> {
                     onBackClick()
-                }
-                is CreateProformaInvoiceEffect.NavigateToDetail -> {
-                    onInvoiceCreated(effect.invoiceId)
                 }
             }
         }
@@ -495,16 +491,7 @@ fun LineItemInputCard(
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
-            }
-
-            val desc = line.description
-            if (!desc.isNullOrBlank()) {
-                Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
+                }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
 
@@ -514,7 +501,7 @@ fun LineItemInputCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "${formatQuantity(line.quantity)} ${line.unitOfMeasurement} × ${formatCurrency(line.unitPrice)}",
+                    text = "${formatQuantity(line.quantity)} × ${formatCurrency(line.unitPrice)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -537,14 +524,14 @@ fun AddLineItemBottomSheet(
     onDismiss: () -> Unit,
     onConfirm: (CreateProformaInvoiceLine) -> Unit
 ) {
-    var deliveryType by remember { mutableStateOf("Packed") }
+    var deliveryType by remember { mutableStateOf("Packaged") }
     var selectedProduct by remember { mutableStateOf<ProductSku?>(null) }
-    var description by remember { mutableStateOf("") }
+    var selectedGradeId by remember { mutableStateOf<Int?>(null) }
+    var selectedGradeHsn by remember { mutableStateOf<String>("") }
     var quantityStr by remember { mutableStateOf("1") }
     var unitPriceStr by remember { mutableStateOf("") }
     var taxRateStr by remember { mutableStateOf("18.0") }
     var discountPercentStr by remember { mutableStateOf("0.0") }
-    var unitOfMeasurement by remember { mutableStateOf("NOS") }
 
     var validationError by remember { mutableStateOf<String?>(null) }
 
@@ -638,117 +625,182 @@ fun AddLineItemBottomSheet(
                     onDismissRequest = { deliveryDropdownExpanded = false },
                     modifier = Modifier.fillMaxWidth(0.9f)
                 ) {
-                    listOf("Packed", "Bulk").forEach { type ->
-                        DropdownMenuItem(
-                            text = { Text(type) },
-                            onClick = {
-                                deliveryType = type
-                                deliveryDropdownExpanded = false
-                            }
-                        )
-                    }
+                        listOf("Packaged", "Bulk").forEach { type ->
+                            DropdownMenuItem(
+                                text = { Text(type) },
+                                onClick = {
+                                    deliveryType = type
+                                    selectedProduct = null
+                                    selectedGradeId = null
+                                    selectedGradeHsn = ""
+                                    deliveryDropdownExpanded = false
+                                }
+                            )
+                        }
                 }
             }
 
-            // 2. Product Dropdown
-            var productDropdownExpanded by remember { mutableStateOf(false) }
-            Text(
-                text = "Select Product *",
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Bold
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { productDropdownExpanded = true }
-            ) {
-                OutlinedTextField(
-                    value = selectedProduct?.let { "${it.name} (${it.code})" } ?: "Choose Product",
-                    onValueChange = {},
-                    readOnly = true,
-                    enabled = false,
-                    colors = OutlinedTextFieldDefaults.colors(
-                        disabledTextColor = if (selectedProduct != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
-                        disabledBorderColor = MaterialTheme.colorScheme.outline,
-                        disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    trailingIcon = {
-                        Icon(
-                            imageVector = if (productDropdownExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                            contentDescription = null
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+            // 2. Product / Grade selection based on delivery type
+            if (deliveryType == "Packaged") {
+                var productDropdownExpanded by remember { mutableStateOf(false) }
+                Text(
+                    text = "Select Product *",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
                 )
-
-                DropdownMenu(
-                    expanded = productDropdownExpanded,
-                    onDismissRequest = { productDropdownExpanded = false },
-                    modifier = Modifier.fillMaxWidth(0.9f)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { productDropdownExpanded = true }
                 ) {
-                    if (products.isEmpty()) {
-                        DropdownMenuItem(
-                            text = { Text("No products available") },
-                            onClick = { productDropdownExpanded = false },
-                            enabled = false
-                        )
-                    } else {
-                        products.forEach { product ->
-                            DropdownMenuItem(
-                                text = {
-                                    Column {
-                                        Text(product.name, fontWeight = FontWeight.Bold)
-                                        Text(
-                                            text = "Grade: ${product.productGrade} | Family: ${product.productFamily}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                },
-                                onClick = {
-                                    selectedProduct = product
-                                    unitOfMeasurement = when (product.packSizeLabel.lowercase()) {
-                                        "1 litre", "5 litre", "210 litre barrel" -> "Ltr"
-                                        else -> "NOS"
-                                    }
-                                    productDropdownExpanded = false
-                                }
+                    OutlinedTextField(
+                        value = selectedProduct?.let { "${it.name} (${it.code})" } ?: "Choose Product",
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = if (selectedProduct != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        trailingIcon = {
+                            Icon(
+                                imageVector = if (productDropdownExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                contentDescription = null
                             )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    DropdownMenu(
+                        expanded = productDropdownExpanded,
+                        onDismissRequest = { productDropdownExpanded = false },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        if (products.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("No products available") },
+                                onClick = { productDropdownExpanded = false },
+                                enabled = false
+                            )
+                        } else {
+                            products.forEach { product ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Column {
+                                            Text(product.name, fontWeight = FontWeight.Bold)
+                                            Text(
+                                                text = "Grade: ${product.productGrade} | Family: ${product.productFamily}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        selectedProduct = product
+                                        productDropdownExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+
+                selectedProduct?.let { product ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "Product Info (Auto-filled)",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text("Grade: ${product.productGrade} (ID: ${product.productGradeId})", style = MaterialTheme.typography.bodySmall)
+                            Text("SKU: ${product.code} (ID: ${product.id})", style = MaterialTheme.typography.bodySmall)
+                            Text("HSN Code: ${product.hsnCode}", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            } else {
+                val distinctGrades = products
+                    .distinctBy { it.productGradeId }
+                    .sortedBy { it.productGrade }
+
+                var gradeDropdownExpanded by remember { mutableStateOf(false) }
+                Text(
+                    text = "Select Grade *",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { gradeDropdownExpanded = true }
+                ) {
+                    OutlinedTextField(
+                        value = selectedGradeId?.let { id ->
+                            distinctGrades.find { g -> g.productGradeId == id }?.let { "${it.productGrade} (ID: ${it.productGradeId})" } ?: "Choose Grade"
+                        } ?: "Choose Grade",
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            disabledTextColor = if (selectedGradeId != null) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+                        ),
+                        trailingIcon = {
+                            Icon(
+                                imageVector = if (gradeDropdownExpanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                                contentDescription = null
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    DropdownMenu(
+                        expanded = gradeDropdownExpanded,
+                        onDismissRequest = { gradeDropdownExpanded = false },
+                        modifier = Modifier.fillMaxWidth(0.9f)
+                    ) {
+                        if (distinctGrades.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("No grades available") },
+                                onClick = { gradeDropdownExpanded = false },
+                                enabled = false
+                            )
+                        } else {
+                            distinctGrades.forEach { grade ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Column {
+                                            Text(grade.productGrade, fontWeight = FontWeight.Bold)
+                                            Text(
+                                                text = "ID: ${grade.productGradeId} | HSN: ${grade.hsnCode}",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        selectedGradeId = grade.productGradeId
+                                        selectedGradeHsn = grade.hsnCode
+                                        gradeDropdownExpanded = false
+                                    }
+                                )
+                            }
                         }
                     }
                 }
             }
-
-            selectedProduct?.let { product ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "Product Info (Auto-filled)",
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text("Grade: ${product.productGrade} (ID: ${product.productGradeId})", style = MaterialTheme.typography.bodySmall)
-                        Text("SKU: ${product.code} (ID: ${product.id})", style = MaterialTheme.typography.bodySmall)
-                        Text("HSN Code: ${product.hsnCode}", style = MaterialTheme.typography.bodySmall)
-                    }
-                }
-            }
-
-            OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
-                label = { Text("Description (Optional)") },
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -800,15 +852,6 @@ fun AddLineItemBottomSheet(
                 )
             }
 
-            OutlinedTextField(
-                value = unitOfMeasurement,
-                onValueChange = { unitOfMeasurement = it },
-                label = { Text("Unit of Measurement") },
-                singleLine = true,
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            )
-
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
@@ -822,11 +865,6 @@ fun AddLineItemBottomSheet(
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(
                     onClick = {
-                        val product = selectedProduct
-                        if (product == null) {
-                            validationError = "Please select a product first."
-                            return@Button
-                        }
                         val qty = quantityStr.toIntOrNull()
                         val price = unitPriceStr.toDoubleOrNull()
                         val tax = taxRateStr.toDoubleOrNull()
@@ -837,20 +875,43 @@ fun AddLineItemBottomSheet(
                             return@Button
                         }
 
-                        onConfirm(
-                            CreateProformaInvoiceLine(
-                                deliveryType = deliveryType,
-                                productGradeId = product.productGradeId,
-                                productSKUId = product.id,
-                                hsnCode = product.hsnCode,
-                                description = description.takeIf { it.isNotBlank() },
-                                quantity = qty,
-                                unitPrice = price,
-                                taxRate = tax,
-                                discountPercent = discount,
-                                unitOfMeasurement = unitOfMeasurement
+                        if (deliveryType == "Packaged") {
+                            val product = selectedProduct
+                            if (product == null) {
+                                validationError = "Please select a product first."
+                                return@Button
+                            }
+                            onConfirm(
+                                CreateProformaInvoiceLine(
+                                    deliveryType = deliveryType,
+                                    productGradeId = product.productGradeId,
+                                    productSKUId = product.id,
+                                    hsnCode = product.hsnCode,
+                                    quantity = qty,
+                                    unitPrice = price,
+                                    taxRate = tax,
+                                    discountPercent = discount
+                                )
                             )
-                        )
+                        } else {
+                            val gradeId = selectedGradeId
+                            if (gradeId == null) {
+                                validationError = "Please select a grade first."
+                                return@Button
+                            }
+                            onConfirm(
+                                CreateProformaInvoiceLine(
+                                    deliveryType = deliveryType,
+                                    productGradeId = gradeId,
+                                    productSKUId = null,
+                                    hsnCode = selectedGradeHsn,
+                                    quantity = qty,
+                                    unitPrice = price,
+                                    taxRate = tax,
+                                    discountPercent = discount
+                                )
+                            )
+                        }
                     },
                     shape = RoundedCornerShape(12.dp)
                 ) {

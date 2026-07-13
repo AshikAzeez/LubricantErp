@@ -36,7 +36,7 @@ class CreateProformaInvoiceViewModel(
     private val _state = MutableStateFlow(CreateProformaInvoiceUiState())
     val state: StateFlow<CreateProformaInvoiceUiState> = _state.asStateFlow()
 
-    private val _effect = MutableSharedFlow<CreateProformaInvoiceEffect>()
+    private val _effect = MutableSharedFlow<CreateProformaInvoiceEffect>(extraBufferCapacity = 2)
     val effect: SharedFlow<CreateProformaInvoiceEffect> = _effect.asSharedFlow()
 
     init {
@@ -172,12 +172,10 @@ class CreateProformaInvoiceViewModel(
                             productGradeId = line.productGradeId,
                             productSKUId = line.productSKUId,
                             hsnCode = line.hsnCode,
-                            description = line.description,
                             quantity = line.quantity.toInt(),
                             unitPrice = line.unitPrice,
                             taxRate = line.taxRate,
-                            discountPercent = line.discountPercent,
-                            unitOfMeasurement = line.unitOfMeasurement
+                            discountPercent = line.discountPercent
                         )
                     }
 
@@ -267,8 +265,8 @@ class CreateProformaInvoiceViewModel(
                                 successMessage = "Proforma Invoice updated successfully!"
                             )
                         }
-                        _effect.tryEmit(CreateProformaInvoiceEffect.ShowToast("Invoice updated successfully!"))
-                        _effect.tryEmit(CreateProformaInvoiceEffect.NavigateBack)
+                        _effect.emit(CreateProformaInvoiceEffect.ShowToast("Invoice updated successfully!"))
+                        _effect.emit(CreateProformaInvoiceEffect.NavigateBack)
                     }
                     is ResultState.Error -> {
                         _state.update { it.copy(isSubmitting = false, error = result.message) }
@@ -281,12 +279,11 @@ class CreateProformaInvoiceViewModel(
                         _state.update {
                             it.copy(
                                 isSubmitting = false,
-                                successMessage = "Proforma Invoice created successfully!",
-                                createdInvoiceId = result.data.id
+                                successMessage = "Proforma Invoice created successfully!"
                             )
                         }
-                        _effect.tryEmit(CreateProformaInvoiceEffect.ShowToast("Invoice created successfully!"))
-                        _effect.tryEmit(CreateProformaInvoiceEffect.NavigateToDetail(result.data.id))
+                        _effect.emit(CreateProformaInvoiceEffect.ShowToast("Invoice created successfully!"))
+                        _effect.emit(CreateProformaInvoiceEffect.NavigateBack)
                     }
                     is ResultState.Error -> {
                         _state.update { it.copy(isSubmitting = false, error = result.message) }

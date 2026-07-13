@@ -52,12 +52,10 @@ class CreateProformaInvoiceViewModelTest {
         productGradeId = 1,
         productSKUId = 2,
         hsnCode = "27101980",
-        description = "Test Product Description",
         quantity = 10,
         unitPrice = 100.0,
         taxRate = 18.0,
-        discountPercent = 0.0,
-        unitOfMeasurement = "NOS"
+        discountPercent = 0.0
     )
 
     private val testDetail = ProformaInvoiceDetail(
@@ -316,7 +314,6 @@ class CreateProformaInvoiceViewModelTest {
         val state = viewModel.state.value
         assertNull(state.error)
         assertEquals("Proforma Invoice created successfully!", state.successMessage)
-        assertEquals(45L, state.createdInvoiceId)
 
         // Verify the use case was invoked with the correct token
         verify(createProformaInvoiceUseCase).invoke(eq("token123"), any())

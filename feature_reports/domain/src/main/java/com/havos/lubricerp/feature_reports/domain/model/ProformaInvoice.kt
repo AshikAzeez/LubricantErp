@@ -52,7 +52,7 @@ data class ProformaInvoiceLine(
     val hsnCode: String,
     val description: String?,
     val quantity: Double,
-    val unitOfMeasurement: String,
+    val unitOfMeasurement: String? = null,
     val unitPrice: Double,
     val discountPercent: Double,
     val taxRate: Double,
@@ -64,14 +64,12 @@ data class ProformaInvoiceLine(
 data class CreateProformaInvoiceLine(
     val deliveryType: String,
     val productGradeId: Int,
-    val productSKUId: Int,
+    val productSKUId: Int? = null,
     val hsnCode: String,
-    val description: String?,
     val quantity: Int,
     val unitPrice: Double,
     val taxRate: Double,
-    val discountPercent: Double,
-    val unitOfMeasurement: String
+    val discountPercent: Double
 )
 
 data class CreateProformaInvoiceRequest(

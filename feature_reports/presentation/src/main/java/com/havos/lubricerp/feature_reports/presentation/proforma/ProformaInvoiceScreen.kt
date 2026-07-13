@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,9 +46,16 @@ fun ProformaInvoiceRoute(
     onBackClick: () -> Unit,
     onInvoiceClick: (Long) -> Unit,
     onCreateClick: () -> Unit,
+    refreshTrigger: Boolean = false,
     viewModel: ProformaInvoiceViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(refreshTrigger) {
+        if (refreshTrigger) {
+            viewModel.onIntent(ProformaInvoiceIntent.Refresh)
+        }
+    }
     
     ProformaInvoiceScreen(
         state = state,
@@ -352,50 +360,55 @@ fun ProformaInvoiceScreen(
             }
 
             // Invoices Listing
-            if (state.filteredInvoices.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+            PullToRefreshBox(
+                isRefreshing = state.isRefreshing,
+                onRefresh = { onIntent(ProformaInvoiceIntent.Refresh) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                if (state.filteredInvoices.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Receipt,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-                        )
-                        Text(
-                            text = "No Proforma Invoices found",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Try adjusting your search or filters",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-                        )
-                    }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(state.filteredInvoices, key = { it.id }) { invoice ->
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { onInvoiceClick(invoice.id) }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            ProformaInvoiceRow(invoice = invoice)
+                            Icon(
+                                imageVector = Icons.Default.Receipt,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                            )
+                            Text(
+                                text = "No Proforma Invoices found",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Text(
+                                text = "Try adjusting your search or filters",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                            )
+                        }
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(state.filteredInvoices, key = { it.id }) { invoice ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onInvoiceClick(invoice.id) }
+                            ) {
+                                ProformaInvoiceRow(invoice = invoice)
+                            }
                         }
                     }
                 }
@@ -577,7 +590,7 @@ private fun formatCurrency(amount: Double): String {
 private fun parseInvoiceDate(dateStr: String): java.time.LocalDate? {
     if (dateStr.isBlank()) return null
     return try {
-        java.time.LocalDateTime.parse(dateStr, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate()
+        LocalDateTime.parse(dateStr, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME).toLocalDate()
     } catch (_: Exception) {
         try {
             java.time.LocalDate.parse(dateStr, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)

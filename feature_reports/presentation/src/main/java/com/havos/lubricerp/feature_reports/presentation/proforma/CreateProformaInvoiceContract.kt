@@ -40,12 +40,10 @@ data class CreateProformaInvoiceUiState(
     val isLoadingProducts: Boolean = false,
     val isSubmitting: Boolean = false,
     val error: String? = null,
-    val successMessage: String? = null,
-    val createdInvoiceId: Long? = null
+    val successMessage: String? = null
 ) : UiState
 
 sealed interface CreateProformaInvoiceEffect {
     data class ShowToast(val message: String) : CreateProformaInvoiceEffect
     data object NavigateBack : CreateProformaInvoiceEffect
-    data class NavigateToDetail(val invoiceId: Long) : CreateProformaInvoiceEffect
 }

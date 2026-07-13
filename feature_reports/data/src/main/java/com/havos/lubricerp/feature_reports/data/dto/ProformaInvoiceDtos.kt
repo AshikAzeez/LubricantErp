@@ -50,7 +50,7 @@ data class ProformaInvoiceLineDto(
     val hsnCode: String = "",
     val description: String? = null,
     val quantity: Double = 0.0,
-    val unitOfMeasurement: String = "",
+    val unitOfMeasurement: String? = null,
     val unitPrice: Double = 0.0,
     val discountPercent: Double? = null,
     val taxRate: Double = 0.0,
@@ -98,18 +98,18 @@ data class ProformaInvoiceDetailApiResponseDto(
     val errors: List<String>? = null
 )
 
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 @Serializable
 data class CreateProformaInvoiceLineDto(
     val deliveryType: String,
     val productGradeId: Int,
-    val productSKUId: Int,
+    @kotlinx.serialization.EncodeDefault(kotlinx.serialization.EncodeDefault.Mode.NEVER)
+    val productSKUId: Int? = null,
     val hsnCode: String,
-    val description: String?,
     val quantity: Int,
     val unitPrice: Double,
     val taxRate: Double,
-    val discountPercent: Double,
-    val unitOfMeasurement: String
+    val discountPercent: Double
 )
 
 @Serializable

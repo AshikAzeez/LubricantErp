@@ -631,12 +631,10 @@ fun com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceLine.t
     productGradeId = productGradeId,
     productSKUId = productSKUId,
     hsnCode = hsnCode,
-    description = description,
     quantity = quantity,
     unitPrice = unitPrice,
     taxRate = taxRate,
-    discountPercent = discountPercent,
-    unitOfMeasurement = unitOfMeasurement
+    discountPercent = discountPercent
 )
 
 fun com.havos.lubricerp.feature_reports.domain.model.CreateProformaInvoiceRequest.toDto(): com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceRequestDto = com.havos.lubricerp.feature_reports.data.dto.CreateProformaInvoiceRequestDto(

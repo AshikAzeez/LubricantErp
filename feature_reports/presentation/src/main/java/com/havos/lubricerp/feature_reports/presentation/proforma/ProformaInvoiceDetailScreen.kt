@@ -615,8 +615,9 @@ fun LineItemRow(line: ProformaInvoiceLine) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                val uom = line.unitOfMeasurement?.let { " $it" } ?: ""
                 Text(
-                    text = "${formatQuantity(line.quantity)} ${line.unitOfMeasurement} × ${formatCurrency(line.unitPrice)}",
+                    text = "${formatQuantity(line.quantity)}$uom × ${formatCurrency(line.unitPrice)}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

@@ -206,6 +206,10 @@ fun GoalErpNavGraph(
             }
 
             composable(AppRoutes.PROFORMA_INVOICES) {
+                val savedStateHandle = it.savedStateHandle
+                val refreshTrigger = savedStateHandle.get<Boolean>("refresh") == true
+                if (refreshTrigger) savedStateHandle.remove<Boolean>("refresh")
+
                 ProformaInvoiceRoute(
                     onBackClick = { navController.popBackStack() },
                     onInvoiceClick = { id ->
@@ -213,7 +217,8 @@ fun GoalErpNavGraph(
                     },
                     onCreateClick = {
                         navController.navigate(AppRoutes.CREATE_PROFORMA_INVOICE)
-                    }
+                    },
+                    refreshTrigger = refreshTrigger
                 )
             }
 
@@ -224,7 +229,10 @@ fun GoalErpNavGraph(
                 val invoiceId = backStackEntry.arguments?.getLong("invoiceId") ?: 0L
                 ProformaInvoiceDetailRoute(
                     invoiceId = invoiceId,
-                    onBackClick = { navController.popBackStack() },
+                    onBackClick = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                        navController.popBackStack()
+                    },
                     onCreateClick = {
                         navController.navigate(AppRoutes.CREATE_PROFORMA_INVOICE)
                     },
@@ -245,10 +253,9 @@ fun GoalErpNavGraph(
                 val invoiceId = invoiceIdStr?.toLongOrNull()
                 CreateProformaInvoiceRoute(
                     invoiceId = invoiceId,
-                    onBackClick = { navController.popBackStack() },
-                    onInvoiceCreated = { id ->
+                    onBackClick = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
                         navController.popBackStack()
-                        navController.navigate(AppRoutes.proformaInvoiceDetail(id))
                     }
                 )
             }
