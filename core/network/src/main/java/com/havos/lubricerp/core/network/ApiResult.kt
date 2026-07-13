@@ -40,13 +40,13 @@ suspend inline fun <reified T> safeApiCall(
         }
     }.getOrElse { throwable ->
         val kind = when {
+            throwable is HttpRequestTimeoutException ||
+            throwable is ConnectTimeoutException ||
+            throwable is SocketTimeoutException -> NetworkErrorKind.TIMEOUT
             throwable is IOException ||
             "unable to resolve host" in (throwable.message?.lowercase() ?: "") ||
             "network is unreachable" in (throwable.message?.lowercase() ?: "") ||
             "failed to connect" in (throwable.message?.lowercase() ?: "") -> NetworkErrorKind.OFFLINE
-            throwable is HttpRequestTimeoutException ||
-            throwable is ConnectTimeoutException ||
-            throwable is SocketTimeoutException -> NetworkErrorKind.TIMEOUT
             else -> NetworkErrorKind.UNKNOWN
         }
         ResultState.Error(
