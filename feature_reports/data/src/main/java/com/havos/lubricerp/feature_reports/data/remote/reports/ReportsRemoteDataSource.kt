@@ -4,6 +4,8 @@ import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.feature_reports.data.dto.AccountsSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.CashPositionDto
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownDetailDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.PurchaseSummaryDto
 import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
@@ -141,4 +143,15 @@ interface ReportsRemoteDataSource {
         token: String,
         id: Long
     ): ResultState<Unit>
+
+    suspend fun getCostBreakdownSheets(
+        token: String,
+        skip: Int = 0,
+        take: Int = 200
+    ): ResultState<CostBreakdownPagedDataDto>
+
+    suspend fun getCostBreakdownDetail(
+        token: String,
+        id: Long
+    ): ResultState<CostBreakdownDetailDto>
 }

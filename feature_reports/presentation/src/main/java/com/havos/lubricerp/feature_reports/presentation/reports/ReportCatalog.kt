@@ -117,6 +117,12 @@ enum class ReportMenu(
         title = "Orders",
         icon = Icons.Default.ShoppingCart,
         subMenus = emptyList()
+    ),
+    PRODUCTS(
+        key = "products",
+        title = "Products",
+        icon = Icons.Default.Inventory2,
+        subMenus = listOf(ReportItem.COST_BREAKDOWN)
     )
 }
 
@@ -149,7 +155,8 @@ enum class ReportItem(
     REPORT_PRODUCT_SALES("report_product_sales", "Product Sales Report"),
     REPORT_NET_PROFIT("report_net_profit", "Profit Estimate"),
     REPORT_EXPENSE_SUMMARY("report_expense_summary", "Expense Summary"),
-    PAYMENT_REPORT("payment_report", "Payment Report")
+    PAYMENT_REPORT("payment_report", "Payment Report"),
+    COST_BREAKDOWN("cost_breakdown", "Cost Breakdown")
 }
 
 fun reportItemByKey(key: String): ReportItem =

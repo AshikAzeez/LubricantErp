@@ -9,7 +9,12 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-class SecureCryptoManager {
+interface CryptoManager {
+    fun encrypt(plainText: String): String
+    fun decrypt(cipherText: String): String
+}
+
+class SecureCryptoManager : CryptoManager {
     private val keyStore by lazy {
         KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }
     }
@@ -32,7 +37,7 @@ class SecureCryptoManager {
         return keyGenerator.generateKey()
     }
 
-    fun encrypt(plainText: String): String {
+    override fun encrypt(plainText: String): String {
         if (plainText.isBlank()) return plainText
         val cipher = Cipher.getInstance(TRANSFORMATION)
         cipher.init(Cipher.ENCRYPT_MODE, getKey())
@@ -41,7 +46,7 @@ class SecureCryptoManager {
         return "${Base64.encodeToString(iv, Base64.NO_WRAP)}:${Base64.encodeToString(encrypted, Base64.NO_WRAP)}"
     }
 
-    fun decrypt(cipherText: String): String {
+    override fun decrypt(cipherText: String): String {
         if (cipherText.isBlank() || !cipherText.contains(":")) return cipherText
 
         val (ivEncoded, encryptedEncoded) = cipherText.split(":", limit = 2)

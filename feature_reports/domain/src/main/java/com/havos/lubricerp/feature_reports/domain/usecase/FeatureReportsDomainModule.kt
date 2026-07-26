@@ -47,6 +47,8 @@ val featureReportsDomainModule = module {
     factory { UpdateProformaInvoiceUseCase(get()) }
     factory { SendProformaInvoiceUseCase(get()) }
     factory { CancelProformaInvoiceUseCase(get()) }
+    factory { GetCostBreakdownSheetsUseCase(get()) }
+    factory { GetCostBreakdownDetailUseCase(get()) }
 
     factory { GetNotificationsPagedUseCase(get()) }
     factory { GetUnreadNotificationCountUseCase(get()) }

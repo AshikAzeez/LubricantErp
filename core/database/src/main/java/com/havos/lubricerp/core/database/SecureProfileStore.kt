@@ -3,7 +3,6 @@ package com.havos.lubricerp.core.database
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
@@ -25,13 +24,12 @@ interface SecureProfileStore {
 
 class SecureProfileStoreImpl(
     private val profileDao: SecureProfileDao,
-    private val cryptoManager: SecureCryptoManager
+    private val cryptoManager: CryptoManager
 ) : SecureProfileStore {
 
     override val profileFlow: Flow<ProfileData?> = profileDao.observeProfile(SecureProfileEntity.PRIMARY_ID)
         .catch { emit(null) }
         .map { it?.toProfileData(cryptoManager) }
-        .flowOn(Dispatchers.IO)
 
     override suspend fun getProfile(): ProfileData? = withContext(Dispatchers.IO) {
         profileDao.getProfile(SecureProfileEntity.PRIMARY_ID)?.toProfileData(cryptoManager)

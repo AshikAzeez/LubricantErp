@@ -43,7 +43,7 @@ interface SecureSessionStore {
 
 class SecureSessionStoreImpl(
     context: Context,
-    private val cryptoManager: SecureCryptoManager
+    private val cryptoManager: CryptoManager
 ) : SecureSessionStore {
 
     private val datastore = context.secureDataStore
@@ -60,8 +60,7 @@ class SecureSessionStoreImpl(
                     token = cryptoManager.decrypt(encryptedToken),
                     refreshToken = if (encryptedRefresh.isNotBlank()) cryptoManager.decrypt(encryptedRefresh) else ""
                 )
-            } catch (_: Exception) {
-                clearSession()
+            } catch (e: Exception) {
                 null
             }
         }

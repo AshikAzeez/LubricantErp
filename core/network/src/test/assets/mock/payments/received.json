@@ -1,0 +1,1 @@
+{"success":true,"data":{"payments":[{"id":1,"amount":1000,"status":"received"},{"id":2,"amount":500,"status":"pending"}]},"message":null,"errors":null}

@@ -25,7 +25,7 @@ data class SecureProfileEntity(
     companion object {
         const val PRIMARY_ID = 1
 
-        fun fromProfileData(profile: ProfileData, cryptoManager: SecureCryptoManager): SecureProfileEntity {
+        fun fromProfileData(profile: ProfileData, cryptoManager: CryptoManager): SecureProfileEntity {
             return SecureProfileEntity(
                 entityId = PRIMARY_ID,
                 encryptedId = cryptoManager.encrypt(profile.id.toString()),
@@ -39,7 +39,7 @@ data class SecureProfileEntity(
     }
 }
 
-internal fun SecureProfileEntity.toProfileData(cryptoManager: SecureCryptoManager): ProfileData {
+internal fun SecureProfileEntity.toProfileData(cryptoManager: CryptoManager): ProfileData {
     val decryptedRoles = cryptoManager.decrypt(encryptedRoles)
         .split(ROLES_SEPARATOR)
         .map { it.trim() }

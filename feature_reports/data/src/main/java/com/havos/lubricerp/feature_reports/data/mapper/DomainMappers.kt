@@ -1,6 +1,9 @@
 package com.havos.lubricerp.feature_reports.data.mapper
 
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownItemDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownDetailDto
+import com.havos.lubricerp.feature_reports.data.dto.RawMaterialLineDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerPagedDataDto
@@ -36,6 +39,9 @@ import com.havos.lubricerp.feature_reports.data.dto.TankStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import com.havos.lubricerp.feature_reports.domain.model.AuthSession
 import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownItem
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownDetail
+import com.havos.lubricerp.feature_reports.domain.model.RawMaterialLine
 import com.havos.lubricerp.feature_reports.domain.model.Customer
 import com.havos.lubricerp.feature_reports.domain.model.CustomerLedgerEntry
 import com.havos.lubricerp.feature_reports.domain.model.CustomerMobileSummary
@@ -657,4 +663,50 @@ fun com.havos.lubricerp.feature_reports.data.dto.ProductSkuDto.toDomain(): com.h
     packSizeLiters = packSizeLiters,
     packSizeLabel = packSizeLabel,
     unitOfMeasureId = unitOfMeasureId
+)
+
+fun CostBreakdownItemDto.toDomain(): CostBreakdownItem = CostBreakdownItem(
+    id = id,
+    sku = sku,
+    productGrade = productGrade,
+    productFamily = productFamily,
+    productSKUId = productSKUId,
+    effectiveFrom = effectiveFrom,
+    effectiveTo = effectiveTo,
+    packageCost = packageCost,
+    margin = margin,
+    transportCost = transportCost,
+    materialCost = materialCost,
+    totalCost = totalCost,
+    lineCount = lineCount,
+    remarks = remarks,
+    status = status
+)
+
+fun RawMaterialLineDto.toDomain(): RawMaterialLine = RawMaterialLine(
+    id = id,
+    rawMaterialId = rawMaterialId,
+    rawMaterialName = rawMaterialName,
+    rawMaterialCode = rawMaterialCode,
+    quantity = quantity,
+    rate = rate,
+    amount = amount
+)
+
+fun CostBreakdownDetailDto.toDomain(): CostBreakdownDetail = CostBreakdownDetail(
+    id = id,
+    sku = sku,
+    skuCode = skuCode,
+    productGrade = productGrade,
+    productFamily = productFamily,
+    productSKUId = productSKUId,
+    effectiveFrom = effectiveFrom,
+    effectiveTo = effectiveTo,
+    packageCost = packageCost,
+    margin = margin,
+    transportCost = transportCost,
+    materialCost = materialCost,
+    totalCost = totalCost,
+    remarks = remarks,
+    lines = lines.map { it.toDomain() }
 )

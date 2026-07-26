@@ -4,6 +4,8 @@ import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 import com.havos.lubricerp.feature_reports.domain.model.CashPosition
 import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownDetail
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownItem
 import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
 import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
 import com.havos.lubricerp.feature_reports.domain.model.Customer
@@ -130,4 +132,8 @@ interface ReportsRepository {
         token: String,
         id: Long
     ): ResultState<Unit>
+
+    suspend fun getCostBreakdownSheets(token: String): ResultState<List<CostBreakdownItem>>
+
+    suspend fun getCostBreakdownDetail(token: String, id: Long): ResultState<CostBreakdownDetail>
 }

@@ -9,6 +9,8 @@ import com.havos.lubricerp.feature_reports.data.remote.reports.ReportsRemoteData
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 import com.havos.lubricerp.feature_reports.domain.model.CashPosition
 import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownDetail
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownItem
 import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
 import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
 import com.havos.lubricerp.feature_reports.domain.model.Customer
@@ -410,6 +412,35 @@ class ReportsRepositoryImpl(
     ): ResultState<Unit> {
         return when (val result = reportsRemoteDataSource.cancelProformaInvoice(token, id)) {
             is ResultState.Success -> ResultState.Success(Unit)
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getCostBreakdownSheets(token: String): ResultState<List<CostBreakdownItem>> {
+        val allItems = mutableListOf<CostBreakdownItem>()
+        var skip = 0
+        val take = 200
+        while (true) {
+            when (val result = reportsRemoteDataSource.getCostBreakdownSheets(token, skip, take)) {
+                is ResultState.Success -> {
+                    allItems.addAll(result.data.items.map { it.toDomain() })
+                    if (!result.data.hasMore) break
+                    skip += result.data.items.size
+                }
+                is ResultState.Error -> {
+                    if (allItems.isEmpty()) return result
+                    break
+                }
+                ResultState.Loading -> return ResultState.Loading
+            }
+        }
+        return ResultState.Success(allItems)
+    }
+
+    override suspend fun getCostBreakdownDetail(token: String, id: Long): ResultState<CostBreakdownDetail> {
+        return when (val result = reportsRemoteDataSource.getCostBreakdownDetail(token, id)) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }

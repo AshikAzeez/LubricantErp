@@ -30,6 +30,7 @@ import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.Open
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenNotifications
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenOrders
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenPaymentReport
+import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenProducts
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenReport
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenReportModule
 import com.havos.lubricerp.feature_reports.presentation.home.HomeNavigation.OpenSettings
@@ -42,6 +43,8 @@ import com.havos.lubricerp.feature_reports.presentation.reportmodule.ReportModul
 import com.havos.lubricerp.feature_reports.presentation.reports.ReportDetailRoute
 import com.havos.lubricerp.feature_reports.presentation.settings.SettingsRoute
 import com.havos.lubricerp.feature_reports.presentation.orders.OrdersRoute
+import com.havos.lubricerp.feature_reports.presentation.products.ProductsRoute
+import com.havos.lubricerp.feature_reports.presentation.products.CostBreakdownDetailRoute
 import com.havos.lubricerp.feature_reports.presentation.payment.PaymentReportRoute
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -160,6 +163,9 @@ fun GoalErpNavGraph(
                             OpenOrders -> {
                                 navController.navigate(AppRoutes.ORDERS)
                             }
+                            OpenProducts -> {
+                                navController.navigate(AppRoutes.PRODUCTS)
+                            }
                         }
                     }
                 )
@@ -201,6 +207,26 @@ fun GoalErpNavGraph(
 
             composable(AppRoutes.ORDERS) {
                 OrdersRoute(
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(AppRoutes.PRODUCTS) {
+                ProductsRoute(
+                    onBackClick = { navController.popBackStack() },
+                    onNavigateDetail = { id ->
+                        navController.navigate(AppRoutes.costBreakdownDetail(id))
+                    }
+                )
+            }
+
+            composable(
+                route = AppRoutes.COST_BREAKDOWN_DETAIL,
+                arguments = listOf(navArgument("id") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val id = backStackEntry.arguments?.getLong("id") ?: 0L
+                CostBreakdownDetailRoute(
+                    id = id,
                     onBackClick = { navController.popBackStack() }
                 )
             }

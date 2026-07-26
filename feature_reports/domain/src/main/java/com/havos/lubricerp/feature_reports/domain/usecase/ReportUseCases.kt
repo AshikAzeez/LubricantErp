@@ -4,6 +4,8 @@ import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.feature_reports.domain.model.AccountsSummary
 import com.havos.lubricerp.feature_reports.domain.model.CashPosition
 import com.havos.lubricerp.feature_reports.domain.model.ConsolidatedStockItem
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownDetail
+import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownItem
 import com.havos.lubricerp.feature_reports.domain.model.PurchaseSummary
 import com.havos.lubricerp.feature_reports.domain.model.ReceivablesAging
 import com.havos.lubricerp.feature_reports.domain.model.Customer
@@ -353,5 +355,21 @@ class CancelProformaInvoiceUseCase(
         id: Long
     ): ResultState<Unit> {
         return repository.cancelProformaInvoice(token, id)
+    }
+}
+
+class GetCostBreakdownSheetsUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String): ResultState<List<CostBreakdownItem>> {
+        return repository.getCostBreakdownSheets(token)
+    }
+}
+
+class GetCostBreakdownDetailUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, id: Long): ResultState<CostBreakdownDetail> {
+        return repository.getCostBreakdownDetail(token, id)
     }
 }

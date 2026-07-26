@@ -720,3 +720,77 @@ data class BankAccountBalanceDto(
     val accountNumber: String = "",
     val balance: Double = 0.0
 )
+
+@Serializable
+data class CostBreakdownItemDto(
+    val id: Long = 0L,
+    val sku: String = "",
+    val productGrade: String = "",
+    val productFamily: String = "",
+    val productSKUId: Long = 0L,
+    val effectiveFrom: String = "",
+    val effectiveTo: String? = null,
+    val packageCost: Double = 0.0,
+    val margin: Double = 0.0,
+    val transportCost: Double = 0.0,
+    val materialCost: Double = 0.0,
+    val totalCost: Double = 0.0,
+    val lineCount: Int = 0,
+    val remarks: String? = null,
+    val status: String? = null
+)
+
+@Serializable
+data class CostBreakdownPagedDataDto(
+    val items: List<CostBreakdownItemDto> = emptyList(),
+    val totalCount: Int = 0,
+    val skip: Int = 0,
+    val take: Int = 20,
+    val hasMore: Boolean = false
+)
+
+@Serializable
+data class CostBreakdownListApiResponseDto(
+    val success: Boolean = false,
+    val data: CostBreakdownPagedDataDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class RawMaterialLineDto(
+    val id: Long = 0L,
+    val rawMaterialId: Long = 0L,
+    val rawMaterialName: String = "",
+    val rawMaterialCode: String = "",
+    val quantity: Double = 0.0,
+    val rate: Double = 0.0,
+    val amount: Double = 0.0
+)
+
+@Serializable
+data class CostBreakdownDetailDto(
+    val id: Long = 0L,
+    val sku: String = "",
+    val skuCode: String = "",
+    val productGrade: String = "",
+    val productFamily: String = "",
+    val productSKUId: Long = 0L,
+    val effectiveFrom: String = "",
+    val effectiveTo: String? = null,
+    val packageCost: Double = 0.0,
+    val margin: Double = 0.0,
+    val transportCost: Double = 0.0,
+    val materialCost: Double = 0.0,
+    val totalCost: Double = 0.0,
+    val remarks: String? = null,
+    val lines: List<RawMaterialLineDto> = emptyList()
+)
+
+@Serializable
+data class CostBreakdownDetailApiResponseDto(
+    val success: Boolean = false,
+    val data: CostBreakdownDetailDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)

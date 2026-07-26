@@ -12,6 +12,10 @@ import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingApiResponseD
 import com.havos.lubricerp.feature_reports.data.dto.ReceivablesAgingDto
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.ConsolidatedStockItemDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownDetailApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownDetailDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownListApiResponseDto
+import com.havos.lubricerp.feature_reports.data.dto.CostBreakdownPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerEntryDto
@@ -831,6 +835,56 @@ class ReportsRemoteApi(
                 else ResultState.Success(Unit)
             }
             is ResultState.Error -> ResultState.Error(result.message)
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getCostBreakdownSheets(
+        token: String,
+        skip: Int,
+        take: Int
+    ): ResultState<CostBreakdownPagedDataDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<CostBreakdownListApiResponseDto> {
+            client.get("api/cost-breakdown-sheets") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                parameter("skip", skip)
+                parameter("take", take)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                val pagedData = payload.data
+                if (!payload.success || pagedData == null) {
+                    ResultState.Error(payload.message ?: "Unable to fetch cost breakdown sheets")
+                } else {
+                    ResultState.Success(pagedData)
+                }
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch cost breakdown sheets.")
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun getCostBreakdownDetail(
+        token: String,
+        id: Long
+    ): ResultState<CostBreakdownDetailDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<CostBreakdownDetailApiResponseDto> {
+            client.get("api/cost-breakdown-sheets/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null) {
+                    ResultState.Error(payload.message ?: "Unable to fetch cost breakdown detail")
+                } else {
+                    ResultState.Success(payload.data)
+                }
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch cost breakdown detail.")
             ResultState.Loading -> ResultState.Loading
         }
     }

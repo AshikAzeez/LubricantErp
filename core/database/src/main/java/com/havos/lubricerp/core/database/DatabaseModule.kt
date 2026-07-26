@@ -5,7 +5,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val coreDatabaseModule = module {
-    single { SecureCryptoManager() }
+    single<CryptoManager> { SecureCryptoManager() }
     single<SecureSessionStore> { SecureSessionStoreImpl(androidContext(), get()) }
     single {
         Room.databaseBuilder(

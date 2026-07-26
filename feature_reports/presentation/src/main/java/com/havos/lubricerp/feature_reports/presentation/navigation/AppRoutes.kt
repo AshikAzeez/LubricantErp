@@ -14,10 +14,13 @@ object AppRoutes {
     const val PROFORMA_INVOICES = "proforma_invoices"
     const val PROFORMA_INVOICE_DETAIL = "proforma_invoice_detail/{invoiceId}"
     const val CREATE_PROFORMA_INVOICE = "create_proforma_invoice?invoiceId={invoiceId}"
+    const val PRODUCTS = "products"
+    const val COST_BREAKDOWN_DETAIL = "cost_breakdown_detail/{id}"
 
     fun reportDetail(reportKey: String): String = "report_detail/$reportKey"
     fun reportModule(reportItemKey: String): String = "report_module/$reportItemKey"
     fun proformaInvoiceDetail(id: Long): String = "proforma_invoice_detail/$id"
+    fun costBreakdownDetail(id: Long): String = "cost_breakdown_detail/$id"
     fun createProformaInvoice(invoiceId: Long? = null): String {
         return if (invoiceId != null) {
             "create_proforma_invoice?invoiceId=$invoiceId"

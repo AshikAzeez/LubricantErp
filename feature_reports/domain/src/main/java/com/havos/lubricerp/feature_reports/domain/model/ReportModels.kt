@@ -435,3 +435,49 @@ data class BankAccountBalance(
     val accountNumber: String,
     val balance: Double
 )
+
+data class CostBreakdownItem(
+    val id: Long,
+    val sku: String,
+    val productGrade: String,
+    val productFamily: String,
+    val productSKUId: Long,
+    val effectiveFrom: String,
+    val effectiveTo: String?,
+    val packageCost: Double,
+    val margin: Double,
+    val transportCost: Double,
+    val materialCost: Double,
+    val totalCost: Double,
+    val lineCount: Int,
+    val remarks: String?,
+    val status: String? = null
+)
+
+data class RawMaterialLine(
+    val id: Long,
+    val rawMaterialId: Long,
+    val rawMaterialName: String,
+    val rawMaterialCode: String,
+    val quantity: Double,
+    val rate: Double,
+    val amount: Double
+)
+
+data class CostBreakdownDetail(
+    val id: Long,
+    val sku: String,
+    val skuCode: String,
+    val productGrade: String,
+    val productFamily: String,
+    val productSKUId: Long,
+    val effectiveFrom: String,
+    val effectiveTo: String?,
+    val packageCost: Double,
+    val margin: Double,
+    val transportCost: Double,
+    val materialCost: Double,
+    val totalCost: Double,
+    val remarks: String?,
+    val lines: List<RawMaterialLine>
+)

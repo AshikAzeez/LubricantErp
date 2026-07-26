@@ -144,6 +144,7 @@ internal fun ReportDetailScreen(
             ReportItem.REPORT_NET_PROFIT -> {}
             ReportItem.REPORT_EXPENSE_SUMMARY -> {}
             ReportItem.PAYMENT_REPORT -> {}
+            ReportItem.COST_BREAKDOWN -> {}
         }
     }
 }
