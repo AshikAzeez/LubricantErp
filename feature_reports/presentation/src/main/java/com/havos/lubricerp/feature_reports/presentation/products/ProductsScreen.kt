@@ -2,53 +2,16 @@ package com.havos.lubricerp.feature_reports.presentation.products
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.ErrorOutline
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.SwapHoriz
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -58,6 +21,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
 import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownItem
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlin.math.round
+
+// Costs from the API are per standard 210L blending batch; used to derive per-liter figures.
+private const val BATCH_SIZE_LITERS = 210.0
+
+// GST applied on top of the landed per-liter cost (cost + package + transport + margin).
+private const val GST_RATE = 0.18
+
+private fun Double.roundTo2(): Double = round(this * 100) / 100
+
+// NOTE: Temporarily unused — RM/Unit, Per Ltr and computed price columns are hidden
+// in favor of the API totalCost. Kept for when the detailed cost columns return.
+// Per-liter raw material cost derived from the batch-level materialCost.
+private fun perLiterCost(item: CostBreakdownItem): Double =
+    (item.materialCost / BATCH_SIZE_LITERS).roundTo2()
+
+// Final selling price per liter: per-liter RM cost plus package, transport and margin, with GST.
+private fun finalPrice(item: CostBreakdownItem): Double =
+    (perLiterCost(item) + item.packageCost + item.transportCost + item.margin) * (1 + GST_RATE)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,43 +66,47 @@ fun ProductsScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onAction(ProductsAction.CreateClicked) }) {
+            FloatingActionButton(onClick = { onAction(ProductsAction.CreateClicked) },containerColor = MaterialTheme.colorScheme.primary, contentColor = Color.White) {
                 Icon(Icons.Default.Add, contentDescription = "Create Cost Breakdown")
             }
         }
     ) { innerPadding ->
-        Column(
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { onAction(ProductsAction.Refresh) },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
-                tabs.forEachIndexed { index, title ->
-                    Tab(
-                        selected = selectedTabIndex == index,
-                        onClick = { selectedTabIndex = index },
-                        text = { Text(title) }
-                    )
-                }
-            }
-
-            when {
-                state.isLoading -> LoadingContent()
-                state.errorMessage != null && state.items.isEmpty() -> {
-                    ErrorPlaceholder(
-                        message = state.errorMessage,
-                        onRetry = { onAction(ProductsAction.Refresh) }
-                    )
-                }
-                else -> {
-                    when (selectedTabIndex) {
-                        0 -> CostBreakdownList(
-                            items = state.items,
-                            sortColumn = state.sortColumn,
-                            sortAscending = state.sortAscending,
-                            onSortChanged = { onAction(ProductsAction.SortChanged(it)) },
-                            onMenuAction = { item, action -> onAction(ProductsAction.MenuClicked(item, action)) }
+            Column(modifier = Modifier.fillMaxSize()) {
+                PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = selectedTabIndex == index,
+                            onClick = { selectedTabIndex = index },
+                            text = { Text(title) }
                         )
+                    }
+                }
+
+                when {
+                    state.isLoading -> LoadingContent()
+                    state.errorMessage != null && state.items.isEmpty() -> {
+                        ErrorPlaceholder(
+                            message = state.errorMessage,
+                            onRetry = { onAction(ProductsAction.Refresh) }
+                        )
+                    }
+                    else -> {
+                        when (selectedTabIndex) {
+                            0 -> CostBreakdownList(
+                                items = state.items,
+                                sortColumn = state.sortColumn,
+                                sortAscending = state.sortAscending,
+                                onSortChanged = { onAction(ProductsAction.SortChanged(it)) },
+                                onMenuAction = { item, action -> onAction(ProductsAction.MenuClicked(item, action)) }
+                            )
+                        }
                     }
                 }
             }
@@ -189,31 +178,31 @@ private fun SortableHeaderRow(
     sortAscending: Boolean,
     onSortChanged: (CostBreakdownSortColumn) -> Unit
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .padding(horizontal = 8.dp, vertical = 10.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 10.dp)
-        ) {
-            Text(
-                text = "#",
-                style = MaterialTheme.typography.labelSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.width(32.dp),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            SortableLabel("SKU", CostBreakdownSortColumn.SKU, sortColumn, sortAscending, onSortChanged, Modifier.weight(1.5f))
-            SortableLabel("Grade", CostBreakdownSortColumn.PRODUCT_GRADE, sortColumn, sortAscending, onSortChanged, Modifier.weight(1.2f))
-            SortableLabel("Family", CostBreakdownSortColumn.PRODUCT_FAMILY, sortColumn, sortAscending, onSortChanged, Modifier.weight(1.2f))
-            SortableLabel("From", CostBreakdownSortColumn.EFFECTIVE_FROM, sortColumn, sortAscending, onSortChanged, Modifier.weight(1f))
-            SortableLabel("To", CostBreakdownSortColumn.EFFECTIVE_TO, sortColumn, sortAscending, onSortChanged, Modifier.weight(1f))
-            SortableLabel("Total", CostBreakdownSortColumn.TOTAL_COST, sortColumn, sortAscending, onSortChanged, Modifier.weight(1f))
-            Spacer(Modifier.width(36.dp))
-        }
+        SortableLabel("SKU", CostBreakdownSortColumn.SKU, sortColumn, sortAscending, onSortChanged, Modifier.weight(1.6f))
+        SortableLabel("Grade", CostBreakdownSortColumn.PRODUCT_GRADE, sortColumn, sortAscending, onSortChanged, Modifier.weight(1f))
+        SortableLabel("Family", CostBreakdownSortColumn.PRODUCT_FAMILY, sortColumn, sortAscending, onSortChanged, Modifier.weight(1f))
+        SortableLabel("From", CostBreakdownSortColumn.EFFECTIVE_FROM, sortColumn, sortAscending, onSortChanged, Modifier.weight(0.9f))
+        SortableLabel("To", CostBreakdownSortColumn.EFFECTIVE_TO, sortColumn, sortAscending, onSortChanged, Modifier.weight(0.9f))
+        SortableLabel("Total", CostBreakdownSortColumn.TOTAL_COST, sortColumn, sortAscending, onSortChanged, Modifier.weight(1f))
     }
+}
+
+@Composable
+private fun HeaderLabel(label: String, modifier: Modifier = Modifier) {
+    Text(
+        text = label,
+        style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurface,
+        maxLines = 1,
+        textAlign = TextAlign.End,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -258,6 +247,7 @@ private fun CostBreakdownRow(
     val sheetState = rememberModalBottomSheetState()
 
     Card(
+        onClick = { showBottomSheet = true },
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = if (isEven) MaterialTheme.colorScheme.surface
@@ -267,29 +257,18 @@ private fun CostBreakdownRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp, vertical = 6.dp),
+                .padding(horizontal = 8.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "${item.id}",
-                style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.width(32.dp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Column(modifier = Modifier.weight(1.5f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(item.sku, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
-                    val itemStatus = item.status
-                    if (!itemStatus.isNullOrBlank()) {
-                        Spacer(Modifier.width(6.dp))
-                        StatusBadge(itemStatus)
-                    }
-                }
+            Column(modifier = Modifier.weight(1.6f)) {
+                Text(item.sku, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                Spacer(Modifier.height(4.dp))
+                StatusChip(isActive = isCurrentlyActive(item.effectiveFrom, item.effectiveTo))
             }
-            Text(item.productGrade, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1.2f))
-            Text(item.productFamily, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1.2f))
-            Text(formatDateShort(item.effectiveFrom), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
-            Text(formatDateShort(item.effectiveTo), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+            Text(item.productGrade, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+            Text(item.productFamily, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+            Text(formatDateShort(item.effectiveFrom), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.9f))
+            Text(formatDateShort(item.effectiveTo), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(0.9f))
             Text(
                 "₹%,.2f".format(item.totalCost),
                 style = MaterialTheme.typography.bodySmall,
@@ -297,9 +276,6 @@ private fun CostBreakdownRow(
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.End
             )
-            IconButton(onClick = { showBottomSheet = true }) {
-                Icon(Icons.Default.MoreVert, contentDescription = "More", modifier = Modifier.height(20.dp))
-            }
         }
     }
 
@@ -376,26 +352,30 @@ private fun BottomSheetAction(
 }
 
 @Composable
-private fun StatusBadge(status: String) {
-    val (bgColor, textColor) = when (status.lowercase().trim()) {
-        "active" -> Color(0xFF1B5E20) to Color(0xFFC8E6C9)
-        "draft" -> Color(0xFFE65100) to Color(0xFFFFE0B2)
-        "expired" -> Color(0xFF616161) to Color(0xFFE0E0E0)
-        "inactive" -> Color(0xFFB71C1C) to Color(0xFFFFCDD2)
-        else -> MaterialTheme.colorScheme.surfaceContainerHighest to MaterialTheme.colorScheme.onSurfaceVariant
-    }
+private fun StatusChip(isActive: Boolean) {
+    val bgColor = if (isActive) Color(0xFF1B5E20) else MaterialTheme.colorScheme.surfaceContainerHighest
+    val textColor = if (isActive) Color(0xFFC8E6C9) else MaterialTheme.colorScheme.onSurfaceVariant
 
     Surface(
         shape = RoundedCornerShape(4.dp),
         color = bgColor
     ) {
         Text(
-            text = status.replaceFirstChar { it.uppercase() },
+            text = if (isActive) "Active" else "Inactive",
             style = MaterialTheme.typography.labelSmall,
             color = textColor,
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
         )
     }
+}
+
+// Active when today falls between effectiveFrom and effectiveTo (open-ended when
+// effectiveTo is null). ISO date strings compare correctly lexicographically.
+private fun isCurrentlyActive(effectiveFrom: String, effectiveTo: String?): Boolean {
+    val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+    val from = effectiveFrom.substringBefore("T")
+    val to = effectiveTo?.substringBefore("T")
+    return (from.isBlank() || today >= from) && (to.isNullOrBlank() || today <= to)
 }
 
 private fun formatDateShort(date: String?): String {

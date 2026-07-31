@@ -152,6 +152,9 @@ class MockAssetResponseProvider(
             respondAsset(this, "mock/proforma-invoices/create_proforma_invoice.json")
 
         // ── Cost Breakdown ─────────────────────────────────────────────────────
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/cost-breakdown-sheets/") ->
+            respondAsset(this, "mock/cost-breakdown/cost_breakdown_detail_6.json")
+
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/cost-breakdown-sheets") ->
             respondAsset(this, "mock/cost-breakdown/cost_breakdown_sheets.json")
 

@@ -160,6 +160,27 @@ class MockAssetResponseProviderTest {
     }
 
     @Test
+    fun `GET cost breakdown sheets returns list JSON`() = runTest {
+        val response = client.get("https://mock.test/api/cost-breakdown-sheets?skip=0&take=20")
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = json.parseToJsonElement(response.bodyAsText()).jsonObject
+        assertTrue(body["success"]!!.jsonPrimitive.content.toBoolean())
+        val items = body["data"]!!.jsonObject["items"]!!.jsonArray
+        assertTrue(items.isNotEmpty())
+    }
+
+    @Test
+    fun `GET specific cost breakdown sheet returns detail JSON`() = runTest {
+        val response = client.get("https://mock.test/api/cost-breakdown-sheets/6")
+        assertEquals(HttpStatusCode.OK, response.status)
+        val body = json.parseToJsonElement(response.bodyAsText()).jsonObject
+        val data = body["data"]!!.jsonObject
+        assertEquals(6, data["id"]!!.jsonPrimitive.int)
+        val lines = data["lines"]!!.jsonArray
+        assertEquals(5, lines.size)
+    }
+
+    @Test
     fun `GET reports sales summary returns report JSON`() = runTest {
         val response = client.get("https://mock.test/api/reports/sales-summary")
         assertEquals(HttpStatusCode.OK, response.status)

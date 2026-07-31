@@ -46,7 +46,11 @@ class ProductsViewModel(
 
     private fun loadData(isRefresh: Boolean) {
         viewModelScope.launch {
-            if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            if (isRefresh) {
+                _state.update { it.copy(isRefreshing = true) }
+            } else {
+                _state.update { it.copy(isLoading = true, errorMessage = null) }
+            }
             val token = runCatching { observeSessionUseCase().first()?.token.orEmpty() }.getOrElse { "" }
             when (val result = getCostBreakdownSheetsUseCase(token)) {
                 is ResultState.Success -> {
