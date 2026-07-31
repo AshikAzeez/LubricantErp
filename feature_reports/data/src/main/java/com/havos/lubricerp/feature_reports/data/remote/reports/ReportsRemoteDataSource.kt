@@ -40,7 +40,7 @@ import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 
 interface ReportsRemoteDataSource {
     suspend fun getTankStockSummary(token: String): ResultState<List<TankStockItemDto>>
-    suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItemDto>>
+    suspend fun getRawMaterialStock(token: String): ResultState<List<RawMaterialStockItemDto>>
     suspend fun getPackagingLossGain(fromDate: String, toDate: String): ResultState<PackagingLossGainReportDto>
     suspend fun getDashboard(token: String): ResultState<DashboardDto>
     suspend fun getSalesSummary(token: String, fromDate: String, toDate: String): ResultState<List<SalesSummaryItemDto>>
@@ -154,4 +154,20 @@ interface ReportsRemoteDataSource {
         token: String,
         id: Long
     ): ResultState<CostBreakdownDetailDto>
+
+    suspend fun createCostBreakdown(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.data.dto.CreateCostBreakdownRequestDto
+    ): ResultState<CostBreakdownDetailDto>
+
+    suspend fun updateCostBreakdown(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.data.dto.CreateCostBreakdownRequestDto
+    ): ResultState<Unit>
+
+    suspend fun deleteCostBreakdown(
+        token: String,
+        id: Long
+    ): ResultState<Unit>
 }

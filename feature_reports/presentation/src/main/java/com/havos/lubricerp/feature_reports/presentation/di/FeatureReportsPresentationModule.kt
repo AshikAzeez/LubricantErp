@@ -14,6 +14,7 @@ import com.havos.lubricerp.feature_reports.presentation.payment.PaymentReportVie
 import com.havos.lubricerp.feature_reports.presentation.orders.OrdersViewModel
 import com.havos.lubricerp.feature_reports.presentation.products.ProductsViewModel
 import com.havos.lubricerp.feature_reports.presentation.products.CostBreakdownDetailViewModel
+import com.havos.lubricerp.feature_reports.presentation.products.CreateCostBreakdownViewModel
 import com.havos.lubricerp.feature_reports.presentation.proforma.ProformaInvoiceViewModel
 import com.havos.lubricerp.feature_reports.presentation.proforma.ProformaInvoiceDetailViewModel
 import com.havos.lubricerp.feature_reports.presentation.proforma.CreateProformaInvoiceViewModel
@@ -33,8 +34,9 @@ val featureReportsPresentationModule = module {
     viewModel { NotificationViewModel(get(), get(), get(), get()) }
     viewModel { PaymentReportViewModel(get(), get(), get(), get(), get()) }
     viewModel { OrdersViewModel(get(), get(), get(), get(), get()) }
-    viewModel { ProductsViewModel(get(), get()) }
-    viewModel { CostBreakdownDetailViewModel(get(), get()) }
+    viewModel { ProductsViewModel(get(), get(), get()) }
+    viewModel { CostBreakdownDetailViewModel(get(), get(), get()) }
+    viewModel { CreateCostBreakdownViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { ProformaInvoiceViewModel(get(), get(), get()) }
     viewModel { ProformaInvoiceDetailViewModel(get(), get(), get(), get()) }
     viewModel { CreateProformaInvoiceViewModel(get(), get(), get(), get(), get(), get()) }

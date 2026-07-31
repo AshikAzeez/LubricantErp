@@ -25,7 +25,8 @@ data class CostBreakdownDetailUiState(
 ) : UiState
 
 sealed interface CostBreakdownDetailEffect {
-    data object NavigateToEdit : CostBreakdownDetailEffect
+    data class Toast(val message: String) : CostBreakdownDetailEffect
+    data class NavigateToEdit(val id: Long) : CostBreakdownDetailEffect
     data class NavigateToConvertToPi(val id: Long) : CostBreakdownDetailEffect
     data object Deleted : CostBreakdownDetailEffect
     data object NavigateBack : CostBreakdownDetailEffect

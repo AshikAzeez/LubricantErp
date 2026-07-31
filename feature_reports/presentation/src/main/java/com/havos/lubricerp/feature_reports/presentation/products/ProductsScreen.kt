@@ -54,6 +54,30 @@ fun ProductsScreen(
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("Cost Breakdown")
 
+    if (state.deleteConfirmationItem != null) {
+        AlertDialog(
+            onDismissRequest = { if (!state.isDeleting) onAction(ProductsAction.DismissDelete) },
+            title = { Text("Confirm Delete") },
+            text = { Text("Are you sure you want to delete this cost breakdown sheet?") },
+            confirmButton = {
+                TextButton(
+                    onClick = { onAction(ProductsAction.ConfirmDelete) },
+                    enabled = !state.isDeleting
+                ) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { onAction(ProductsAction.DismissDelete) },
+                    enabled = !state.isDeleting
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -300,10 +324,11 @@ private fun CostBreakdownRow(
                 showBottomSheet = false
                 onMenuAction(CostBreakdownMenuAction.EDIT)
             }
-            BottomSheetAction("Convert to Proforma Invoice", Icons.Default.SwapHoriz) {
-                showBottomSheet = false
-                onMenuAction(CostBreakdownMenuAction.CONVERT_TO_PI)
-            }
+            // TODO: Re-enable once "Convert to Proforma Invoice" is implemented.
+            // BottomSheetAction("Convert to Proforma Invoice", Icons.Default.SwapHoriz) {
+            //     showBottomSheet = false
+            //     onMenuAction(CostBreakdownMenuAction.CONVERT_TO_PI)
+            // }
             HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
             BottomSheetAction(
                 "Delete",
@@ -378,7 +403,12 @@ private fun isCurrentlyActive(effectiveFrom: String, effectiveTo: String?): Bool
     return (from.isBlank() || today >= from) && (to.isNullOrBlank() || today <= to)
 }
 
+// Formats an ISO date string (yyyy-MM-dd'T'...) as dd-MMM-yyyy, e.g. "28-Apr-2026".
 private fun formatDateShort(date: String?): String {
     if (date.isNullOrBlank()) return "-"
-    return date.substringBefore("T")
+    val raw = date.substringBefore("T")
+    return runCatching {
+        val parsed = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(raw)
+        SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH).format(parsed!!)
+    }.getOrDefault(raw)
 }

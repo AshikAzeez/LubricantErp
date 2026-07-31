@@ -44,7 +44,8 @@ class GetTankStockSummaryUseCase(
 class GetRawMaterialStockUseCase(
     private val repository: ReportsRepository
 ) {
-    suspend operator fun invoke(): ResultState<List<RawMaterialStockItem>> = repository.getRawMaterialStock()
+    suspend operator fun invoke(token: String): ResultState<List<RawMaterialStockItem>> =
+        repository.getRawMaterialStock(token)
 }
 
 class GetPackagingLossGainUseCase(
@@ -371,5 +372,36 @@ class GetCostBreakdownDetailUseCase(
 ) {
     suspend operator fun invoke(token: String, id: Long): ResultState<CostBreakdownDetail> {
         return repository.getCostBreakdownDetail(token, id)
+    }
+}
+
+class CreateCostBreakdownUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateCostBreakdownRequest
+    ): ResultState<CostBreakdownDetail> {
+        return repository.createCostBreakdown(token, request)
+    }
+}
+
+class UpdateCostBreakdownUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateCostBreakdownRequest
+    ): ResultState<Unit> {
+        return repository.updateCostBreakdown(token, id, request)
+    }
+}
+
+class DeleteCostBreakdownUseCase(
+    private val repository: ReportsRepository
+) {
+    suspend operator fun invoke(token: String, id: Long): ResultState<Unit> {
+        return repository.deleteCostBreakdown(token, id)
     }
 }

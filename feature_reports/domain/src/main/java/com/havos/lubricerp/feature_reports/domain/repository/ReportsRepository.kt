@@ -37,7 +37,7 @@ import com.havos.lubricerp.feature_reports.domain.model.WarehouseStockItem
 interface ReportsRepository {
     suspend fun getTankStockSummary(token: String): ResultState<List<TankStockItem>>
 
-    suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItem>>
+    suspend fun getRawMaterialStock(token: String): ResultState<List<RawMaterialStockItem>>
 
     suspend fun getPackagingLossGain(filter: DateRangeFilter): ResultState<PackagingLossGainReport>
 
@@ -136,4 +136,17 @@ interface ReportsRepository {
     suspend fun getCostBreakdownSheets(token: String): ResultState<List<CostBreakdownItem>>
 
     suspend fun getCostBreakdownDetail(token: String, id: Long): ResultState<CostBreakdownDetail>
+
+    suspend fun createCostBreakdown(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateCostBreakdownRequest
+    ): ResultState<CostBreakdownDetail>
+
+    suspend fun updateCostBreakdown(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateCostBreakdownRequest
+    ): ResultState<Unit>
+
+    suspend fun deleteCostBreakdown(token: String, id: Long): ResultState<Unit>
 }

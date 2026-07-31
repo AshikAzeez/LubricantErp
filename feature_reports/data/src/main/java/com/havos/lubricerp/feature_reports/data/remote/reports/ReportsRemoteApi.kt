@@ -43,6 +43,7 @@ import com.havos.lubricerp.feature_reports.data.dto.ProformaInvoicePagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.SalesInvoicePagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.ProductSalesApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.ProductSalesItemDto
+import com.havos.lubricerp.feature_reports.data.dto.RawMaterialListApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.RawMaterialStockItemDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.RecordPaymentRequestDto
@@ -66,6 +67,7 @@ import com.havos.lubricerp.feature_reports.data.dto.CustomerLedgerPagedDataDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockApiResponseDto
 import com.havos.lubricerp.feature_reports.data.dto.WarehouseStockItemDto
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -98,14 +100,21 @@ class ReportsRemoteApi(
         }
     }
 
-    override suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItemDto>> {
+    override suspend fun getRawMaterialStock(token: String): ResultState<List<RawMaterialStockItemDto>> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
         return when (
-            val result = safeApiCall<List<RawMaterialStockItemDto>> {
-                client.get("api/reports/raw-material-stock")
+            val result = safeApiCall<RawMaterialListApiResponseDto> {
+                client.get("api/raw-materials") {
+                    header(HttpHeaders.Authorization, "Bearer $token")
+                }
             }
         ) {
-            is ResultState.Success -> ResultState.Success(result.data)
-            is ResultState.Error -> ResultState.Error("Unable to fetch raw material stock")
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch raw materials")
+                else ResultState.Success(payload.data)
+            }
+            is ResultState.Error -> ResultState.Error("Unable to fetch raw materials.")
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -856,12 +865,16 @@ class ReportsRemoteApi(
                 val payload = result.data
                 val pagedData = payload.data
                 if (!payload.success || pagedData == null) {
-                    ResultState.Error(payload.message ?: "Unable to fetch cost breakdown sheets")
+                    ResultState.Error(
+                        payload.message?.takeIf { it.isNotBlank() }
+                            ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
+                            ?: "Unable to fetch cost breakdown sheets"
+                    )
                 } else {
                     ResultState.Success(pagedData)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch cost breakdown sheets.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -879,12 +892,105 @@ class ReportsRemoteApi(
             is ResultState.Success -> {
                 val payload = result.data
                 if (!payload.success || payload.data == null) {
-                    ResultState.Error(payload.message ?: "Unable to fetch cost breakdown detail")
+                    ResultState.Error(
+                        payload.message?.takeIf { it.isNotBlank() }
+                            ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
+                            ?: "Unable to fetch cost breakdown detail"
+                    )
                 } else {
                     ResultState.Success(payload.data)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch cost breakdown detail.")
+            is ResultState.Error -> ResultState.Error(result.message)
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun createCostBreakdown(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.data.dto.CreateCostBreakdownRequestDto
+    ): ResultState<CostBreakdownDetailDto> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<CostBreakdownDetailApiResponseDto> {
+            client.post("api/cost-breakdown-sheets") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+                setBody(request)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success || payload.data == null) {
+                    ResultState.Error(
+                        payload.message?.takeIf { it.isNotBlank() }
+                            ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
+                            ?: "Unable to create cost breakdown sheet"
+                    )
+                } else {
+                    ResultState.Success(payload.data)
+                }
+            }
+            is ResultState.Error -> ResultState.Error(result.message)
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun updateCostBreakdown(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.data.dto.CreateCostBreakdownRequestDto
+    ): ResultState<Unit> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.UpdateCostBreakdownApiResponseDto> {
+            client.put("api/cost-breakdown-sheets/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+                setBody(request)
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) {
+                    ResultState.Error(
+                        payload.message?.takeIf { it.isNotBlank() }
+                            ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
+                            ?: "Unable to update cost breakdown sheet"
+                    )
+                } else {
+                    ResultState.Success(Unit)
+                }
+            }
+            is ResultState.Error -> ResultState.Error(result.message)
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun deleteCostBreakdown(
+        token: String,
+        id: Long
+    ): ResultState<Unit> {
+        if (token.isBlank()) return ResultState.Error("Authentication token is missing.")
+        return when (val result = safeApiCall<com.havos.lubricerp.feature_reports.data.dto.DeleteCostBreakdownApiResponseDto> {
+            client.delete("api/cost-breakdown-sheets/$id") {
+                header(HttpHeaders.Authorization, "Bearer $token")
+                header(HttpHeaders.Accept, ContentType.Application.Json.toString())
+            }
+        }) {
+            is ResultState.Success -> {
+                val payload = result.data
+                if (!payload.success) {
+                    ResultState.Error(
+                        payload.message?.takeIf { it.isNotBlank() }
+                            ?: payload.errors?.firstOrNull()?.takeIf { it.isNotBlank() }
+                            ?: "Unable to delete cost breakdown sheet"
+                    )
+                } else {
+                    ResultState.Success(Unit)
+                }
+            }
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }

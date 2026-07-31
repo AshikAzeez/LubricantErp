@@ -52,8 +52,8 @@ class ReportsRepositoryImpl(
         }
     }
 
-    override suspend fun getRawMaterialStock(): ResultState<List<RawMaterialStockItem>> {
-        return when (val result = reportsRemoteDataSource.getRawMaterialStock()) {
+    override suspend fun getRawMaterialStock(token: String): ResultState<List<RawMaterialStockItem>> {
+        return when (val result = reportsRemoteDataSource.getRawMaterialStock(token)) {
             is ResultState.Success -> ResultState.Success(result.data.map { it.toDomain() })
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
@@ -425,7 +425,7 @@ class ReportsRepositoryImpl(
             when (val result = reportsRemoteDataSource.getCostBreakdownSheets(token, skip, take)) {
                 is ResultState.Success -> {
                     allItems.addAll(result.data.items.map { it.toDomain() })
-                    if (!result.data.hasMore) break
+                    if (!result.data.hasMore || result.data.items.isEmpty()) break
                     skip += result.data.items.size
                 }
                 is ResultState.Error -> {
@@ -444,5 +444,28 @@ class ReportsRepositoryImpl(
             is ResultState.Error -> result
             ResultState.Loading -> ResultState.Loading
         }
+    }
+
+    override suspend fun createCostBreakdown(
+        token: String,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateCostBreakdownRequest
+    ): ResultState<CostBreakdownDetail> {
+        return when (val result = reportsRemoteDataSource.createCostBreakdown(token, request.toDto())) {
+            is ResultState.Success -> ResultState.Success(result.data.toDomain())
+            is ResultState.Error -> result
+            ResultState.Loading -> ResultState.Loading
+        }
+    }
+
+    override suspend fun updateCostBreakdown(
+        token: String,
+        id: Long,
+        request: com.havos.lubricerp.feature_reports.domain.model.CreateCostBreakdownRequest
+    ): ResultState<Unit> {
+        return reportsRemoteDataSource.updateCostBreakdown(token, id, request.toDto())
+    }
+
+    override suspend fun deleteCostBreakdown(token: String, id: Long): ResultState<Unit> {
+        return reportsRemoteDataSource.deleteCostBreakdown(token, id)
     }
 }

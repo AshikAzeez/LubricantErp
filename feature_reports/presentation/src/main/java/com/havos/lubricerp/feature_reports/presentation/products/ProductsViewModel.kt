@@ -3,8 +3,10 @@ package com.havos.lubricerp.feature_reports.presentation.products
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.havos.lubricerp.core.common.ResultState
+import com.havos.lubricerp.feature_reports.domain.usecase.DeleteCostBreakdownUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetCostBreakdownSheetsUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -17,7 +19,8 @@ import kotlinx.coroutines.launch
 
 class ProductsViewModel(
     private val observeSessionUseCase: ObserveSessionUseCase,
-    private val getCostBreakdownSheetsUseCase: GetCostBreakdownSheetsUseCase
+    private val getCostBreakdownSheetsUseCase: GetCostBreakdownSheetsUseCase,
+    private val deleteCostBreakdownUseCase: DeleteCostBreakdownUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ProductsUiState())
@@ -27,6 +30,7 @@ class ProductsViewModel(
     val effect: SharedFlow<ProductsEffect> = _effect.asSharedFlow()
 
     private var sortAscending = false
+    private var loadJob: Job? = null
 
     init {
         loadData(isRefresh = false)
@@ -45,7 +49,8 @@ class ProductsViewModel(
     }
 
     private fun loadData(isRefresh: Boolean) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             if (isRefresh) {
                 _state.update { it.copy(isRefreshing = true) }
             } else {
@@ -111,7 +116,7 @@ class ProductsViewModel(
                 CostBreakdownMenuAction.VIEW_DETAILS -> _effect.emit(ProductsEffect.NavigateToDetail(item.id))
                 CostBreakdownMenuAction.EDIT -> _effect.emit(ProductsEffect.OpenEdit(item))
                 CostBreakdownMenuAction.CONVERT_TO_PI -> _effect.emit(ProductsEffect.ConvertToPi(item))
-                CostBreakdownMenuAction.DELETE -> _effect.emit(ProductsEffect.Toast("Delete functionality will be available soon"))
+                CostBreakdownMenuAction.DELETE -> _state.update { it.copy(deleteConfirmationItem = item) }
             }
         }
     }
@@ -122,6 +127,28 @@ class ProductsViewModel(
             is ProductsAction.MenuClicked -> onIntent(ProductsIntent.MenuAction(action.item, action.action))
             is ProductsAction.CreateClicked -> onIntent(ProductsIntent.CreateClicked)
             is ProductsAction.Refresh -> onIntent(ProductsIntent.Refresh)
+            is ProductsAction.ConfirmDelete -> performDelete()
+            is ProductsAction.DismissDelete -> _state.update { it.copy(deleteConfirmationItem = null) }
+        }
+    }
+
+    private fun performDelete() {
+        val item = _state.value.deleteConfirmationItem ?: return
+        viewModelScope.launch {
+            _state.update { it.copy(isDeleting = true) }
+            val token = runCatching { observeSessionUseCase().first()?.token.orEmpty() }.getOrElse { "" }
+            when (val result = deleteCostBreakdownUseCase(token, item.id)) {
+                is ResultState.Success -> {
+                    _state.update { it.copy(isDeleting = false, deleteConfirmationItem = null) }
+                    _effect.emit(ProductsEffect.Toast("Cost breakdown sheet deleted"))
+                    loadData(isRefresh = true)
+                }
+                is ResultState.Error -> {
+                    _state.update { it.copy(isDeleting = false, deleteConfirmationItem = null) }
+                    _effect.emit(ProductsEffect.Toast(result.message))
+                }
+                ResultState.Loading -> {}
+            }
         }
     }
 }

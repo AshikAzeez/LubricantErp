@@ -30,12 +30,20 @@ data class TankStockListApiResponseDto(
 
 @Serializable
 data class RawMaterialStockItemDto(
-    val code: String = "",
+    val id: Long = 0L,
     val name: String = "",
+    val code: String = "",
     val type: String = "",
-    val uom: String = "",
-    val costPerUnit: Double = 0.0,
-    val reorderLevel: Double = 0.0
+    val unitOfMeasureId: Int = 0,
+    val currentCostPerUnit: Double = 0.0
+)
+
+@Serializable
+data class RawMaterialListApiResponseDto(
+    val success: Boolean = false,
+    val data: List<RawMaterialStockItemDto> = emptyList(),
+    val message: String? = null,
+    val errors: List<String>? = null
 )
 
 @Serializable
@@ -791,6 +799,41 @@ data class CostBreakdownDetailDto(
 data class CostBreakdownDetailApiResponseDto(
     val success: Boolean = false,
     val data: CostBreakdownDetailDto? = null,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+@Serializable
+data class CreateCostBreakdownLineDto(
+    val rawMaterialId: Long,
+    val quantity: Double,
+    val rate: Double
+)
+
+@Serializable
+data class CreateCostBreakdownRequestDto(
+    val productSKUId: Long,
+    val effectiveFrom: String,
+    val effectiveTo: String?,
+    val remarks: String?,
+    val packageCost: Double,
+    val margin: Double,
+    val transportCost: Double,
+    val lines: List<CreateCostBreakdownLineDto>
+)
+
+/** Response envelope for `PUT api/cost-breakdown-sheets/{id}` — carries no `data` payload. */
+@Serializable
+data class UpdateCostBreakdownApiResponseDto(
+    val success: Boolean = false,
+    val message: String? = null,
+    val errors: List<String>? = null
+)
+
+/** Response envelope for `DELETE api/cost-breakdown-sheets/{id}` — carries no `data` payload. */
+@Serializable
+data class DeleteCostBreakdownApiResponseDto(
+    val success: Boolean = false,
     val message: String? = null,
     val errors: List<String>? = null
 )

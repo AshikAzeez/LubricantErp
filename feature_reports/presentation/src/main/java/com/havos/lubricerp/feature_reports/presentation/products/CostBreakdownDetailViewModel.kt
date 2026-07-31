@@ -3,6 +3,7 @@ package com.havos.lubricerp.feature_reports.presentation.products
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.havos.lubricerp.core.common.ResultState
+import com.havos.lubricerp.feature_reports.domain.usecase.DeleteCostBreakdownUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.GetCostBreakdownDetailUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveSessionUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -17,7 +18,8 @@ import kotlinx.coroutines.launch
 
 class CostBreakdownDetailViewModel(
     private val observeSessionUseCase: ObserveSessionUseCase,
-    private val getCostBreakdownDetailUseCase: GetCostBreakdownDetailUseCase
+    private val getCostBreakdownDetailUseCase: GetCostBreakdownDetailUseCase,
+    private val deleteCostBreakdownUseCase: DeleteCostBreakdownUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(CostBreakdownDetailUiState())
@@ -30,7 +32,10 @@ class CostBreakdownDetailViewModel(
         when (intent) {
             is CostBreakdownDetailIntent.Load -> load(intent.id)
             is CostBreakdownDetailIntent.Refresh -> load(detailId())
-            is CostBreakdownDetailIntent.EditClicked -> viewModelScope.launch { _effect.emit(CostBreakdownDetailEffect.NavigateToEdit) }
+            is CostBreakdownDetailIntent.EditClicked -> viewModelScope.launch {
+                val id = detailId()
+                if (id > 0) _effect.emit(CostBreakdownDetailEffect.NavigateToEdit(id))
+            }
             is CostBreakdownDetailIntent.DeleteClicked -> _state.update { it.copy(showDeleteConfirmation = true) }
             is CostBreakdownDetailIntent.ConvertToPiClicked -> viewModelScope.launch {
                 val id = detailId()
@@ -65,9 +70,23 @@ class CostBreakdownDetailViewModel(
     }
 
     private fun performDelete() {
+        val id = detailId()
+        if (id <= 0) return
         viewModelScope.launch {
-            _state.update { it.copy(isDeleting = true) }
-            _effect.emit(CostBreakdownDetailEffect.Deleted)
+            _state.update { it.copy(isDeleting = true, showDeleteConfirmation = false) }
+            val token = runCatching { observeSessionUseCase().first()?.token.orEmpty() }.getOrElse { "" }
+            when (val result = deleteCostBreakdownUseCase(token, id)) {
+                is ResultState.Success -> {
+                    _state.update { it.copy(isDeleting = false) }
+                    _effect.emit(CostBreakdownDetailEffect.Toast("Cost breakdown sheet deleted"))
+                    _effect.emit(CostBreakdownDetailEffect.Deleted)
+                }
+                is ResultState.Error -> {
+                    _state.update { it.copy(isDeleting = false) }
+                    _effect.emit(CostBreakdownDetailEffect.Toast(result.message))
+                }
+                ResultState.Loading -> {}
+            }
         }
     }
 }

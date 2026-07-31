@@ -36,7 +36,9 @@ data class ProductsUiState(
     val errorMessage: String? = null,
     val items: List<CostBreakdownItem> = emptyList(),
     val sortColumn: CostBreakdownSortColumn = CostBreakdownSortColumn.EFFECTIVE_FROM,
-    val sortAscending: Boolean = false
+    val sortAscending: Boolean = false,
+    val deleteConfirmationItem: CostBreakdownItem? = null,
+    val isDeleting: Boolean = false
 ) : UiState
 
 sealed interface ProductsEffect {
@@ -53,4 +55,6 @@ sealed interface ProductsAction {
     data class MenuClicked(val item: CostBreakdownItem, val action: CostBreakdownMenuAction) : ProductsAction
     data object CreateClicked : ProductsAction
     data object Refresh : ProductsAction
+    data object ConfirmDelete : ProductsAction
+    data object DismissDelete : ProductsAction
 }

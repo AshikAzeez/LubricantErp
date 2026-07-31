@@ -31,7 +31,7 @@ internal fun RawMaterialStockScreen(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        item { Text(text = "Current stock levels and cost of raw materials") }
+        item { Text(text = "Raw material master with cost per unit") }
         item {
             OutlinedTextField(
                 value = state.searchQuery,
@@ -47,7 +47,7 @@ internal fun RawMaterialStockScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     filtered.forEach { item ->
-                        Text("${item.code} - ${item.name} (${item.uom})")
+                        Text("${item.code} - ${item.name} (${uomLabel(item.unitOfMeasureId)})")
                     }
                 }
             }

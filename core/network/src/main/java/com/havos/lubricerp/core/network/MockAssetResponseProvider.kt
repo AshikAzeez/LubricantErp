@@ -51,9 +51,6 @@ class MockAssetResponseProvider(
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/tank-stock") ->
             respondAsset(this, "mock/reports/tank_stock_summary.json")
 
-        request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/raw-material-stock") ->
-            respondAsset(this, "mock/reports/raw_material_stock.json")
-
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/reports/packaging-loss-gain") ->
             respondAsset(this, "mock/reports/packaging_loss_gain.json")
 
@@ -151,12 +148,25 @@ class MockAssetResponseProvider(
         request.method == HttpMethod.Post && normalizedPath(request).contains("api/proforma-invoices") ->
             respondAsset(this, "mock/proforma-invoices/create_proforma_invoice.json")
 
+        // ── Raw Materials ─────────────────────────────────────────────────────
+        request.method == HttpMethod.Get && normalizedPath(request).contains("api/raw-materials") ->
+            respondAsset(this, "mock/raw-materials/raw_materials.json")
+
         // ── Cost Breakdown ─────────────────────────────────────────────────────
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/cost-breakdown-sheets/") ->
             respondAsset(this, "mock/cost-breakdown/cost_breakdown_detail_6.json")
 
         request.method == HttpMethod.Get && normalizedPath(request).contains("api/cost-breakdown-sheets") ->
             respondAsset(this, "mock/cost-breakdown/cost_breakdown_sheets.json")
+
+        request.method == HttpMethod.Post && normalizedPath(request).contains("api/cost-breakdown-sheets") ->
+            respondAsset(this, "mock/cost-breakdown/create_cost_breakdown.json")
+
+        request.method == HttpMethod.Put && normalizedPath(request).contains("api/cost-breakdown-sheets/") ->
+            respondAsset(this, "mock/cost-breakdown/update_cost_breakdown.json")
+
+        request.method == HttpMethod.Delete && normalizedPath(request).contains("api/cost-breakdown-sheets/") ->
+            respondAsset(this, "mock/cost-breakdown/delete_cost_breakdown.json")
 
         // ── Fallback ──────────────────────────────────────────────────────────
         else -> this.respond(

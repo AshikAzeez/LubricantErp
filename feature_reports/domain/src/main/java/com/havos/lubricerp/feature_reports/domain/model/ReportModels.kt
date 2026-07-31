@@ -13,12 +13,12 @@ data class TankStockItem(
 )
 
 data class RawMaterialStockItem(
+    val id: Long,
     val code: String,
     val name: String,
     val type: String,
-    val uom: String,
-    val costPerUnit: Double,
-    val reorderLevel: Double
+    val unitOfMeasureId: Int,
+    val costPerUnit: Double
 )
 
 data class DateRangeFilter(
@@ -480,4 +480,21 @@ data class CostBreakdownDetail(
     val totalCost: Double,
     val remarks: String?,
     val lines: List<RawMaterialLine>
+)
+
+data class CreateCostBreakdownLine(
+    val rawMaterialId: Long,
+    val quantity: Double,
+    val rate: Double
+)
+
+data class CreateCostBreakdownRequest(
+    val productSKUId: Long,
+    val effectiveFrom: String,
+    val effectiveTo: String?,
+    val remarks: String?,
+    val packageCost: Double,
+    val margin: Double,
+    val transportCost: Double,
+    val lines: List<CreateCostBreakdownLine>
 )

@@ -45,6 +45,7 @@ import com.havos.lubricerp.feature_reports.presentation.settings.SettingsRoute
 import com.havos.lubricerp.feature_reports.presentation.orders.OrdersRoute
 import com.havos.lubricerp.feature_reports.presentation.products.ProductsRoute
 import com.havos.lubricerp.feature_reports.presentation.products.CostBreakdownDetailRoute
+import com.havos.lubricerp.feature_reports.presentation.products.CreateCostBreakdownRoute
 import com.havos.lubricerp.feature_reports.presentation.payment.PaymentReportRoute
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -212,10 +213,39 @@ fun GoalErpNavGraph(
             }
 
             composable(AppRoutes.PRODUCTS) {
+                val savedStateHandle = it.savedStateHandle
+                val refreshTrigger = savedStateHandle.get<Boolean>("refresh") == true
+                if (refreshTrigger) savedStateHandle.remove<Boolean>("refresh")
+
                 ProductsRoute(
                     onBackClick = { navController.popBackStack() },
                     onNavigateDetail = { id ->
                         navController.navigate(AppRoutes.costBreakdownDetail(id))
+                    },
+                    onNavigateCreate = {
+                        navController.navigate(AppRoutes.createCostBreakdown())
+                    },
+                    onNavigateEdit = { sheetId ->
+                        navController.navigate(AppRoutes.createCostBreakdown(sheetId))
+                    },
+                    refreshTrigger = refreshTrigger
+                )
+            }
+
+            composable(
+                route = AppRoutes.CREATE_COST_BREAKDOWN,
+                arguments = listOf(navArgument("sheetId") {
+                    type = NavType.StringType
+                    nullable = true
+                })
+            ) { backStackEntry ->
+                val sheetId = backStackEntry.arguments?.getString("sheetId")?.toLongOrNull()
+                CreateCostBreakdownRoute(
+                    sheetId = sheetId,
+                    onBackClick = { navController.popBackStack() },
+                    onSaved = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                        navController.popBackStack()
                     }
                 )
             }
@@ -225,9 +255,20 @@ fun GoalErpNavGraph(
                 arguments = listOf(navArgument("id") { type = NavType.LongType })
             ) { backStackEntry ->
                 val id = backStackEntry.arguments?.getLong("id") ?: 0L
+                val savedStateHandle = backStackEntry.savedStateHandle
+                val refreshTrigger = savedStateHandle.get<Boolean>("refresh") == true
+                if (refreshTrigger) savedStateHandle.remove<Boolean>("refresh")
+
                 CostBreakdownDetailRoute(
                     id = id,
-                    onBackClick = { navController.popBackStack() }
+                    onBackClick = {
+                        navController.previousBackStackEntry?.savedStateHandle?.set("refresh", true)
+                        navController.popBackStack()
+                    },
+                    onEditClick = { sheetId ->
+                        navController.navigate(AppRoutes.createCostBreakdown(sheetId))
+                    },
+                    refreshTrigger = refreshTrigger
                 )
             }
 

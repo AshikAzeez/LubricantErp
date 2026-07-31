@@ -1,0 +1,41 @@
+{
+  "success": true,
+  "data": {
+    "id": 7,
+    "sku": "GLIDER 4T 10W30 SL",
+    "skuCode": "SKU0197",
+    "productGrade": "10W30 SL",
+    "productFamily": "ENGINE OIL",
+    "productSKUId": 209,
+    "effectiveFrom": "2026-07-30T00:00:00",
+    "effectiveTo": null,
+    "packageCost": 21.00,
+    "margin": 25.00,
+    "transportCost": 10.00,
+    "materialCost": 17895.29,
+    "totalCost": 17926.29,
+    "remarks": null,
+    "lines": [
+      {
+        "id": 30,
+        "rawMaterialId": 109,
+        "rawMaterialName": "WOX SN 500 t",
+        "rawMaterialCode": "RM087",
+        "quantity": 103.3000,
+        "rate": 72.77,
+        "amount": 7517.14
+      },
+      {
+        "id": 31,
+        "rawMaterialId": 88,
+        "rawMaterialName": "LN 150",
+        "rawMaterialCode": "RM066",
+        "quantity": 100.3000,
+        "rate": 87.98,
+        "amount": 8824.39
+      }
+    ]
+  },
+  "message": "Cost breakdown sheet created successfully",
+  "errors": null
+}

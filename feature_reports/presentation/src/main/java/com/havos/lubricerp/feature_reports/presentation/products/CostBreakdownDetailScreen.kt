@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import com.havos.lubricerp.core.ui.components.ErrorPlaceholder
 import com.havos.lubricerp.feature_reports.domain.model.CostBreakdownDetail
 import com.havos.lubricerp.feature_reports.domain.model.RawMaterialLine
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -282,7 +284,12 @@ private fun DetailRow(label: String, value: String) {
     }
 }
 
+// Formats an ISO date string (yyyy-MM-dd'T'...) as dd-MMM-yyyy, e.g. "28-Apr-2026".
 private fun formatDateShort(date: String?): String {
     if (date.isNullOrBlank()) return "-"
-    return date.substringBefore("T")
+    val raw = date.substringBefore("T")
+    return runCatching {
+        val parsed = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(raw)
+        SimpleDateFormat("dd-MMM-yyyy", Locale.ENGLISH).format(parsed!!)
+    }.getOrDefault(raw)
 }

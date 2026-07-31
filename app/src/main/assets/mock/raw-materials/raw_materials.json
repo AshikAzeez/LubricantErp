@@ -1,0 +1,71 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": 153,
+      "name": "NW SN LN",
+      "code": "RM0124",
+      "type": "BaseOil",
+      "unitOfMeasureId": 1,
+      "currentCostPerUnit": 0.00
+    },
+    {
+      "id": 144,
+      "name": "SN LN MIX",
+      "code": "RM0122",
+      "type": "BaseOil",
+      "unitOfMeasureId": 1,
+      "currentCostPerUnit": 0.00
+    },
+    {
+      "id": 96,
+      "name": "SN 150 Base Oil",
+      "code": "RM0075",
+      "type": "BaseOil",
+      "unitOfMeasureId": 1,
+      "currentCostPerUnit": 65.00
+    },
+    {
+      "id": 95,
+      "name": "SN 500 Base Oil",
+      "code": "RM0074",
+      "type": "BaseOil",
+      "unitOfMeasureId": 1,
+      "currentCostPerUnit": 72.00
+    },
+    {
+      "id": 61,
+      "name": "ZDDP Anti-Wear Additive",
+      "code": "RM0040",
+      "type": "Additive",
+      "unitOfMeasureId": 2,
+      "currentCostPerUnit": 320.00
+    },
+    {
+      "id": 60,
+      "name": "VI Improver",
+      "code": "RM0039",
+      "type": "Additive",
+      "unitOfMeasureId": 2,
+      "currentCostPerUnit": 280.00
+    },
+    {
+      "id": 24,
+      "name": "LUBE CARTONS 3LX6",
+      "code": "RM002",
+      "type": "PackagingMaterial",
+      "unitOfMeasureId": 3,
+      "currentCostPerUnit": 50.00
+    },
+    {
+      "id": 23,
+      "name": "Lube Cartons 1LX20 NOS",
+      "code": "RM001",
+      "type": "PackagingMaterial",
+      "unitOfMeasureId": 3,
+      "currentCostPerUnit": 60.00
+    }
+  ],
+  "message": null,
+  "errors": null
+}

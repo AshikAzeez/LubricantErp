@@ -117,12 +117,12 @@ fun TankStockItemDto.toDomain(): TankStockItem = TankStockItem(
 )
 
 fun RawMaterialStockItemDto.toDomain(): RawMaterialStockItem = RawMaterialStockItem(
+    id = id,
     code = code,
     name = name,
     type = type,
-    uom = uom,
-    costPerUnit = costPerUnit,
-    reorderLevel = reorderLevel
+    unitOfMeasureId = unitOfMeasureId,
+    costPerUnit = currentCostPerUnit
 )
 
 fun PackagingLossGainReportDto.toDomain(): PackagingLossGainReport = PackagingLossGainReport(
@@ -710,3 +710,21 @@ fun CostBreakdownDetailDto.toDomain(): CostBreakdownDetail = CostBreakdownDetail
     remarks = remarks,
     lines = lines.map { it.toDomain() }
 )
+
+fun com.havos.lubricerp.feature_reports.domain.model.CreateCostBreakdownRequest.toDto(): com.havos.lubricerp.feature_reports.data.dto.CreateCostBreakdownRequestDto =
+    com.havos.lubricerp.feature_reports.data.dto.CreateCostBreakdownRequestDto(
+        productSKUId = productSKUId,
+        effectiveFrom = effectiveFrom,
+        effectiveTo = effectiveTo,
+        remarks = remarks,
+        packageCost = packageCost,
+        margin = margin,
+        transportCost = transportCost,
+        lines = lines.map {
+            com.havos.lubricerp.feature_reports.data.dto.CreateCostBreakdownLineDto(
+                rawMaterialId = it.rawMaterialId,
+                quantity = it.quantity,
+                rate = it.rate
+            )
+        }
+    )

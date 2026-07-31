@@ -16,6 +16,7 @@ object AppRoutes {
     const val CREATE_PROFORMA_INVOICE = "create_proforma_invoice?invoiceId={invoiceId}"
     const val PRODUCTS = "products"
     const val COST_BREAKDOWN_DETAIL = "cost_breakdown_detail/{id}"
+    const val CREATE_COST_BREAKDOWN = "create_cost_breakdown?sheetId={sheetId}"
 
     fun reportDetail(reportKey: String): String = "report_detail/$reportKey"
     fun reportModule(reportItemKey: String): String = "report_module/$reportItemKey"
@@ -26,6 +27,15 @@ object AppRoutes {
             "create_proforma_invoice?invoiceId=$invoiceId"
         } else {
             "create_proforma_invoice"
+        }
+    }
+
+    /** Passing a [sheetId] opens the form in edit mode, otherwise in create mode. */
+    fun createCostBreakdown(sheetId: Long? = null): String {
+        return if (sheetId != null) {
+            "create_cost_breakdown?sheetId=$sheetId"
+        } else {
+            "create_cost_breakdown"
         }
     }
 }

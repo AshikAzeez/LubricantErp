@@ -253,7 +253,14 @@ class ReportDetailViewModel(
     private fun fetchRawMaterialStock(isRefresh: Boolean = false) {
         isFetchInFlight = true
         viewModelScope.launch {
-            when (val result = getRawMaterialStockUseCase()) {
+            if (!isRefresh) _state.update { it.copy(isLoading = true, errorMessage = null) }
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) {
+                _state.update { it.copy(isLoading = false, isRefreshing = false, errorMessage = "Session not available.") }
+                isFetchInFlight = false
+                return@launch
+            }
+            when (val result = getRawMaterialStockUseCase(token)) {
                 is ResultState.Success -> {
                     _state.update {
                         ReportDetailReducer.reduceForRawMaterialSuccess(it, result.data)
@@ -265,7 +272,7 @@ class ReportDetailViewModel(
                         it, if (result.isOffline) "No internet connection" else result.message
                     ).copy(isRefreshing = false, isOffline = result.isOffline, retryPending = result.isOffline)
                 }
-                ResultState.Loading -> if (!isRefresh) _state.update { it.copy(isLoading = true) }
+                ResultState.Loading -> Unit
             }
             isFetchInFlight = false
         }
