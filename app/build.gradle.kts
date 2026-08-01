@@ -21,9 +21,8 @@ android {
         applicationId = "com.havos.lubricerp"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.0.1"
-
+        versionCode = 3
+        versionName = "1.0.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -35,7 +34,7 @@ android {
             versionNameSuffix = "-demo"
             buildConfigField("boolean", "USE_MOCK_ENGINE", "true")
             buildConfigField("String", "ENVIRONMENT", "\"TEST\"")
-            buildConfigField("String", "BASE_URL", "\"https://havostech-001-site2.atempurl.com/\"")
+            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
         }
         create("stage") {
             dimension = "environment"
@@ -43,13 +42,13 @@ android {
             versionNameSuffix = "-stage"
             buildConfigField("boolean", "USE_MOCK_ENGINE", "false")
             buildConfigField("String", "ENVIRONMENT", "\"STAGE\"")
-            buildConfigField("String", "BASE_URL", "\"https://havostech-001-site2.atempurl.com/\"")
+            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
         }
         create("prod") {
             dimension = "environment"
             buildConfigField("boolean", "USE_MOCK_ENGINE", "false")
             buildConfigField("String", "ENVIRONMENT", "\"PRODUCTION\"")
-            buildConfigField("String", "BASE_URL", "\"https://havostech-001-site2.atempurl.com/\"")
+            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
         }
     }
 
@@ -88,6 +87,10 @@ android {
         compose = true
         buildConfig = true
     }
+}
+
+base {
+    archivesName = "LubricErp"
 }
 
 dependencies {

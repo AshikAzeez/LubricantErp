@@ -3,6 +3,7 @@ package com.havos.lubricerp.feature_reports.presentation.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.havos.lubricerp.core.common.ResultState
+import com.havos.lubricerp.feature_reports.presentation.BuildConfig
 
 import com.havos.lubricerp.feature_reports.domain.usecase.LoginUseCase
 import com.havos.lubricerp.feature_reports.domain.usecase.ObserveRememberMeEnabledUseCase
@@ -25,7 +26,13 @@ class LoginViewModel(
     private val refreshSessionUseCase: RefreshSessionUseCase
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(LoginUiState())
+    private val _state = MutableStateFlow(
+        if (BuildConfig.DEBUG) {
+            LoginUiState(username = "admin@baseoils.com", password = "Admin@123")
+        } else {
+            LoginUiState()
+        }
+    )
     val state: StateFlow<LoginUiState> = _state.asStateFlow()
 
     private val _effect = MutableSharedFlow<LoginEffect>()

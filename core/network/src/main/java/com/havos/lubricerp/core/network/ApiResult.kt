@@ -42,14 +42,23 @@ suspend inline fun <reified T> safeApiCall(
     }.getOrElse { throwable ->
         // Cancellation must propagate — never convert it into an error state.
         if (throwable is CancellationException) throw throwable
+        val msg = throwable.message?.lowercase() ?: ""
         val kind = when {
             throwable is HttpRequestTimeoutException ||
             throwable is ConnectTimeoutException ||
             throwable is SocketTimeoutException -> NetworkErrorKind.TIMEOUT
-            throwable is IOException ||
-            "unable to resolve host" in (throwable.message?.lowercase() ?: "") ||
-            "network is unreachable" in (throwable.message?.lowercase() ?: "") ||
-            "failed to connect" in (throwable.message?.lowercase() ?: "") -> NetworkErrorKind.OFFLINE
+            // True connectivity loss: DNS failure or no route
+            throwable is java.net.UnknownHostException ||
+            "unable to resolve host" in msg ||
+            "network is unreachable" in msg -> NetworkErrorKind.OFFLINE
+            // Transient socket errors (connection reset, refused, broken pipe)
+            throwable is java.net.SocketException ||
+            "connection reset" in msg ||
+            "connection refused" in msg ||
+            "broken pipe" in msg -> NetworkErrorKind.CONNECTION_ERROR
+            // Generic IO errors that mention connectivity
+            "failed to connect" in msg -> NetworkErrorKind.OFFLINE
+            throwable is IOException -> NetworkErrorKind.CONNECTION_ERROR
             else -> NetworkErrorKind.UNKNOWN
         }
         ResultState.Error(

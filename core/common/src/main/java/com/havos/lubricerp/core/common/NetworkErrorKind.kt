@@ -3,11 +3,13 @@ package com.havos.lubricerp.core.common
 enum class NetworkErrorKind {
     OFFLINE,
     TIMEOUT,
+    CONNECTION_ERROR,
     SERVER_ERROR,
     AUTH_ERROR,
     UNKNOWN;
 
-    val isRetryable: Boolean get() = this == TIMEOUT || this == SERVER_ERROR || this == UNKNOWN
+    val isRetryable: Boolean
+        get() = this == TIMEOUT || this == SERVER_ERROR || this == CONNECTION_ERROR || this == UNKNOWN
 }
 
 val ResultState.Error.isOffline: Boolean

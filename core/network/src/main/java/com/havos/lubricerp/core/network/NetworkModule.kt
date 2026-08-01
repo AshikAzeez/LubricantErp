@@ -21,8 +21,10 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.ConnectionPool
 import okhttp3.ConnectionSpec
 import okhttp3.TlsVersion
+import java.util.concurrent.TimeUnit
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -152,6 +154,13 @@ val coreNetworkModule = module {
                                 ConnectionSpec.CLEARTEXT
                             )
                         )
+                        // Shared-hosting servers (IIS) close idle keep-alive sockets
+                        // aggressively. A long-lived pool causes "Connection reset"
+                        // when OkHttp reuses a socket the server already closed.
+                        // Keep pooled connections for a short time only.
+                        connectionPool(ConnectionPool(5, 15, TimeUnit.SECONDS))
+                        // Transparently retry on stale/reset pooled connections.
+                        retryOnConnectionFailure(true)
                     }
                 }
                 defaultRequest {
@@ -178,7 +187,10 @@ val coreNetworkModule = module {
                     retryOnExceptionIf { _, cause ->
                         cause is io.ktor.client.plugins.HttpRequestTimeoutException ||
                         cause is io.ktor.client.network.sockets.ConnectTimeoutException ||
-                        cause is io.ktor.client.network.sockets.SocketTimeoutException
+                        cause is io.ktor.client.network.sockets.SocketTimeoutException ||
+                        // "Connection reset" from a stale server-closed socket
+                        cause is java.net.SocketException ||
+                        cause.cause is java.net.SocketException
                     }
                     exponentialDelay()
                 }

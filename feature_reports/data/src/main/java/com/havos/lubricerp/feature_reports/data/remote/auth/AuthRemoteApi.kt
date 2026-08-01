@@ -1,5 +1,6 @@
 package com.havos.lubricerp.feature_reports.data.remote.auth
 
+import com.havos.lubricerp.core.common.NetworkErrorKind
 import com.havos.lubricerp.core.common.ResultState
 import com.havos.lubricerp.core.network.safeApiCall
 import com.havos.lubricerp.feature_reports.data.dto.LoginApiResponseDto
@@ -16,7 +17,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
-import io.ktor.utils.io.errors.IOException
 
 class AuthRemoteApi(
     private val client: HttpClient
@@ -149,7 +149,6 @@ class AuthRemoteApi(
 
 private fun resolveLoginError(error: ResultState.Error): String {
     val message = error.message.lowercase()
-    val throwable = error.cause
 
     return when {
         "429" in message || "too many" in message || "rate" in message -> {
@@ -172,8 +171,13 @@ private fun resolveLoginError(error: ResultState.Error): String {
             "Server timeout. Please try again."
         }
 
-        throwable is IOException || "unable to resolve host" in message || "network is unreachable" in message -> {
+        error.networkErrorKind == NetworkErrorKind.OFFLINE -> {
             "No internet connection. Check network and try again."
+        }
+
+        error.networkErrorKind == NetworkErrorKind.CONNECTION_ERROR ||
+        "connection reset" in message || "connection refused" in message -> {
+            "Unable to reach server. Please try again."
         }
 
         "500" in message || "502" in message || "503" in message || "504" in message -> {
@@ -186,13 +190,16 @@ private fun resolveLoginError(error: ResultState.Error): String {
 
 private fun resolveProfileError(error: ResultState.Error): String {
     val message = error.message.lowercase()
-    val throwable = error.cause
 
     return when {
         "401" in message || "403" in message -> "Session expired. Please login again."
         "timeout" in message -> "Profile request timed out. Please try again."
-        throwable is IOException || "unable to resolve host" in message || "network is unreachable" in message -> {
+        error.networkErrorKind == NetworkErrorKind.OFFLINE -> {
             "No internet connection. Check network and try again."
+        }
+        error.networkErrorKind == NetworkErrorKind.CONNECTION_ERROR ||
+        "connection reset" in message || "connection refused" in message -> {
+            "Unable to reach server. Please try again."
         }
         "500" in message || "502" in message || "503" in message || "504" in message -> {
             "Server error while loading profile."

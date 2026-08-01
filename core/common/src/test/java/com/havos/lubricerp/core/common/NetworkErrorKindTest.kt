@@ -33,8 +33,13 @@ class NetworkErrorKindTest {
     }
 
     @Test
-    fun `enum has exactly five entries`() {
-        assertEquals(5, NetworkErrorKind.entries.size)
+    fun `CONNECTION_ERROR is retryable`() {
+        assertTrue(NetworkErrorKind.CONNECTION_ERROR.isRetryable)
+    }
+
+    @Test
+    fun `enum has exactly six entries`() {
+        assertEquals(6, NetworkErrorKind.entries.size)
     }
 
     @Test
@@ -77,10 +82,12 @@ class NetworkErrorKindTest {
     fun `ResultState Error isRetryable returns true for retryable errors`() {
         val timeout = ResultState.Error("Timeout", networkErrorKind = NetworkErrorKind.TIMEOUT)
         val serverError = ResultState.Error("Server", networkErrorKind = NetworkErrorKind.SERVER_ERROR)
+        val connectionError = ResultState.Error("Conn", networkErrorKind = NetworkErrorKind.CONNECTION_ERROR)
         val unknown = ResultState.Error("Unknown", networkErrorKind = NetworkErrorKind.UNKNOWN)
 
         assertTrue(timeout.isRetryable)
         assertTrue(serverError.isRetryable)
+        assertTrue(connectionError.isRetryable)
         assertTrue(unknown.isRetryable)
     }
 

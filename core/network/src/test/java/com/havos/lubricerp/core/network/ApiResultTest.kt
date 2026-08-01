@@ -233,12 +233,21 @@ class ApiResultTest {
     }
 
     @Test
-    fun `returns OFFLINE for general IOException`() = runTest {
+    fun `returns CONNECTION_ERROR for general IOException`() = runTest {
         val result = safeApiCall<TestBody> {
             throw IOException("Some IO error")
         }
 
-        assertEquals(NetworkErrorKind.OFFLINE, (result as ResultState.Error).networkErrorKind)
+        assertEquals(NetworkErrorKind.CONNECTION_ERROR, (result as ResultState.Error).networkErrorKind)
+    }
+
+    @Test
+    fun `returns CONNECTION_ERROR for SocketException`() = runTest {
+        val result = safeApiCall<TestBody> {
+            throw java.net.SocketException("Connection reset")
+        }
+
+        assertEquals(NetworkErrorKind.CONNECTION_ERROR, (result as ResultState.Error).networkErrorKind)
     }
 
     @Test
