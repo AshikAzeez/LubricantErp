@@ -179,7 +179,7 @@ private fun CostBreakdownList(
         return
     }
 
-    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         SortableHeaderRow(
             sortColumn = sortColumn,
             sortAscending = sortAscending,

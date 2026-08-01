@@ -32,7 +32,7 @@ class NotificationRemoteApi(
                     ResultState.Success(payload.data)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch notifications.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -51,7 +51,7 @@ class NotificationRemoteApi(
                     ResultState.Success(payload.data.unreadCount)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch unread count.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -69,7 +69,7 @@ class NotificationRemoteApi(
                     ResultState.Success(Unit)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Failed to mark notification as read.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -87,7 +87,7 @@ class NotificationRemoteApi(
                     ResultState.Success(Unit)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Failed to mark all notifications as read.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }

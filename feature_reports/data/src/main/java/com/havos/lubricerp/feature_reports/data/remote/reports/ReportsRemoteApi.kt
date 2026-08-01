@@ -95,7 +95,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch tank stock")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch tank stock")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -114,7 +114,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch raw materials")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch raw materials.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -132,7 +132,7 @@ class ReportsRemoteApi(
             }
         ) {
             is ResultState.Success -> ResultState.Success(result.data)
-            is ResultState.Error -> ResultState.Error("Unable to fetch packaging loss/gain")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -159,7 +159,7 @@ class ReportsRemoteApi(
                     ResultState.Success(data)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch dashboard data.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -191,7 +191,7 @@ class ReportsRemoteApi(
                     ResultState.Success(payload.data)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch sales summary.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -228,7 +228,7 @@ class ReportsRemoteApi(
                     ResultState.Success(pagedData)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch payments received.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -247,7 +247,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error("Unable to fetch tank stock")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch tank stock.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -266,7 +266,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch customers")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch customers.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -287,7 +287,7 @@ class ReportsRemoteApi(
                 else
                     ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch customer summary.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -308,7 +308,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch product sales")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch product sales.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -329,7 +329,7 @@ class ReportsRemoteApi(
                 if (!payload.success || payload.data == null) ResultState.Error(payload.message ?: "Unable to fetch net profit")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch net profit.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -350,7 +350,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch expense summary")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch expense summary.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -368,7 +368,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch warehouse stock")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch warehouse stock.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -385,7 +385,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch consolidated stock")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch consolidated stock.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -403,7 +403,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch low stock")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch low stock.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -422,7 +422,7 @@ class ReportsRemoteApi(
                 if (!payload.success) ResultState.Error(payload.message ?: "Unable to fetch fast moving")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch fast moving.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -444,7 +444,7 @@ class ReportsRemoteApi(
                 else
                     ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to record payment.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -469,7 +469,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch pending payments")
                 else ResultState.Success(pagedData)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch pending payments.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -489,7 +489,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch accounts summary")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch accounts summary.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -516,7 +516,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch sales orders")
                 else ResultState.Success(pagedData)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch sales orders.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -537,7 +537,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch order detail")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch order detail.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -568,7 +568,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch invoices")
                 else ResultState.Success(pagedData)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch invoices.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -589,7 +589,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch invoice detail")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch invoice detail.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -608,7 +608,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch receivables aging")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch receivables aging.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -627,7 +627,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch purchase summary")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch purchase summary.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -646,7 +646,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch cash position")
                 else ResultState.Success(payload.data)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch cash position.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -678,7 +678,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch ledger")
                 else ResultState.Success(pagedData)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch customer ledger.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -705,7 +705,7 @@ class ReportsRemoteApi(
                     ResultState.Error(payload.message ?: "Unable to fetch proforma invoices")
                 else ResultState.Success(pagedData)
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch proforma invoices.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }
@@ -729,7 +729,7 @@ class ReportsRemoteApi(
                     ResultState.Success(details)
                 }
             }
-            is ResultState.Error -> ResultState.Error("Unable to fetch proforma invoice detail.")
+            is ResultState.Error -> ResultState.Error(result.message)
             ResultState.Loading -> ResultState.Loading
         }
     }

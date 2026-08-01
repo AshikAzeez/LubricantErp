@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  DEBUG build network security config.
+  Allows cleartext (HTTP) traffic and trusts user-installed CA certificates
+  so developers can use local servers, Charles Proxy, mitmproxy, etc.
+  This file overrides the main (release) config via Android source-set merging.
+-->
+<network-security-config>
+    <!-- Allow cleartext for local development servers -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <!-- Trust user-installed certs (Charles, mitmproxy, Fiddler) -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

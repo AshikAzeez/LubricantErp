@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class OrdersViewModel(
     private val getSalesOrdersUseCase: GetSalesOrdersUseCase,
@@ -31,16 +30,14 @@ class OrdersViewModel(
         loadAll()
     }
 
-    private suspend fun getTokenSuspend(): String = observeSessionUseCase().first()?.token.orEmpty()
-
-    private fun getToken(): String = runBlocking { getTokenSuspend() }
-
     private fun loadAll() {
-        val token = getToken()
-        if (token.isBlank()) return
-        loadPendingOrders(token)
-        loadDispatchedOrders(token)
-        loadInvoices(token)
+        viewModelScope.launch {
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) return@launch
+            loadPendingOrders(token)
+            loadDispatchedOrders(token)
+            loadInvoices(token)
+        }
     }
 
     private fun loadPendingOrders(token: String) {
@@ -100,13 +97,16 @@ class OrdersViewModel(
             }
             is OrdersIntent.FromDateChanged -> _state.update { it.copy(invoiceFromDate = intent.value) }
             is OrdersIntent.ToDateChanged -> _state.update { it.copy(invoiceToDate = intent.value) }
-            OrdersIntent.ApplyInvoiceFilter -> loadInvoices(getToken())
+            OrdersIntent.ApplyInvoiceFilter -> viewModelScope.launch {
+                val token = observeSessionUseCase().first()?.token.orEmpty()
+                if (token.isNotBlank()) loadInvoices(token)
+            }
         }
     }
 
     private fun loadOrderDetail(orderId: Long) {
-        val token = getToken()
         viewModelScope.launch {
+            val token = observeSessionUseCase().first()?.token.orEmpty()
             _state.update { it.copy(loadingOrderId = orderId) }
             when (val result = getSalesOrderDetailUseCase(token, orderId)) {
                 is ResultState.Success -> _state.update {
@@ -119,8 +119,8 @@ class OrdersViewModel(
     }
 
     private fun loadInvoiceDetail(invoiceId: Long) {
-        val token = getToken()
         viewModelScope.launch {
+            val token = observeSessionUseCase().first()?.token.orEmpty()
             _state.update { it.copy(loadingInvoiceId = invoiceId) }
             when (val result = getSalesInvoiceDetailUseCase(token, invoiceId)) {
                 is ResultState.Success -> _state.update {

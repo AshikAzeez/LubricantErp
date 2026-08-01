@@ -21,6 +21,8 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.ConnectionSpec
+import okhttp3.TlsVersion
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
@@ -139,6 +141,19 @@ val coreNetworkModule = module {
             }
         } else {
             HttpClient(OkHttp) {
+                engine {
+                    // Enforce TLS 1.2+ for HTTPS; allow cleartext for HTTP endpoints
+                    config {
+                        connectionSpecs(
+                            listOf(
+                                ConnectionSpec.Builder(ConnectionSpec.MODERN_TLS)
+                                    .tlsVersions(TlsVersion.TLS_1_2, TlsVersion.TLS_1_3)
+                                    .build(),
+                                ConnectionSpec.CLEARTEXT
+                            )
+                        )
+                    }
+                }
                 defaultRequest {
                     url(networkConfig.baseUrl)
                 }

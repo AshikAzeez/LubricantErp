@@ -12,6 +12,7 @@
 -keep class androidx.security.crypto.** { *; }
 
 # ─── Google Tink (needed for AndroidX Security Crypto) ────────────────────────
+-keep class com.google.crypto.tink.** { *; }
 -dontwarn com.google.api.client.http.**
 -dontwarn com.google.errorprone.annotations.**
 -dontwarn org.joda.time.**

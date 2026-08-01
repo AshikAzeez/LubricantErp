@@ -32,10 +32,6 @@ class ProductsViewModel(
     private var sortAscending = false
     private var loadJob: Job? = null
 
-    init {
-        loadData(isRefresh = false)
-    }
-
     fun onIntent(intent: ProductsIntent) {
         when (intent) {
             is ProductsIntent.Load -> loadData(isRefresh = false)

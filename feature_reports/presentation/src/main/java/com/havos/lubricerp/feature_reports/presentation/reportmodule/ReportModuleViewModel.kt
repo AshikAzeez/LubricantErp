@@ -40,6 +40,10 @@ class ReportModuleViewModel(
     private var isFetchInFlight = false
     private var userRoles: List<String> = emptyList()
 
+    // Instance-level: SimpleDateFormat is NOT thread-safe.
+    private val displayFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { timeZone = UTC }
+    private val apiFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply { timeZone = UTC }
+
     private val _state = MutableStateFlow(
         ReportModuleUiState(
             fromDate = defaultFromDate(),
@@ -247,20 +251,17 @@ class ReportModuleViewModel(
 
     companion object {
         private val UTC = TimeZone.getTimeZone("UTC")
-        // SimpleDateFormat is not thread-safe; each ViewModel instance gets its own copy.
-        private val displayFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply {
-            timeZone = UTC
-        }
-        private val apiFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply {
-            timeZone = UTC
-        }
 
         fun defaultFromDate(): String {
+            val fmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { timeZone = UTC }
             val cal = Calendar.getInstance()
             cal.add(Calendar.MONTH, -6)
-            return displayFmt.format(cal.time)
+            return fmt.format(cal.time)
         }
 
-        fun defaultToDate(): String = displayFmt.format(Calendar.getInstance().time)
+        fun defaultToDate(): String {
+            val fmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { timeZone = UTC }
+            return fmt.format(Calendar.getInstance().time)
+        }
     }
 }

@@ -1,23 +1,53 @@
-# ─── Kotlin ──────────────────────────────────────────────────────────────────
+# ═══════════════════════════════════════════════════════════════════════════════
+# R8 / ProGuard – Hardened configuration for sideloaded APK distribution
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# ─── Aggressive Optimization ─────────────────────────────────────────────────
+-optimizationpasses 5
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+-allowaccessmodification
+# NOTE: -overloadaggressively is intentionally OMITTED. It renames methods to
+# identical names (differing only by return type), which breaks Kotlin reflection,
+# Koin DI constructor resolution, kotlinx.serialization descriptors, and Ktor.
+-repackageclasses ''
+
+# Strip ALL logs in release (android.util.Log calls become no-ops)
+-assumenosideeffects class android.util.Log {
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+    public static int w(...);
+    public static int e(...);
+    public static int wtf(...);
+}
+
+# Strip System.out / System.err print calls
+-assumenosideeffects class java.io.PrintStream {
+    public void println(...);
+    public void print(...);
+}
+
+# ─── Attributes ──────────────────────────────────────────────────────────────
 -keepattributes *Annotation*, InnerClasses, EnclosingMethod, Signature, Exceptions
--keepattributes SourceFile,LineNumberTable
--renamesourcefileattribute SourceFile
+-keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations, RuntimeInvisibleAnnotations
+# Strip source file names and line numbers from stack traces
+-renamesourcefileattribute ''
 -dontnote kotlin.Unit
 -dontnote kotlin.collections.*
 -dontwarn kotlin.**
-
 -dontwarn java.lang.invoke.StringConcatFactory
 -dontwarn java.lang.invoke.VarHandle
 -dontwarn org.jetbrains.annotations.**
 
-# Keep Kotlin metadata for reflection (used by Koin, Moshi, etc.)
+# Keep Kotlin metadata for reflection (used by Koin)
 -keep class kotlin.Metadata { *; }
 
-# ─── Kotlinx Serialization ──────────────────────────────────────────────────
-# Keep @Serializable annotation so R8 doesn't strip generated serializers
--keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations, RuntimeInvisibleAnnotations
+# ─── Kotlin Reflection (required by Koin type resolution) ───────────────────
+-keep class kotlin.reflect.** { *; }
+-dontwarn kotlin.reflect.**
 
-# Keep generated serializer companions
+# ─── Kotlinx Serialization ──────────────────────────────────────────────────
+# Keep generated serializer companions (narrow – app package only)
 -keep,includedescriptorclasses class com.havos.lubricerp.**$$serializer { *; }
 -keepclassmembers class com.havos.lubricerp.** {
     *** Companion;
@@ -25,8 +55,7 @@
 -keepclasseswithmembers class com.havos.lubricerp.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
-
-# Keep kotlinx.serialization itself
+# Keep kotlinx.serialization core (required for runtime)
 -keep class kotlinx.serialization.** { *; }
 -keepclassmembers class kotlinx.serialization.json.** {
     *** Companion;
@@ -35,26 +64,23 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
-# ─── Ktor ────────────────────────────────────────────────────────────────────
--keep class io.ktor.** { *; }
+# ─── Ktor (minimal keeps – let R8 shrink the rest) ──────────────────────────
+-keep class io.ktor.client.engine.okhttp.** { *; }
+-keep class io.ktor.serialization.kotlinx.** { *; }
+-keep class io.ktor.client.plugins.contentnegotiation.** { *; }
 -dontwarn io.ktor.**
 
-# Ktor OkHttp engine
--keep class io.ktor.client.engine.okhttp.** { *; }
--dontwarn okhttp3.**
+# OkHttp / OkIO (engine dependency)
 -keep class okhttp3.** { *; }
 -keep interface okhttp3.** { *; }
+-dontwarn okhttp3.**
 -dontwarn okio.**
--keep class okio.** { *; }
 
-# Ktor content negotiation & serialization plugin
--keep class io.ktor.serialization.** { *; }
--keep class io.ktor.client.plugins.contentnegotiation.** { *; }
-
-# ─── Koin ────────────────────────────────────────────────────────────────────
--keep class org.koin.** { *; }
--dontwarn org.koin.**
+# ─── Koin (keep core + android ViewModel factory) ───────────────────────────
+-keep class org.koin.core.** { *; }
+-keep class org.koin.androidx.viewmodel.** { *; }
 -keep class * extends org.koin.core.module.Module { *; }
+-dontwarn org.koin.**
 
 # ─── Room ────────────────────────────────────────────────────────────────────
 -keep class * extends androidx.room.RoomDatabase { *; }
@@ -62,40 +88,25 @@
 -keep @androidx.room.Dao interface * { *; }
 -dontwarn androidx.room.paging.**
 
-# ─── Coil ────────────────────────────────────────────────────────────────────
--keep class coil.** { *; }
--dontwarn coil.**
-
 # ─── AndroidX DataStore ──────────────────────────────────────────────────────
 -keep class * extends androidx.datastore.preferences.protobuf.GeneratedMessageLite { *; }
--keep class androidx.datastore.** { *; }
 
 # ─── AndroidX Security / Crypto ──────────────────────────────────────────────
 -keep class androidx.security.crypto.** { *; }
 
 # ─── AndroidX Lifecycle ──────────────────────────────────────────────────────
--keep class androidx.lifecycle.** { *; }
 -keepclassmembers class * implements androidx.lifecycle.LifecycleObserver {
     <methods>;
 }
 
-# ─── Jetpack Compose ─────────────────────────────────────────────────────────
--keep class androidx.compose.** { *; }
+# ─── Jetpack Compose (minimal) ──────────────────────────────────────────────
 -dontwarn androidx.compose.**
-# Keep compose stability markers from being stripped
 -keep class * {
     @androidx.compose.runtime.Stable <fields>;
     @androidx.compose.runtime.Immutable <fields>;
 }
--keepclassmembers class * {
-    @androidx.compose.runtime.Stable *;
-    @androidx.compose.runtime.Immutable *;
-}
 
 # ─── Enums ────────────────────────────────────────────────────────────────────
-# Prevent enum constant renaming. AppEnvironment.from(String) and
-# ThemeMode.from(String) use entries.find { it.name == value } with
-# strings loaded from config JSON and DataStore respectively.
 -keepclassmembers enum * {
     public static **[] values();
     public static ** valueOf(java.lang.String);
@@ -105,14 +116,15 @@
 -keepclassmembernames class kotlinx.** {
     volatile <fields>;
 }
+# Keep suspend function machinery (ContinuationImpl, DispatchedTask, etc.)
+-keep class kotlinx.coroutines.internal.** { *; }
+-keep class kotlinx.coroutines.scheduling.** { *; }
+-keepclassmembers class kotlinx.coroutines.** {
+    volatile <fields>;
+}
 -dontwarn kotlinx.coroutines.**
 
-# ─── Application-wide Keep Rules ─────────────────────────────────────────────
-# Note: Feature-specific DTOs, models, viewmodels, network, and common classes
-# are kept via their respective library module consumer-rules.pro configurations.
-
-
-# Keep all activity/fragment/application classes
+# ─── Application classes ─────────────────────────────────────────────────────
 -keep class * extends androidx.activity.ComponentActivity { *; }
 -keep class * extends androidx.fragment.app.Fragment { *; }
 -keep class * extends android.app.Application { *; }
@@ -120,5 +132,13 @@
 # ─── App DI Module ────────────────────────────────────────────────────────────
 -keep class com.havos.lubricerp.di.** { *; }
 
+# ─── AndroidX Paging ─────────────────────────────────────────────────────────
+-keep class * extends androidx.paging.PagingSource { *; }
+-keep class androidx.paging.** { *; }
+-dontwarn androidx.paging.**
+
 # ─── AndroidX Navigation ──────────────────────────────────────────────────────
 -keep class androidx.navigation.** { *; }
+
+# ─── Security: keep SecurityGuard class names for reflection-free checks ─────
+-keep class com.havos.lubricerp.security.** { *; }

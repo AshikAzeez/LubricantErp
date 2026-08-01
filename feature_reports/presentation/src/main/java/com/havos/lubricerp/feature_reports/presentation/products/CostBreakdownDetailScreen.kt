@@ -95,11 +95,12 @@ fun CostBreakdownDetailScreen(
                             expanded = toolbarMenuExpanded,
                             onDismissRequest = { toolbarMenuExpanded = false }
                         ) {
-                            DropdownMenuItem(
-                                text = { Text("Convert to Proforma Invoice") },
-                                onClick = { toolbarMenuExpanded = false; onAction(CostBreakdownDetailAction.ConvertToPiClicked) },
-                                leadingIcon = { Icon(Icons.Default.SwapHoriz, null) }
-                            )
+                            // TODO: Re-enable once "Convert to Proforma Invoice" is implemented.
+                            // DropdownMenuItem(
+                            //     text = { Text("Convert to Proforma Invoice") },
+                            //     onClick = { toolbarMenuExpanded = false; onAction(CostBreakdownDetailAction.ConvertToPiClicked) },
+                            //     leadingIcon = { Icon(Icons.Default.SwapHoriz, null) }
+                            // )
                             DropdownMenuItem(
                                 text = { Text("Edit") },
                                 onClick = { toolbarMenuExpanded = false; onAction(CostBreakdownDetailAction.EditClicked) },

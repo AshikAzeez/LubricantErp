@@ -19,7 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -42,6 +41,10 @@ class PaymentReportViewModel(
     private val _effect = MutableSharedFlow<PaymentReportEffect>()
     val effect: SharedFlow<PaymentReportEffect> = _effect.asSharedFlow()
 
+    // Instance-level: SimpleDateFormat is NOT thread-safe.
+    private val displayFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
+    private val apiFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
+
     init {
         val now = Calendar.getInstance()
         val monthStart = Calendar.getInstance().apply { set(Calendar.DAY_OF_MONTH, 1) }
@@ -53,14 +56,18 @@ class PaymentReportViewModel(
                 accountsDateTo = displayFmt.format(now.time)
             )
         }
-        loadAll(getToken())
+        loadAll()
     }
 
-    private suspend fun getTokenSuspend(): String = observeSessionUseCase().first()?.token.orEmpty()
+    private fun loadAll() {
+        viewModelScope.launch {
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isBlank()) return@launch
+            loadAllInternal(token)
+        }
+    }
 
-    private fun getToken(): String = runBlockingCatching { getTokenSuspend() }
-
-    private fun loadAll(token: String) {
+    private fun loadAllInternal(token: String) {
         if (token.isBlank()) return
         val s = _state.value
         receivedSkip = 0
@@ -107,7 +114,10 @@ class PaymentReportViewModel(
         val s = _state.value
         if (!receivedHasMore || s.isReceivedLoadingMore || s.isLoading) return
         _state.update { it.copy(isReceivedLoadingMore = true) }
-        loadReceived(getToken(), s.receivedDateFrom, s.receivedDateTo, skip = receivedSkip)
+        viewModelScope.launch {
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isNotBlank()) loadReceived(token, s.receivedDateFrom, s.receivedDateTo, skip = receivedSkip)
+        }
     }
 
     private fun loadPending(token: String, skip: Int = 0, take: Int = 20) {
@@ -139,7 +149,10 @@ class PaymentReportViewModel(
         val s = _state.value
         if (!pendingHasMore || s.isPendingLoadingMore || s.isLoading) return
         _state.update { it.copy(isPendingLoadingMore = true) }
-        loadPending(getToken(), skip = pendingSkip)
+        viewModelScope.launch {
+            val token = observeSessionUseCase().first()?.token.orEmpty()
+            if (token.isNotBlank()) loadPending(token, skip = pendingSkip)
+        }
     }
 
     private fun loadAccountsSummary(token: String, displayFrom: String, displayTo: String) {
@@ -157,12 +170,20 @@ class PaymentReportViewModel(
             is PaymentReportIntent.FromDateReceivedChanged -> _state.update { it.copy(receivedDateFrom = intent.date) }
             is PaymentReportIntent.ToDateReceivedChanged -> _state.update { it.copy(receivedDateTo = intent.date) }
             PaymentReportIntent.ApplyReceivedFilter -> {
-                val s = _state.value; loadReceived(getToken(), s.receivedDateFrom, s.receivedDateTo)
+                val s = _state.value
+                viewModelScope.launch {
+                    val token = observeSessionUseCase().first()?.token.orEmpty()
+                    if (token.isNotBlank()) loadReceived(token, s.receivedDateFrom, s.receivedDateTo)
+                }
             }
             is PaymentReportIntent.FromDateAccountsChanged -> _state.update { it.copy(accountsDateFrom = intent.date) }
             is PaymentReportIntent.ToDateAccountsChanged -> _state.update { it.copy(accountsDateTo = intent.date) }
             PaymentReportIntent.ApplyAccountsFilter -> {
-                val s = _state.value; loadAccountsSummary(getToken(), s.accountsDateFrom, s.accountsDateTo)
+                val s = _state.value
+                viewModelScope.launch {
+                    val token = observeSessionUseCase().first()?.token.orEmpty()
+                    if (token.isNotBlank()) loadAccountsSummary(token, s.accountsDateFrom, s.accountsDateTo)
+                }
             }
             PaymentReportIntent.ToggleOverdueOnly -> _state.update { it.copy(overdueOnly = !it.overdueOnly) }
             PaymentReportIntent.OpenCollectPayment -> _state.update { it.copy(showCollectPayment = true, paymentResult = null, paymentError = null) }
@@ -180,22 +201,31 @@ class PaymentReportViewModel(
             is PaymentReportIntent.PaymentReferenceChanged -> _state.update { it.copy(paymentReference = intent.value.take(30)) }
             is PaymentReportIntent.PaymentRemarksChanged -> _state.update { it.copy(paymentRemarks = intent.value.take(100)) }
             PaymentReportIntent.SubmitPayment -> recordPayment()
-            PaymentReportIntent.Retry -> loadAll(getToken())
+            PaymentReportIntent.Retry -> loadAll()
             PaymentReportIntent.Refresh -> {
                 _state.update { it.copy(isRefreshing = true) }
-                loadAll(getToken())
+                loadAll()
             }
             is PaymentReportIntent.LoadReceived -> {
                 receivedSkip = 0; receivedHasMore = true
-                loadReceived(getToken(), intent.fromDate, intent.toDate, skip = 0)
+                viewModelScope.launch {
+                    val token = observeSessionUseCase().first()?.token.orEmpty()
+                    if (token.isNotBlank()) loadReceived(token, intent.fromDate, intent.toDate, skip = 0)
+                }
             }
             PaymentReportIntent.LoadPending -> {
                 pendingSkip = 0; pendingHasMore = true
-                loadPending(getToken(), skip = 0)
+                viewModelScope.launch {
+                    val token = observeSessionUseCase().first()?.token.orEmpty()
+                    if (token.isNotBlank()) loadPending(token, skip = 0)
+                }
             }
             PaymentReportIntent.LoadMoreReceived -> loadMoreReceived()
             PaymentReportIntent.LoadMorePending -> loadMorePending()
-            is PaymentReportIntent.LoadAccountsSummary -> loadAccountsSummary(getToken(), intent.fromDate, intent.toDate)
+            is PaymentReportIntent.LoadAccountsSummary -> viewModelScope.launch {
+                val token = observeSessionUseCase().first()?.token.orEmpty()
+                if (token.isNotBlank()) loadAccountsSummary(token, intent.fromDate, intent.toDate)
+            }
         }
     }
 
@@ -205,8 +235,8 @@ class PaymentReportViewModel(
         val amount = s.paymentAmount.toDoubleOrNull()
         if (amount == null || amount <= 0) { _state.update { it.copy(paymentError = "Enter a valid amount") }; return }
         if (s.paymentDate.isBlank()) { _state.update { it.copy(paymentError = "Select payment date") }; return }
-        val token = getToken()
         viewModelScope.launch {
+            val token = observeSessionUseCase().first()?.token.orEmpty()
             _state.update { it.copy(isRecordingPayment = true, paymentError = null) }
             val request = RecordPaymentRequest(
                 invoiceId = s.paymentInvoiceId, amount = amount, paymentMode = s.paymentMode,
@@ -216,7 +246,7 @@ class PaymentReportViewModel(
                 is ResultState.Success -> {
                     _state.update { it.copy(isRecordingPayment = false, paymentResult = result.data, paymentError = null) }
                     _effect.emit(PaymentReportEffect.PaymentSuccess)
-                    loadAll(token)
+                    loadAllInternal(token)
                 }
                 is ResultState.Error -> _state.update { it.copy(isRecordingPayment = false, paymentError = result.message) }
                 ResultState.Loading -> {}
@@ -224,9 +254,5 @@ class PaymentReportViewModel(
         }
     }
 
-    companion object {
-        private fun runBlockingCatching(block: suspend () -> String): String = runBlocking { block() }
-        private val displayFmt = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
-        private val apiFmt = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).apply { timeZone = java.util.TimeZone.getTimeZone("UTC") }
-    }
+    companion object
 }

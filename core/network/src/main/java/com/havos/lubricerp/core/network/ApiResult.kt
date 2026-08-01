@@ -8,6 +8,7 @@ import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.statement.HttpResponse
 import io.ktor.utils.io.errors.IOException
+import kotlinx.coroutines.CancellationException
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
@@ -39,6 +40,8 @@ suspend inline fun <reified T> safeApiCall(
             )
         }
     }.getOrElse { throwable ->
+        // Cancellation must propagate — never convert it into an error state.
+        if (throwable is CancellationException) throw throwable
         val kind = when {
             throwable is HttpRequestTimeoutException ||
             throwable is ConnectTimeoutException ||

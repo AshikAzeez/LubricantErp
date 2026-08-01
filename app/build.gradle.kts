@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -33,7 +35,7 @@ android {
             versionNameSuffix = "-demo"
             buildConfigField("boolean", "USE_MOCK_ENGINE", "true")
             buildConfigField("String", "ENVIRONMENT", "\"TEST\"")
-            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
+            buildConfigField("String", "BASE_URL", "\"https://havostech-001-site2.atempurl.com/\"")
         }
         create("stage") {
             dimension = "environment"
@@ -41,22 +43,26 @@ android {
             versionNameSuffix = "-stage"
             buildConfigField("boolean", "USE_MOCK_ENGINE", "false")
             buildConfigField("String", "ENVIRONMENT", "\"STAGE\"")
-            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
+            buildConfigField("String", "BASE_URL", "\"https://havostech-001-site2.atempurl.com/\"")
         }
         create("prod") {
             dimension = "environment"
             buildConfigField("boolean", "USE_MOCK_ENGINE", "false")
             buildConfigField("String", "ENVIRONMENT", "\"PRODUCTION\"")
-            buildConfigField("String", "BASE_URL", "\"http://havostech-001-site2.atempurl.com/\"")
+            buildConfigField("String", "BASE_URL", "\"https://havostech-001-site2.atempurl.com/\"")
         }
     }
 
     signingConfigs {
         create("release") {
-            storeFile = rootProject.file("key.jks")
-            storePassword = "goalErp@2026"
-            keyAlias = "GoalErp2026"
-            keyPassword = "goalErp@2026"
+            val localProps = Properties().apply {
+                val f = rootProject.file("local.properties")
+                if (f.exists()) load(f.inputStream())
+            }
+            storeFile = rootProject.file(localProps.getProperty("RELEASE_STORE_FILE", "key.jks"))
+            storePassword = localProps.getProperty("RELEASE_STORE_PASSWORD", "")
+            keyAlias = localProps.getProperty("RELEASE_KEY_ALIAS", "")
+            keyPassword = localProps.getProperty("RELEASE_KEY_PASSWORD", "")
         }
     }
 
