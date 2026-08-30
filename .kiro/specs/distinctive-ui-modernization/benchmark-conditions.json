@@ -1,0 +1,119 @@
+{
+  "$schema": "./benchmark-conditions.schema.json",
+  "schemaVersion": "1.0.0",
+  "manifestId": "distinctive-ui-modernization-benchmark-conditions",
+  "conditionSet": {
+    "id": "BENCH-CONDITIONS-PIXEL-7-API-34",
+    "device": { "manufacturer": "Google", "model": "Pixel 7", "abi": "arm64-v8a", "widthDp": 412, "heightDp": 892, "densityDpi": 420, "refreshRateHz": 60, "physicalDeviceRequired": true },
+    "os": { "name": "Android", "version": "14", "apiLevel": 34, "securityPatch": "2026-01-01" },
+    "build": { "buildType": "release", "flavor": "prod", "debuggable": false, "minifyEnabled": true, "profileable": true },
+    "data": { "id": "DATA-BENCHMARK-100-V1", "locale": "en-IN", "timeZone": "UTC", "clockInstant": "2026-01-05T10:30:00Z", "coldDataResetBeforeWorkflow": true },
+    "network": { "transport": "wifi", "online": true, "validated": true, "downstreamKbps": 50000, "upstreamKbps": 10000, "latencyMs": 20, "packetLossPercent": 0 },
+    "power": { "source": "battery", "levelStartPercent": 75, "batterySaver": false, "performanceMode": "normal", "allowedDriftPercent": 5 },
+    "thermal": { "requiredStatus": "none", "maximumDeviceTemperatureC": 32, "cooldownMinutesBeforeBuild": 10, "abortOnThrottle": true },
+    "animation": { "windowScale": 1, "transitionScale": 1, "animatorScale": 1, "reducedMotion": false, "decorativeAnimation": "disabled-in-both-builds" },
+    "baselineRefs": { "device": "device", "os": "os", "build": "build", "data": "data", "network": "network", "power": "power", "thermal": "thermal", "animation": "animation" },
+    "migrationRefs": { "device": "device", "os": "os", "build": "build", "data": "data", "network": "network", "power": "power", "thermal": "thermal", "animation": "animation" },
+    "parityRequired": true
+  },
+  "representativeDataSet": {
+    "id": "DATA-BENCHMARK-100-V1",
+    "recordCount": 100,
+    "seed": 20260105,
+    "generationRules": {
+      "indexRange": "1..100 inclusive",
+      "id": "BENCH-%03d(index)",
+      "shortText": "SKU-%03d(index)",
+      "longText": "Premium lubricant inventory record %03d(index) — 15W-40 multigrade, industrial duty",
+      "status": "[Available, Low Stock, Pending, Paid, Overdue][(index-1) mod 5]",
+      "currencyExact": "1000.00 + index * 137.25",
+      "currencyDisplay": "INR with en-IN grouping and exactly two decimals",
+      "quantityLiters": "5 + (index mod 96)",
+      "date": "2026-01-01 plus (index-1) days, UTC",
+      "imagePlaceholder": "asset://benchmark/placeholder-%02d((index-1) mod 10)",
+      "stableKey": "record id; never list position"
+    },
+    "sentinelRecords": [
+      { "id": "BENCH-001", "shortText": "SKU-001", "longText": "Premium lubricant inventory record 001 — 15W-40 multigrade, industrial duty", "status": "Available", "currencyExact": "1137.25", "quantityLiters": 6, "date": "2026-01-01", "imagePlaceholder": "asset://benchmark/placeholder-00" },
+      { "id": "BENCH-050", "shortText": "SKU-050", "longText": "Premium lubricant inventory record 050 — 15W-40 multigrade, industrial duty", "status": "Overdue", "currencyExact": "7862.50", "quantityLiters": 55, "date": "2026-02-19", "imagePlaceholder": "asset://benchmark/placeholder-09" },
+      { "id": "BENCH-100", "shortText": "SKU-100", "longText": "Premium lubricant inventory record 100 — 15W-40 multigrade, industrial duty", "status": "Overdue", "currencyExact": "14725.00", "quantityLiters": 9, "date": "2026-04-10", "imagePlaceholder": "asset://benchmark/placeholder-09" }
+    ],
+    "contentCoverage": ["short-text", "long-text", "status", "currency", "quantity", "date", "stable-image-placeholder"]
+  },
+  "measurementPolicy": {
+    "warmUpRuns": 5,
+    "measuredRuns": 30,
+    "continuousScrollSeconds": 10,
+    "frameBudgetPassPercent": 90,
+    "p95RegressionLimitPercent": 10,
+    "readinessMarkers": ["destination-title-visible", "first-task-critical-content-visible", "input-accepted", "back-behavior-available"]
+  },
+  "workflows": [
+    {
+      "id": "BENCH-LOGIN-TO-HOME",
+      "baselineCaseIds": ["BASE-AUTH-LOGIN-001", "BASE-HOME-DASHBOARD-001"],
+      "activation": "tap Login after fixed credentials are entered",
+      "actions": ["enter exact INPUT-LOGIN values", "tap Login once", "wait for Home title", "wait for first KPI", "verify Home accepts input"],
+      "scrollMeasurement": null,
+      "metrics": ["time-to-first-interactive-content", "navigation-transition"],
+      "baselineBuild": "baseline",
+      "migrationBuild": "migration",
+      "comparisonConditionSetId": "BENCH-CONDITIONS-PIXEL-7-API-34"
+    },
+    {
+      "id": "BENCH-HOME-SCROLL-REFRESH",
+      "baselineCaseIds": ["BASE-HOME-DASHBOARD-001"],
+      "activation": "Home title and first KPI are interactive",
+      "actions": ["start continuous deterministic swipe loop", "scroll for exactly 10 seconds", "return to top", "trigger one refresh", "wait for first KPI and input readiness"],
+      "scrollMeasurement": { "recordCount": 100, "continuousSeconds": 10 },
+      "metrics": ["frame-timing", "time-to-first-interactive-content"],
+      "baselineBuild": "baseline",
+      "migrationBuild": "migration",
+      "comparisonConditionSetId": "BENCH-CONDITIONS-PIXEL-7-API-34"
+    },
+    {
+      "id": "BENCH-REPORTS-TO-SALES",
+      "baselineCaseIds": ["BASE-REPORT-DISCOVERY-001", "BASE-REPORT-SALES-SUMMARY-001"],
+      "activation": "tap Reports in primary navigation",
+      "actions": ["open Sales Reports", "select Sales Summary", "wait for Sales Summary title", "wait for first task-critical summary", "verify Back and input readiness"],
+      "scrollMeasurement": null,
+      "metrics": ["time-to-first-interactive-content", "navigation-transition"],
+      "baselineBuild": "baseline",
+      "migrationBuild": "migration",
+      "comparisonConditionSetId": "BENCH-CONDITIONS-PIXEL-7-API-34"
+    },
+    {
+      "id": "BENCH-REPORT-100-SCROLL-FILTER",
+      "baselineCaseIds": ["BASE-REPORT-SALES-SUMMARY-001"],
+      "activation": "Sales Summary title and 100-record fixture are interactive",
+      "actions": ["start continuous deterministic swipe loop", "scroll for exactly 10 seconds", "enter search term premium", "set 01/01/2026 through 05/01/2026", "apply filter once", "wait for filtered task-critical content"],
+      "scrollMeasurement": { "recordCount": 100, "continuousSeconds": 10 },
+      "metrics": ["frame-timing", "time-to-first-interactive-content"],
+      "baselineBuild": "baseline",
+      "migrationBuild": "migration",
+      "comparisonConditionSetId": "BENCH-CONDITIONS-PIXEL-7-API-34"
+    },
+    {
+      "id": "BENCH-CUSTOMER-DETAIL-BACK",
+      "baselineCaseIds": ["BASE-CUSTOMER-LIST-001", "BASE-MODAL-CUSTOMER-DETAIL-001"],
+      "activation": "tap Customers from report discovery",
+      "actions": ["wait for Customer Data title", "search Shree", "open customer 501", "wait for detail and first ledger value", "activate visible Back", "verify same search and nearest record"],
+      "scrollMeasurement": null,
+      "metrics": ["time-to-first-interactive-content", "navigation-transition"],
+      "baselineBuild": "baseline",
+      "migrationBuild": "migration",
+      "comparisonConditionSetId": "BENCH-CONDITIONS-PIXEL-7-API-34"
+    },
+    {
+      "id": "BENCH-COST-FORM-VALIDATION-SCROLL",
+      "baselineCaseIds": ["BASE-FORM-COST-BREAKDOWN-CREATE-001", "BASE-MODAL-RAW-MATERIAL-LINE-001"],
+      "activation": "tap Create Cost Breakdown from Products",
+      "actions": ["wait for form title and first field", "submit empty form once", "verify exact validation outcomes", "enter exact INPUT-COST-BREAKDOWN values", "scroll form continuously for exactly 10 seconds", "verify final calculation and input readiness"],
+      "scrollMeasurement": { "recordCount": 100, "continuousSeconds": 10 },
+      "metrics": ["frame-timing", "time-to-first-interactive-content", "navigation-transition"],
+      "baselineBuild": "baseline",
+      "migrationBuild": "migration",
+      "comparisonConditionSetId": "BENCH-CONDITIONS-PIXEL-7-API-34"
+    }
+  ]
+}

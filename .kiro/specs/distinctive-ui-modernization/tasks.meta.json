@@ -1,0 +1,915 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 Implement the checked-in migration ledger schema and seed every authentication, home, report-discovery, report-detail, customer, notification, payment, order, product, cost-breakdown, form, modal, and navigation surface": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562429
+      },
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095567308
+      },
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788096080071
+      }
+    ],
+    "1.2 Create deterministic baseline case and benchmark-condition fixtures": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562434
+      },
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788096093002
+      }
+    ],
+    "1.3 Add characterization tests around existing MVI, Koin, API/domain, permissions, calculations, validation, persistence, and navigation behavior": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562439
+      }
+    ],
+    "1.4 Add deterministic baseline semantics and screenshot capture cases for the representative surfaces": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562450
+      }
+    ],
+    "1.5 Add baseline performance trace markers and capture harnesses": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562456
+      }
+    ],
+    "2.1 Configure Kotlin/JVM unit and Kotest property-test source sets with seed replay": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562462
+      },
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095567504
+      },
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788096080186
+      }
+    ],
+    "2.2 Create deterministic fake-data and state-scenario builders": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562467
+      },
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788096093407
+      }
+    ],
+    "2.3 Configure host-side Compose screenshot/golden testing": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562472
+      },
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788096093505
+      }
+    ],
+    "2.4 Configure Compose instrumentation, semantics, automated accessibility, resize, IME/inset, process-recreation, and navigation test harnesses": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562476
+      }
+    ],
+    "2.5 Create the Macrobenchmark module and representative 100-record fixture": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562481
+      }
+    ],
+    "2.6 Add test-result aggregation and acceptance-evidence validation": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562486
+      }
+    ],
+    "3.1 Complete `GoalErpTheme` semantic token families and Light/Dark schemes": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562490
+      }
+    ],
+    "3.2 Implement pure brand-cue, logo-fit, text-size, contrast, and tonal-fallback policies": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562495
+      }
+    ],
+    "3.3 Implement deterministic action, status, primary-action, and simultaneous-state resolvers": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562499
+      }
+    ],
+    "3.4 Implement pure adaptive window and compact-priority planning": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562505
+      }
+    ],
+    "3.5 Implement token-schema, icon-action, and semantic-descriptor validators": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562510
+      }
+    ],
+    "3.6 Write the Kotest property test for Design Property 1, brand cue quota and safe eligibility": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562514
+      }
+    ],
+    "3.7 Write the Kotest property test for Design Property 2, logo aspect preservation": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562519
+      }
+    ],
+    "3.8 Write the Kotest property test for Design Property 3, equivalent action consistency": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562524
+      }
+    ],
+    "3.9 Write the Kotest property test for Design Property 4, stable non-color-only status meaning": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562529
+      }
+    ],
+    "3.10 Write the Kotest property test for Design Property 5, deterministic complete simultaneous states": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562539
+      }
+    ],
+    "3.11 Write the Kotest property test for Design Property 6, one primary action per region": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562544
+      }
+    ],
+    "3.12 Write the Kotest property test for Design Property 7, compact task-priority order": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562550
+      }
+    ],
+    "3.13 Write the Kotest property test for Design Property 8, exact window classification": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562554
+      }
+    ],
+    "3.14 Write the Kotest property test for Design Property 9, presentation-only adaptive planning": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562559
+      }
+    ],
+    "3.15 Write the Kotest property test for Design Property 10, bounded wide-layout visibility": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562564
+      }
+    ],
+    "3.16 Write the Kotest property test for Design Property 11, text-size contrast classification": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562570
+      }
+    ],
+    "3.17 Write the Kotest property test for Design Property 12, semantic color contrast": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562574
+      }
+    ],
+    "3.18 Write the Kotest property test for Design Property 13, safe contrast fallback": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562579
+      }
+    ],
+    "3.19 Write the Kotest property test for Design Property 14, token type/shape invariants": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562583
+      }
+    ],
+    "3.20 Write the Kotest property test for Design Property 15, specific icon-action labels": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562588
+      }
+    ],
+    "4.1 Implement pure motion, reduced-motion, pending-action, and operation-feedback policies": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562593
+      }
+    ],
+    "4.2 Implement pure region-state, persistent-context, anchor, failure-isolation, next-action, and missing-asset policies": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562598
+      }
+    ],
+    "4.3 Write the Kotest property test for Design Property 16, bounded motion durations": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562603
+      }
+    ],
+    "4.4 Write the Kotest property test for Design Property 17, reduced-motion outcome equivalence": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562607
+      }
+    ],
+    "4.5 Write the Kotest property test for Design Property 18, duplicate pending-action rejection": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562612
+      }
+    ],
+    "4.6 Write the Kotest property test for Design Property 19, identified bounded feedback": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562617
+      }
+    ],
+    "4.7 Write the Kotest property test for Design Property 20, unambiguous actionable state presentation": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562622
+      }
+    ],
+    "4.8 Write the Kotest property test for Design Property 21, nonblocking context preservation": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562628
+      }
+    ],
+    "4.9 Write the Kotest property test for Design Property 22, deterministic anchor resolution": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562633
+      }
+    ],
+    "4.10 Write the Kotest property test for Design Property 23, isolated region failures": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562637
+      }
+    ],
+    "4.11 Write the Kotest property test for Design Property 24, explained nonretryable failures": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562641
+      }
+    ],
+    "4.12 Write the Kotest property test for Design Property 25, complete interactive semantics": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562645
+      }
+    ],
+    "4.13 Write the Kotest property test for Design Property 26, stable meaningful asset fallback": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562649
+      }
+    ],
+    "5.1 Implement `ErpValueFormatter`, metric/data-quality models, and exact chart normalization/selection policies": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562655
+      }
+    ],
+    "5.2 Implement filter-summary, adaptive-table, and row-action policies": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562660
+      }
+    ],
+    "5.3 Implement form field, focus/keyboard, submission-result, and consequential-confirmation policies": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562664
+      }
+    ],
+    "5.4 Implement navigation/modal descriptors, password semantics, and full-value redaction": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562669
+      }
+    ],
+    "5.5 Write the Kotest property test for Design Property 27, explicit consistent ERP formatting": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562673
+      }
+    ],
+    "5.6 Write the Kotest property test for Design Property 28, chart text-equivalent distinctions": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562678
+      }
+    ],
+    "5.7 Write the Kotest property test for Design Property 29, mathematically faithful chart scaling": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562682
+      }
+    ],
+    "5.8 Write the Kotest property test for Design Property 30, exact chart selection": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562687
+      }
+    ],
+    "5.9 Write the Kotest property test for Design Property 31, complete active-filter context": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562691
+      }
+    ],
+    "5.10 Write the Kotest property test for Design Property 32, complete adaptive-table fields": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562697
+      }
+    ],
+    "5.11 Write the Kotest property test for Design Property 33, truthful unavailable/abbreviated values": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562702
+      }
+    ],
+    "5.12 Write the Kotest property test for Design Property 34, explicit accessible fields": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562707
+      }
+    ],
+    "5.13 Write the Kotest property test for Design Property 35, logical focus/keyboard order": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562711
+      }
+    ],
+    "5.14 Write the Kotest property test for Design Property 36, trustworthy form failure/success context": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562715
+      }
+    ],
+    "5.15 Write the Kotest property test for Design Property 37, specific consequential confirmations": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562720
+      }
+    ],
+    "5.16 Write the Kotest property test for Design Property 38, one row target and separate secondary controls": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562725
+      }
+    ],
+    "5.17 Write the Kotest property test for Design Property 39, navigation/modal state communication": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562730
+      }
+    ],
+    "5.18 Write the Kotest property test for Design Property 40, matching password visibility semantics": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562735
+      }
+    ],
+    "5.19 Write the Kotest property test for Design Property 41, complete sensitive-value redaction": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562740
+      }
+    ],
+    "6.1 Implement migration-ledger, baseline-manifest, verification-matrix, and approval-gate validators": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562745
+      }
+    ],
+    "6.2 Write the Kotest property test for Design Property 42, valid migration records and baseline manifests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562750
+      }
+    ],
+    "6.3 Write the Kotest property test for Design Property 43, complete verification Cartesian product": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562755
+      }
+    ],
+    "6.4 Write the Kotest property test for Design Property 44, pilot approval gating": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562759
+      }
+    ],
+    "7.1 Implement a deterministic component catalog surface for every token, component state, theme, window class, font scale, and motion preference": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562764
+      }
+    ],
+    "7.2 Implement `GoalActionButton`, `BusinessStatusBadge`, `ContentRegion`, metric cards, and shared feedback": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562768
+      }
+    ],
+    "7.3 Implement `GoalTextField`, `GoalSelectField`, `FormScaffold`, and confirmation patterns": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562772
+      }
+    ],
+    "7.4 Implement `RegionStateHost` and structure-matched loading/state components": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562777
+      }
+    ],
+    "7.5 Implement `FilterContextBar`, adaptive record rows/tables, stable anchors, and paging footers": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562782
+      }
+    ],
+    "7.6 Implement `AccessibleBusinessChart` and Tank-level renderer": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562787
+      }
+    ],
+    "7.7 Implement `GoalTopAppBar`, adaptive `GoalNavigationSuite`, dialogs, and sheets": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562791
+      }
+    ],
+    "7.8 Add Compose unit and semantics tests for the complete component catalog": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562797
+      }
+    ],
+    "7.9 Add Light/Dark component screenshot goldens at required widths and font scales": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562802
+      }
+    ],
+    "7.10 Add instrumented accessibility, keyboard/directional focus, IME/inset, and modal tests for shared components": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562807
+      }
+    ],
+    "7.11 Add focused unit/interaction examples for boundaries and catalog registries": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562811
+      }
+    ],
+    "7.12 Integrate shared tokens/components under the existing root theme without migrating feature behavior": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562815
+      }
+    ],
+    "8. Foundation checkpoint": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562820
+      }
+    ],
+    "9.1 Replace Login rendering with shared theme, brand, field, action, state, and motion patterns at the existing route boundary": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562826
+      }
+    ],
+    "9.2 Add Login Compose semantics, screenshot, accessibility, resize/IME, and state tests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562830
+      }
+    ],
+    "9.3 Add Login functional/API/navigation regression tests against baseline": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562834
+      }
+    ],
+    "10.1 Wire `GoalNavigationSuite` into the existing app shell": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562838
+      }
+    ],
+    "10.2 Replace Home dashboard rendering with adaptive shared KPI, region, chart, refresh, and state components": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562843
+      }
+    ],
+    "10.3 Add Home/navigation semantics, screenshot, accessibility, adaptive, state, and reduced-motion tests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562848
+      }
+    ],
+    "10.4 Add Home/navigation role, workflow, API, and Back regression tests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562852
+      }
+    ],
+    "10.5 Add Home/navigation Macrobenchmark scenarios": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562857
+      }
+    ],
+    "11.1 Replace Reports discovery rendering with adaptive shared content regions and navigation cards": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562861
+      }
+    ],
+    "11.2 Replace Sales Summary rendering with shared filters, states, formatter, adaptive table, and anchoring": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562866
+      }
+    ],
+    "11.3 Replace Tank Stock Summary rendering with the accessible shared chart/tank renderer": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562871
+      }
+    ],
+    "11.4 Add Reports/Sales/Tank semantics, screenshot, accessibility, adaptive, state, and interaction tests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562876
+      }
+    ],
+    "11.5 Add Reports/Sales/Tank functional, API, filter, anchor, permission, and navigation regression tests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562880
+      }
+    ],
+    "11.6 Add Reports/Sales Macrobenchmark scenarios": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562888
+      }
+    ],
+    "12.1 Replace Create/Edit Cost Breakdown rendering with `FormScaffold` and shared fields/actions": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562897
+      }
+    ],
+    "12.2 Replace Cost Breakdown record editor and confirmations with shared modal patterns": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562907
+      }
+    ],
+    "12.3 Add Cost Breakdown semantics, screenshot, accessibility, adaptive, IME, modal, and state tests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562915
+      }
+    ],
+    "12.4 Add Cost Breakdown calculation, validation, API, storage, MVI, Koin, and navigation regression tests": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562927
+      }
+    ],
+    "12.5 Add Cost Breakdown Macrobenchmark scenarios": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562932
+      }
+    ],
+    "13.1 Generate pilot verification cases from the matrix generator": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562937
+      }
+    ],
+    "13.2 Run and approve deterministic pilot screenshot/golden suites in CI": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562942
+      }
+    ],
+    "13.3 Run pilot instrumentation and accessibility verification suites": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562946
+      }
+    ],
+    "13.4 Run pilot functional/API/domain/MVI/Koin/permission/navigation regression suites": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562951
+      }
+    ],
+    "13.5 Run pilot Macrobenchmarks and baseline comparisons": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562957
+      }
+    ],
+    "13.6 Generate immutable pilot approval-evidence manifests from passing artifacts": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562962
+      }
+    ],
+    "14. Required pilot product and brand approval checkpoint": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562969
+      }
+    ],
+    "15.1 Migrate Customer list/detail and payment actions": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562974
+      }
+    ],
+    "15.2 Migrate Products and raw-material/inventory surfaces": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562978
+      }
+    ],
+    "15.3 Migrate report modules, consolidated stock, and all remaining report families": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562982
+      }
+    ],
+    "15.4 Migrate Payments and Orders surfaces": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562987
+      }
+    ],
+    "15.5 Migrate Proforma Invoice surfaces": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562993
+      }
+    ],
+    "15.6 Migrate Notifications and Settings surfaces": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095562997
+      }
+    ],
+    "15.7 Migrate every remaining form, dialog, bottom sheet, and transient-message variation": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563003
+      }
+    ],
+    "15.8 Add mandatory per-family unit, Compose semantics, instrumentation, and functional regression suites": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563008
+      }
+    ],
+    "15.9 Add mandatory per-family screenshot/golden and accessibility matrix coverage": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563014
+      }
+    ],
+    "15.10 Extend Macrobenchmarks to Customer list/detail and other performance-critical migrated lists": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563019
+      }
+    ],
+    "16. Broad-rollout checkpoint": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563024
+      }
+    ],
+    "17.1 Remove accepted legacy renderers, obsolete feature flags, duplicated surface-local components, hard-coded colors/spacing/motion, and indication-free interaction implementations": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563028
+      }
+    ],
+    "17.2 Add static enforcement for semantic tokens, component variations, action/status terminology, pointer/ripple usage, and migration-ledger completeness": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563033
+      }
+    ],
+    "17.3 Run the full functional/API/domain/MVI/Koin/permission/navigation regression suite": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563038
+      }
+    ],
+    "17.4 Run the full required screenshot/golden and verification matrix": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563043
+      }
+    ],
+    "17.5 Run full accessibility and inclusive-interaction verification": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563047
+      }
+    ],
+    "17.6 Run the complete Macrobenchmark release suite against the matched Baseline Build": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563055
+      }
+    ],
+    "17.7 Finalize machine-validatable release evidence and migration statuses": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563060
+      }
+    ],
+    "18. Final checkpoint": [
+      {
+        "executionId": "0e851135-7d23-4ef6-8c63-2e59e81cac0c",
+        "chatSessionId": "8d5a1f9d-2abf-4bd0-aa8b-47fd7e2620b1",
+        "timestamp": 1788095563065
+      }
+    ]
+  }
+}

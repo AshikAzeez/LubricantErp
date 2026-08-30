@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AshikAzeez/LubricantErp/.kiro/specs/distinctive-ui-modernization/benchmark-conditions.schema.json",
+  "title": "Distinctive UI modernization benchmark conditions",
+  "description": "Deterministic benchmark fixture contract for Requirements 10.2-10.7, 16.3, 16.4 and Design Property 42.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "manifestId", "conditionSet", "representativeDataSet", "measurementPolicy", "workflows"],
+  "properties": {
+    "$schema": { "const": "./benchmark-conditions.schema.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "manifestId": { "const": "distinctive-ui-modernization-benchmark-conditions" },
+    "conditionSet": { "$ref": "#/$defs/conditionSet" },
+    "representativeDataSet": { "$ref": "#/$defs/dataSet" },
+    "measurementPolicy": { "$ref": "#/$defs/measurementPolicy" },
+    "workflows": { "type": "array", "minItems": 6, "items": { "$ref": "#/$defs/workflow" } }
+  },
+  "$defs": {
+    "conditionRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["device", "os", "build", "data", "network", "power", "thermal", "animation"],
+      "properties": {
+        "device": { "type": "string" }, "os": { "type": "string" }, "build": { "type": "string" },
+        "data": { "type": "string" }, "network": { "type": "string" }, "power": { "type": "string" },
+        "thermal": { "type": "string" }, "animation": { "type": "string" }
+      }
+    },
+    "conditionSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "device", "os", "build", "data", "network", "power", "thermal", "animation", "baselineRefs", "migrationRefs", "parityRequired"],
+      "properties": {
+        "id": { "type": "string" },
+        "device": { "type": "object", "minProperties": 1 }, "os": { "type": "object", "minProperties": 1 },
+        "build": { "type": "object", "minProperties": 1 }, "data": { "type": "object", "minProperties": 1 },
+        "network": { "type": "object", "minProperties": 1 }, "power": { "type": "object", "minProperties": 1 },
+        "thermal": { "type": "object", "minProperties": 1 }, "animation": { "type": "object", "minProperties": 1 },
+        "baselineRefs": { "$ref": "#/$defs/conditionRefs" }, "migrationRefs": { "$ref": "#/$defs/conditionRefs" },
+        "parityRequired": { "const": true }
+      }
+    },
+    "dataSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "recordCount", "seed", "generationRules", "sentinelRecords", "contentCoverage"],
+      "properties": {
+        "id": { "type": "string" }, "recordCount": { "const": 100 }, "seed": { "type": "integer" },
+        "generationRules": { "type": "object", "minProperties": 1 },
+        "sentinelRecords": { "type": "array", "minItems": 3, "items": { "type": "object", "minProperties": 1 } },
+        "contentCoverage": { "type": "array", "uniqueItems": true, "allOf": [{ "contains": { "const": "short-text" } }, { "contains": { "const": "long-text" } }, { "contains": { "const": "status" } }, { "contains": { "const": "currency" } }, { "contains": { "const": "quantity" } }, { "contains": { "const": "date" } }, { "contains": { "const": "stable-image-placeholder" } }] }
+      }
+    },
+    "measurementPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["warmUpRuns", "measuredRuns", "continuousScrollSeconds", "frameBudgetPassPercent", "p95RegressionLimitPercent", "readinessMarkers"],
+      "properties": {
+        "warmUpRuns": { "const": 5 }, "measuredRuns": { "const": 30 }, "continuousScrollSeconds": { "const": 10 },
+        "frameBudgetPassPercent": { "minimum": 90, "maximum": 100 }, "p95RegressionLimitPercent": { "maximum": 10 },
+        "readinessMarkers": { "type": "array", "minItems": 4, "items": { "enum": ["destination-title-visible", "first-task-critical-content-visible", "input-accepted", "back-behavior-available"] } }
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "baselineCaseIds", "activation", "actions", "scrollMeasurement", "metrics", "baselineBuild", "migrationBuild", "comparisonConditionSetId"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^BENCH-[A-Z0-9]+(?:-[A-Z0-9]+)*$" },
+        "baselineCaseIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^BASE-[A-Z0-9]+(?:-[A-Z0-9]+)*$" } },
+        "activation": { "type": "string", "minLength": 1 }, "actions": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "scrollMeasurement": { "type": ["object", "null"], "properties": { "recordCount": { "const": 100 }, "continuousSeconds": { "const": 10 } }, "required": ["recordCount", "continuousSeconds"], "additionalProperties": false },
+        "metrics": { "type": "array", "minItems": 1, "items": { "enum": ["frame-timing", "time-to-first-interactive-content", "navigation-transition"] } },
+        "baselineBuild": { "const": "baseline" }, "migrationBuild": { "const": "migration" }, "comparisonConditionSetId": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/AshikAzeez/LubricantErp/.kiro/specs/distinctive-ui-modernization/baseline-cases.schema.json",
+  "title": "Distinctive UI modernization deterministic baseline cases",
+  "description": "Machine-validatable baseline fixtures for Requirements 10.2-10.7, 16.3, 16.4 and Design Property 42.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "manifestId", "fixedContext", "roles", "accountStates", "conditionFixtures", "conditionSets", "inputFixtures", "outcomeProfiles", "cases"],
+  "properties": {
+    "$schema": { "const": "./baseline-cases.schema.json" },
+    "schemaVersion": { "const": "1.0.0" },
+    "manifestId": { "const": "distinctive-ui-modernization-baseline-cases" },
+    "fixedContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["locale", "timeZone", "clockInstant", "currency", "dateInputPattern", "dateApiPattern"],
+      "properties": {
+        "locale": { "const": "en-IN" },
+        "timeZone": { "const": "UTC" },
+        "clockInstant": { "type": "string", "format": "date-time" },
+        "currency": { "const": "INR" },
+        "dateInputPattern": { "const": "dd/MM/yyyy" },
+        "dateApiPattern": { "const": "yyyy-MM-dd" }
+      }
+    },
+    "roles": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/idLabel" } },
+    "accountStates": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/accountState" } },
+    "conditionFixtures": { "type": "array", "minItems": 8, "uniqueItems": true, "items": { "$ref": "#/$defs/conditionFixture" } },
+    "conditionSets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "conditionRefs"],
+        "properties": { "id": { "$ref": "#/$defs/id" }, "conditionRefs": { "$ref": "#/$defs/conditionRefs" } }
+      }
+    },
+    "inputFixtures": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/inputFixture" } },
+    "outcomeProfiles": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/outcomeProfile" } },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/case" }
+    }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Z0-9]+(?:-[A-Z0-9]+)*$" },
+    "idLabel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label"],
+      "properties": { "id": { "$ref": "#/$defs/id" }, "label": { "type": "string", "minLength": 1 } }
+    },
+    "accountState": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "authenticated", "sessionState", "permissions"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "authenticated": { "type": "boolean" },
+        "sessionState": { "enum": ["none", "valid", "expired"] },
+        "permissions": { "type": "array", "uniqueItems": true, "items": { "type": "string" } }
+      }
+    },
+    "conditionFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "values"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["device", "os", "build", "data", "network", "power", "thermal", "animation"] },
+        "values": { "type": "object", "minProperties": 1, "additionalProperties": true }
+      }
+    },
+    "inputFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "values"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "values": { "type": "object", "minProperties": 1, "additionalProperties": true }
+      }
+    },
+    "validationOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accepted", "rejected", "messages"],
+      "properties": {
+        "accepted": { "type": "array", "items": { "type": "string" } },
+        "rejected": { "type": "array", "items": { "type": "string" } },
+        "messages": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "navigationOutcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["destination", "modalOutcome", "visibleBack", "systemBack", "topLevelBack"],
+      "properties": {
+        "destination": { "type": "string" },
+        "modalOutcome": { "type": "string" },
+        "visibleBack": { "type": "string" },
+        "systemBack": { "type": "string" },
+        "topLevelBack": { "type": "string" }
+      }
+    },
+    "outcomeProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayedValues", "submittedValues", "calculations", "validation", "navigation"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "displayedValues": { "type": "object", "minProperties": 1, "additionalProperties": true },
+        "submittedValues": { "type": "object", "additionalProperties": true },
+        "calculations": { "type": "object", "additionalProperties": true },
+        "validation": { "$ref": "#/$defs/validationOutcome" },
+        "navigation": { "$ref": "#/$defs/navigationOutcome" }
+      }
+    },
+    "conditionRefs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["device", "os", "build", "data", "network", "power", "thermal", "animation"],
+      "properties": {
+        "device": { "$ref": "#/$defs/id" },
+        "os": { "$ref": "#/$defs/id" },
+        "build": { "$ref": "#/$defs/id" },
+        "data": { "$ref": "#/$defs/id" },
+        "network": { "$ref": "#/$defs/id" },
+        "power": { "$ref": "#/$defs/id" },
+        "thermal": { "$ref": "#/$defs/id" },
+        "animation": { "$ref": "#/$defs/id" }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "surfaceId", "workflow", "inputFixtureId", "roleId", "accountStateId", "outcomeProfileId"],
+      "oneOf": [
+        { "required": ["conditionRefs"] },
+        { "required": ["conditionSetId"] }
+      ],
+      "properties": {
+        "id": { "type": "string", "pattern": "^BASE-[A-Z0-9]+(?:-[A-Z0-9]+)*$" },
+        "surfaceId": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+        "workflow": { "type": "string", "minLength": 1 },
+        "inputFixtureId": { "$ref": "#/$defs/id" },
+        "roleId": { "$ref": "#/$defs/id" },
+        "accountStateId": { "$ref": "#/$defs/id" },
+        "conditionRefs": { "$ref": "#/$defs/conditionRefs" },
+        "conditionSetId": { "$ref": "#/$defs/id" },
+        "outcomeProfileId": { "$ref": "#/$defs/id" }
+      }
+    }
+  }
+}
